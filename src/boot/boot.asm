@@ -5,7 +5,7 @@ CODE_SEG equ gdt_code - gdt_init
 DATA_SEG equ gdt_data - gdt_init
 
 _init:
-  jmp short init                                ; jump to the init routine
+  jmp short init                                  ; jump to the init routine
   nop
   
  times 33 db 0                                  ; config parameter block to prevent usb emulation from filling empty bits
@@ -21,8 +21,6 @@ mount:
   mov ss, ax
   mov sp, 0x7c00                                ; move stack pointer
   sti                                           ; enable interrupts
-
-  jmp $ 
 
 .load_protected:
   cli                                           ; clear interrupts
@@ -45,10 +43,8 @@ gdt_code:                                       ; - CS should point to this
   db 11001111b                                  ; high 4 bit flags and low 4 bit flags
   db 0                                          ; base 24-31 bits
 
-                                                ; offset 0x10
 gdt_data:                                       ; linked to DS, SS, ES, FS, GS
   dw 0xffff
-  dw 0xffff  
   dw 0  
   db 0  
   db 0x92                                       ; amend byte bitmask
@@ -63,21 +59,56 @@ gdt_descriptor:
 
 [BITS 32]
 load32:
-  mov ax, DATA_SEG
-  mov ds, ax
-  mov es, ax
-  mov fs, ax
-  mov gs, ax
-  mov ss, ax
-  mov ebp, 0x00200000
-  mov esp, ebp                                  ; set stack pointer
+  mov eax, 1                                    ; eax register to represent starting sector
+  mov ecx, 100                                  ; total sectors to load - value  == /dev/zero sectors written (see Makefile)
+  mov edi,  0x0100000                           ; 1MB
+  call ata_lba_read 
+  jmp CODE_SEG:0x0100000
 
-                                                ; enable the A20 line
-  in al, 0x92
-  or al, 2
-  out 0x92, al
-  
-  jmp $
+ata_lba_read:
+  mov ebx, eax                                  ; backup the LBA
+  shr eax, 24                                   ; send the highest 8 bits of the LBA to the harddisk ctrlr
+  or eax, 0xE0                                  ; select the master drive
+  mov dx, 0x1F6
+  out dx, al
+                                                ; sent the total sectors to read
+  mov eax, ecx
+  mov dx, 0x1F2
+  out dx, al
+                                                ; send yet more bits to the LBA
+  mov eax, ebx                                  ; restore backup LBA
+  mov dx, 0x1F3
+  out dx, al
+
+  mov dx, 0x1F4
+  mov eax, ebx                                  ; restore backup LBA
+  shr eax, 8
+  out dx, al
+                                                ; send upper 16 bits of the LBA
+  mov dx, 0x1F5
+  mov eax, ebx                                  ; restore backup LBA
+  shr eax, 16
+  out dx, al
+
+  mov dx, 0x1f7
+  mov al, 0x20
+  out dx, al
+
+.next_sector:                                   ; read all sectors into memory
+  push ecx
+
+.try:                                           ; check if we need to read
+  mov dx, 0x1f7
+  in al, dx
+  test al, 8
+  jz .try
+
+  mov ecx, 256                                  ; move 256 words at a time
+  mov dx, 0x1F0
+  rep insw
+  pop ecx                                       
+  loop .next_sector
+  ret
 
 times 510-($ - $$) db 0                         ; fill 510 bytes 
 dw 0xAA55

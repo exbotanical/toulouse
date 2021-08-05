@@ -15,7 +15,7 @@ setup () {
 
 main () {
   setup
-  make all
+  make emu
 }
 
 ##############################
