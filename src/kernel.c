@@ -30,7 +30,7 @@ size_t strlen (const char* str) {
 
   while (str[len]) {
     len++;
-  } 
+  }
 
   return len;
 }
@@ -61,7 +61,8 @@ void print (const char* str) {
     writechar(str[i], 9);
   }
 }
-void kernel_main (void) { 
+
+void kernel_main (void) {
   term_init();
-  print("T\nT\nToulouse\n!!");
+  print("Welcome to Toulouse\n");
 }

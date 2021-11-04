@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.html": "html",
+    "memory.h": "c",
+    "idt.h": "c"
+  }
+}

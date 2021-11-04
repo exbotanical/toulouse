@@ -5,7 +5,7 @@ CODE_SEG equ gdt_code - gdt_init
 DATA_SEG equ gdt_data - gdt_init
 
 _init:
-  jmp short init                                  ; jump to the init routine
+  jmp short init                                ; jump to the init routine
   nop
   
  times 33 db 0                                  ; config parameter block to prevent usb emulation from filling empty bits

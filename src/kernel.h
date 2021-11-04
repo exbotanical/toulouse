@@ -6,4 +6,6 @@
 
 void kernel_main (void);
 
-#endif /* KERNE_H */
+void print (const char* str);
+
+#endif /* KERNEL_H */

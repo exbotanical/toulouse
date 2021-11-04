@@ -4,6 +4,7 @@ EMULATOR=qemu-system-x86_64
 
 BOOTLOADER_FLAGS=-f bin 
 KERNEL_FLAGS=-f elf -g
+IDT_FLAGS=-f elf -g
 CC_FLAGS=-g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 EMU_FLAGS=-hda
 
@@ -16,12 +17,20 @@ KERNEL_ASM_OBJ=build/kernel.asm.o
 KERNEL_OBJ=build/kernel.o
 KERNEL_BIN=bin/kernel.bin
 
+IDT_ASM_SRC=./src/idt/idt.asm
+IDT_ASM_OBJ=./build/idt/idt.asm.o
+IDT_OBJ=./build/idt/idt.o
+IDT_SRC=./src/idt/idt.c
+
+MEMORY_OBJ=./build/memory/memory.o
+MEMORY_SRC=./src/memory/memory.c
+
 FULL_KERNEL_OBJ=build/kernelfull.o
 OS_BIN=bin/os.bin
 
 LINKER_SRC=src/linker.ld
 
-BUILD_DEPS=$(KERNEL_ASM_OBJ) $(KERNEL_OBJ)
+BUILD_DEPS=$(KERNEL_ASM_OBJ) $(KERNEL_OBJ) $(IDT_ASM_OBJ) $(IDT_OBJ) $(MEMORY_OBJ)
 INCLUDES= -I./src
 
 # build
@@ -46,6 +55,10 @@ $(BOOTLOADER_BIN): $(BOOTLOADER_SRC)
 $(KERNEL_ASM_OBJ): $(KERNEL_ASM_SRC)
 	$(ASSEMBLER) $(KERNEL_FLAGS) $(KERNEL_ASM_SRC) -o $(KERNEL_ASM_OBJ)
  
+# build idt object file
+$(IDT_ASM_OBJ): $(IDT_ASM_SRC)
+	$(ASSEMBLER) $(IDT_FLAGS) $(IDT_ASM_SRC) -o $(IDT_ASM_OBJ)
+ 
 # build final object file
 $(KERNEL_BIN): $(BUILD_DEPS)
 	i686-elf-ld -g -relocatable $(BUILD_DEPS) -o $(FULL_KERNEL_OBJ)
@@ -54,6 +67,14 @@ $(KERNEL_BIN): $(BUILD_DEPS)
 # build kernel source file
 $(KERNEL_OBJ): $(KERNEL_SRC)
 	$(CC) $(INCLUDES) $(CC_FLAGS) -std=gnu99 -c $(KERNEL_SRC) -o $(KERNEL_OBJ)
+
+# build idt source file
+$(IDT_OBJ): $(IDT_SRC)
+	$(CC) $(INCLUDES) $(CC_FLAGS) -std=gnu99 -c $(IDT_SRC) -o $(IDT_OBJ)
+
+# build memory source file
+$(MEMORY_OBJ): $(MEMORY_SRC)
+	$(CC) $(INCLUDES) $(CC_FLAGS) -std=gnu99 -c $(MEMORY_SRC) -o $(MEMORY_OBJ)
 
 clean:
 	rm  -f ./bin/*.bin 
