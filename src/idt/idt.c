@@ -29,7 +29,7 @@ void idt_init () {
   memset(idt_descriptors, 0, sizeof(idt_descriptors));
 
   idtr_descriptor.limit = sizeof(idt_descriptors) - 1;
-  idtr_descriptor.base = idt_descriptors;
+  idtr_descriptor.base = (uint32_t) idt_descriptors;
 
   idt_set(0, idt_zero);
 

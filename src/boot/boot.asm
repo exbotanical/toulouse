@@ -7,14 +7,14 @@ DATA_SEG equ gdt_data - gdt_init
 _init:
   jmp short init                                ; jump to the init routine
   nop
-  
+
  times 33 db 0                                  ; config parameter block to prevent usb emulation from filling empty bits
 
 init:
-  jmp 0:mount                                   ; change code segment 
+  jmp 0:mount                                   ; change code segment
 
 mount:
-  cli                                           ; clear interrupts 
+  cli                                           ; clear interrupts
   mov ax, 0x00                                  ; set registers manually as we do not know what their state will be
   mov ds, ax
   mov es, ax
@@ -30,7 +30,7 @@ mount:
   mov cr0, eax
   jmp CODE_SEG:load32                           ; switch to code selector and jump to load32 addr
 
-gdt_init: 
+gdt_init:
 gdt_null:                                       ; gdt
   dd 0x0                                        ; null descriptor
   dd 0x0
@@ -45,10 +45,10 @@ gdt_code:                                       ; - CS should point to this
 
 gdt_data:                                       ; linked to DS, SS, ES, FS, GS
   dw 0xffff
-  dw 0  
-  db 0  
+  dw 0
+  db 0
   db 0x92                                       ; amend byte bitmask
-  db 11001111b  
+  db 11001111b
   db 0
 
 gdt_end:
@@ -62,7 +62,7 @@ load32:
   mov eax, 1                                    ; eax register to represent starting sector
   mov ecx, 100                                  ; total sectors to load - value  == /dev/zero sectors written (see Makefile)
   mov edi,  0x0100000                           ; 1MB
-  call ata_lba_read 
+  call ata_lba_read
   jmp CODE_SEG:0x0100000
 
 ata_lba_read:
@@ -106,9 +106,9 @@ ata_lba_read:
   mov ecx, 256                                  ; move 256 words at a time
   mov dx, 0x1F0
   rep insw
-  pop ecx                                       
+  pop ecx
   loop .next_sector
   ret
 
-times 510-($ - $$) db 0                         ; fill 510 bytes 
+times 510-($ - $$) db 0                         ; fill 510 bytes
 dw 0xAA55

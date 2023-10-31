@@ -70,11 +70,11 @@ $(KERNEL_OBJ): $(KERNEL_SRC)
 
 # build idt source file
 $(IDT_OBJ): $(IDT_SRC)
-	$(CC) $(INCLUDES) $(CC_FLAGS) -std=gnu99 -c $(IDT_SRC) -o $(IDT_OBJ)
+	$(CC) $(INCLUDES) -I./src/idt  $(CC_FLAGS) -std=gnu99 -c $(IDT_SRC) -o $(IDT_OBJ)
 
 # build memory source file
 $(MEMORY_OBJ): $(MEMORY_SRC)
-	$(CC) $(INCLUDES) $(CC_FLAGS) -std=gnu99 -c $(MEMORY_SRC) -o $(MEMORY_OBJ)
+	$(CC) $(INCLUDES) -I./src/memory $(CC_FLAGS) -std=gnu99 -c $(MEMORY_SRC) -o $(MEMORY_OBJ)
 
 clean:
 	rm  -f ./bin/*.bin 

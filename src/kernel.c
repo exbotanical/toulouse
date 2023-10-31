@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "idt.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -65,4 +66,7 @@ void print (const char* str) {
 void kernel_main (void) {
   term_init();
   print("Welcome to Toulouse\n");
+
+  // initialize interrupt descriptor table
+  idt_init();
 }

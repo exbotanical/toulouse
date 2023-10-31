@@ -1,7 +1,14 @@
 {
   "files.associations": {
     "*.html": "html",
+    "*.tsx": "typescriptreact",
+    "*.ts": "typescript",
+    "*.h": "c",
+    "*.bash": "shellscript",
+    "*.asm": "gas",
+    ".vimrc": "viml",
     "memory.h": "c",
-    "idt.h": "c"
+    "idt.h": "c",
+    "random": "c"
   }
 }
