@@ -14,13 +14,6 @@ _init:
 ; Prevent BPB overwriting the next ~30 bytes of our code on some devices e.g. USB
 times 33 - ($ - _init) db 0
 
-handle_zero:
-  mov ah, 0x0e
-  mov al, 'A'
-  mov bx, 0x00
-  int 0x10
-  iret
-
 init:
   ; Ensure we're at 0x7c00 in our code
   jmp 0:start
@@ -42,7 +35,7 @@ start:
 
   ; Move the message into si at DS:SI
   mov si, load_msg
-  call print
+  call print16
 
 .load_protected:
   cli
@@ -55,8 +48,6 @@ start:
   mov cr0, eax
 
   jmp CODE_SEG:load32
-
-  sti
 
 gdt_start:
 
@@ -87,7 +78,7 @@ gdt_descriptor:
   dw gdt_end - gdt_start - 1
   dd gdt_start ; offset
 
-print:
+print16:
 .loop:
   ; Write char + attr
   ; http://www.ctyme.com/intr/rb-0099.htm
@@ -96,7 +87,7 @@ print:
   ; Keep this to zero - the visible page
   mov bh, 0x00
   ; Set fg color bits
-  mov bl, 0x05
+  mov bl, 0x03
   ; Set num times to write char
   mov cx, 0x01
   ; Load a byte into the al register and increment si
@@ -133,21 +124,92 @@ print:
   ret
 
 load_msg:
-  db 'Hello, world!', 0
+  db 'Preparing to load kernel...', 0
 
+; In protected mode now. Time to jump to the kernel in memory
 [BITS 32]
 load32:
-  mov ax, DATA_SEG
-  mov ds, ax
-  mov es, ax
-  mov fs, ax
-  mov gs, ax
-  mov ss, ax
-  ; Choose a memory address for a decent stack size
-  mov ebp, 0x00200000
-  mov esp, ebp
-  jmp $
+  ; Starting sector to load from (0 is the boot sector, of course)
+  mov eax, 1
+  ; Total number of sectors to load
+  ; However many sectors we padded with via dd
+  mov ecx, 100
+  ; 1MG - the address we want to load into
+  mov edi, 0x0100000 ; TODO: const
+  call ata_lba_read
+  jmp CODE_SEG:0x0100000
 
+; Because we're in protected mode now, we don't have interrupts like 13h.
+; Instead, we'll have to perform direct disk access via I/O ports.
+; This is gonna suck...
+; https://wiki.osdev.org/ATA_read/write_sectors
+ata_lba_read:
+  ; Save the passed LBA for later
+  mov ebx, eax
+
+  ; Send the highest 8 bits of the LBA to the hard disk controller
+  ; by shifting eax 24 bits to the right (32 - 24 = 8)
+  shr eax, 24
+  ; Select master drive
+  or eax, 0xe0
+  ; Grab the port number for the device
+  mov dx, 0x1f6
+  ; Write isolated 8 bits of eax to the I/O port (the rest is zeros after our >>)
+  out dx, al
+
+  ; Send the total num sectors to read
+  mov eax, ecx
+  mov dx, 0x1f2
+  out dx, al
+
+  ; Send LBA bits 0 - 7
+  ; Restore the backup LBA into eax
+  mov eax, ebx
+  mov dx, 0x1f3
+  out dx, al
+
+  ; Send LBA bits 8 - 15
+  mov dx, 0x1f4
+  ; Restore the backup again just in case we somehow clobbered eax since the last time
+  mov eax, ebx
+  shr eax, 8
+  out dx, al
+
+  ; Send LBA bits 16 - 23
+  mov dx, 0x1f5
+  mov eax, ebx
+  shr eax, 16
+  out dx, al
+
+  ; Use the command port and read with retry
+  mov dx, 0x1f7
+  mov al, 0x20
+  out dx, al
+
+; Try to read all sectors into memory
+.next_sector:
+  push ecx
+
+; The controller is slow. Keep checking until it's ready
+; for us to read.
+.still_going:
+  mov dx, 0x1f7
+  in al, dx
+  test al, 8
+  jz .still_going
+
+; Reading 256 words at a time
+  mov ecx, 256
+  mov dx, 0x1f0
+  ; Read word from port and store in the address we want to load into
+  ; (above specified as 1MB, or address 0x0100000)
+  ; We rep by ecx times (256 times)
+  rep insw
+  ; Grab the number of sectors we wanted to read
+  pop ecx
+  ; Loop decrements ecx
+  loop .next_sector
+  ret
 
 ; $ - current address in section
 ; $$ - start address of section
