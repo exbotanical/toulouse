@@ -53,6 +53,7 @@ $(OBJ_FILES): $(BUILD_OUTDIR)/%.o: $(KERNEL_SRC_DIR)/%.c
 setup:
 	mkdir -p $(BIN_OUTDIR) $(BUILD_OUTDIR)
 
+# Exit Qemu focus trap with ctrl+alt+g
 run:
 	$(EMU) -hda $(OS_TARGET)
 

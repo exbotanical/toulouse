@@ -76,9 +76,9 @@ main () {
   export TARGET=i686-elf
   export PATH="$PREFIX/bin:$PATH"
 
-  # install_base_deps
-  # setup_binutils
-  # setup_gcc
+  install_base_deps
+  setup_binutils
+  setup_gcc
 }
 
 main

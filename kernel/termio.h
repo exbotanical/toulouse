@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#define VGA_ADDR 0xb8000
-#define VGA_WIDTH 80
+#define VGA_ADDR   0xb8000
+#define VGA_WIDTH  80
 #define VGA_HEIGHT 20
 
 void term_init(void);
