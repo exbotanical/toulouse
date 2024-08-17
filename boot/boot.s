@@ -5,7 +5,6 @@
 # affecting the size of registers, instructions, and memory addresses.
 
 # Note, we can use the segment registers to reference addresses up to 1Mb.
-
 .code16
 
 # This is our entry-point at 0x7C00
@@ -13,51 +12,62 @@
 
 # Must be the first code; all addresses are relative to this offset 0x7C00
 _start:
-  mov $INIT_MSG, %si
+  # Move the stack sufficiently far away from 0x7C00 to avoid overwriting it
+  # when we read from disk.
+  mov $0x9000, %bp
+  mov %bp, %sp
+
+  mov $INIT_REAL_MODE_MSG, %si
   call print_string
-  jmp _start
+  call print_newline
+  call load_protected
 
+.include "boot/disk.s"
+.include "boot/gdt.s"
+.include "boot/utils-16.s"
+.include "boot/utils-32.s"
 
-# The BIOS loads our bootloader from the first sector of the disk; it loads nothing more.
-# Presumably, our OS is larger than 512b therefore we must read it into memory from disk.
+load_protected:
+  # Disable interrupts
+  # We do this because once we switch to 32-bit protected mode, the IVT that the BIOS
+  # has established at the beginning of memory will be moot. If the CPU somehow did map
+  # an interrupt to a BIOS routine at this point, the CPU would crash.
+  cli
+  # Load the GDT
+  lgdt (gdt_descriptor)
+  # Set the first bit of the %cr0 control register
+  mov %cr0, %eax
+  or $0x01, %eax
+  mov %eax, %cr0
+  # Far jump (i.e. into a new segment) to the 32-bit section.
+  # By doing a far jump, we force a CPU cache flush and thereby
+  # get rid of any pre-fetched 16-bit instructions.
+  jmp *CODE_SEG + init_prot_mode
 
-# dh = num_sectors_to_load
-disk_load:
-  push %dx
+.code32
+init_prot_mode:
+  # Update the segment registers and point them at the GDT data selector
+  mov $DATA_SEG, %ax
+  mov %ax, %ds
+  mov %ax, %ss
+  mov %ax, %es
+  mov %ax, %fs
+  mov %ax, %gs
 
-  # BIOS ISR for reading sector(s) from disk
-  # https://www.ctyme.com/intr/rb-0607.htm
-  mov $0x02, %ah
-  # Read %dh sectors
-  mov %dh, %al
-  # Start reading from the second sector (i.e. the one after the 512b bootloader)
-  mov $2, %cl
-  # Select cylinder 0
-  mov $0, %ch
-  # Select head 0
-  mov $0, %dh
-  int $0x13
+  # Point the stack at the top of the free memory
+  mov $0x90000, %ebp
+  mov %ebp, %esp
+  call begin_prot_mode
 
-  # The BIOS will set the carry flag if there was a fault
-  jc disk_error
-
-  # Restore %dx - the high bits is the original num sectors arg
-  pop %dx
-  # Check the number of sectors actually read and compare to expected (%dh)
-  cmp %al, %dh
-  jne disk_error
-
-  ret
-
-disk_error:
-  mov $DISK_ERR_MSG, %si
-  call print_string
+begin_prot_mode:
+  mov $INIT_PROT_MODE_MSG, %ebx
+  call print_string_32
   jmp .
 
-.include "boot/utils.s"
+INIT_REAL_MODE_MSG: .asciz "Bootloader loaded in 16-bit real mode"
+INIT_PROT_MODE_MSG: .asciz "Bootloader loaded in 32-bit protected mode"
 
-INIT_MSG: .asciz "Bootloader loaded"
-DISK_ERR_MSG: .asciz "Disk read error"
+
 # When the machine boots, the BIOS doesn't know how to load the OS;
 # it delegates this responsibility to the boot sector.
 # The boot sector is expected to be 512 bytes found in the first sector of the disk.
