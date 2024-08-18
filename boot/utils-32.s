@@ -7,6 +7,7 @@
 
 # To calculate char position, we can use the following formula: 0xb8000 + 2 * (row * 80 + col)
 
+.code32
 .equ VIDEO_MEMORY, 0xB8000
 
 print_string_32:
@@ -15,7 +16,7 @@ print_string_32:
 
 print_string_32_loop:
   # Set char at the string pointer in the low bits
-  mov (%ebx), %al
+  movb (%ebx), %al
   # Set the attributes in the high bits (white fg, black bg)
   mov $0x0F, %ah
 
@@ -26,7 +27,7 @@ print_string_32_loop:
   # Place our filled out %ax register into the VGA cell
   mov %ax, (%edx)
   # Next character (str++)
-  add $1, %ebx
+  inc %ebx
   # Next VGA position
   add $2, %edx
   jmp print_string_32_loop
