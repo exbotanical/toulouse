@@ -43,6 +43,7 @@ load_rm:
   call print_string
   call print_newline
 
+  call try_enable_a20_via_bios
   # Disable interrupts
   # We do this because once we switch to 32-bit protected mode, the IVT that the BIOS
   # has established at the beginning of memory will be moot. If the CPU somehow did map
@@ -80,6 +81,10 @@ load_pm:
 
   mov $INIT_PROT_MODE_MSG, %ebx
   call print_string_32
+
+  # We now need to enable the A20 line.
+
+
   jmp .
 
 ### GDT ###
@@ -153,6 +158,7 @@ gdt_descriptor:
 
 .include "boot/utils-16.s"
 .include "boot/utils-32.s"
+.include "boot/a20.s"
 
 INIT_REAL_MODE_MSG: .asciz "Bootloader loaded in 16-bit real mode"
 INIT_PROT_MODE_MSG: .asciz "Bootloader loaded in 32-bit protected mode"
