@@ -61,8 +61,7 @@ try_enable_a20_via_bios:
 
 fail:
   mov $EMSG_BIOS_A20, %si
-  call print_string
-  call print_newline
+  call print_ln_16
 
 done:
   popa

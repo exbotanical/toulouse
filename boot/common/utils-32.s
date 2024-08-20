@@ -6,7 +6,6 @@
 # the second encodes char attributes, such as fg/bg color, blinking, etc.
 
 # To calculate char position, we can use the following formula: 0xb8000 + 2 * (row * 80 + col)
-
 .code32
 .equ VIDEO_MEMORY, 0xB8000
 

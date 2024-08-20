@@ -1,3 +1,9 @@
+# print_ln(%si = "str")
+print_ln_16:
+  call print_string
+  call print_newline
+  ret
+
 # print_string(%si = "str")
 print_string:
   # BIOS ISR (interrupt service routine) for teletype mode
