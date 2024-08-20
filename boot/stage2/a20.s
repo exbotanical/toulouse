@@ -71,7 +71,7 @@ done:
 # Return register: %eax
 # Retval: 0 if disabled, 1 if enabled
 is_a20_enabled:
-  pushal
+  # pushal TODO:
   # Odd mb address
   mov $0x112345, %edi
   # Even mb address
@@ -89,7 +89,7 @@ disabled:
 enabled:
   mov $1, %eax
 
-  popal
+  # popal
   ret
 
 # Tries to enable the A20 line via the keyboard controller.

@@ -9,6 +9,11 @@
 .code32
 .equ VIDEO_MEMORY, 0xB8000
 
+print_ln_32:
+  call print_string_32
+  call print_newline_32
+  ret
+
 print_string_32:
   pusha
   mov $VIDEO_MEMORY, %edx
@@ -33,4 +38,17 @@ print_string_32_loop:
 
 print_string_32_done:
   popa
+  ret
+
+print_newline_32:
+  mov $VIDEO_MEMORY, %edx
+
+  movb $0x0a, %al
+  movb $0x0d, %al
+  # Set the attributes in the high bits (white fg, black bg)
+  mov $0x0F, %ah
+  mov %ax, (%edx)
+
+  add $2, %edx
+
   ret
