@@ -51,6 +51,8 @@ load_pm:
   cmp $1, %eax
   je a20_enabled
 
+  # TODO: test
+  # TODO: improve w/retries, extra docs (+ bit checks etc)
   mov $A20_NOT_ENABLED_BIOS_MSG, %ebx
   call print_ln_32
 
@@ -75,6 +77,7 @@ a20_enabled:
   mov $A20_ENABLED_MSG, %ebx
   call print_ln_32
 
+  jmp 0x0100000
   hlt
 
 INIT_REAL_MODE_STAGE2_MSG: .asciz "Stage 2 bootloader loaded in 16-bit real mode"

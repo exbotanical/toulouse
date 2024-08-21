@@ -28,7 +28,7 @@ stage1_end:
 
 stage2_start:
 .include "boot/stage2/main.s"
-.fill 512 - (. - stage2_start), 1, 0
+.align 512
 stage2_end:
 
 kernel_start:
