@@ -77,7 +77,9 @@ a20_enabled:
   mov $A20_ENABLED_MSG, %ebx
   call print_ln_32
 
-  jmp 0x0100000
+  call kernel_start
+
+  jmp .
   hlt
 
 INIT_REAL_MODE_STAGE2_MSG: .asciz "Stage 2 bootloader loaded in 16-bit real mode"

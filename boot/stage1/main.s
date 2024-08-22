@@ -58,6 +58,7 @@ load_stage2:
   xor %dx, %dx
   # Buffer offset i.e. where we'll jump to
   lea stage2_start, %bx
+
   # Clear the buffer segment
   call disk_load_16
 
