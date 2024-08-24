@@ -1,6 +1,7 @@
+#include "boot.h"
 
-__attribute__((section(".kernel"))) void
-kernel_startx (void) {
+void
+load_kernel (void) {
   asm("mov $0xB8000, %edx\n"
       "movb $'X', %al\n"
       "mov $0x0F, %ah\n"

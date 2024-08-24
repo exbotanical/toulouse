@@ -81,7 +81,7 @@ disk_load_16:
 
 .disk_error:
   mov $DISK_ERR_MSG, %si
-  call print_string
+  call print_string_16
   jmp .
 
 DISK_ERR_MSG: .asciz "Disk read error"

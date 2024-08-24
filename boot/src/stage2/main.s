@@ -41,7 +41,7 @@ load_pm:
   mov %ax, %gs
 
   # Move the stack sufficiently far away from the bootloader.
-  mov $0x90000, %ebp
+  mov $0x9000, %ebp
   mov %ebp, %esp
 
   mov $INIT_PROT_MODE_MSG, %ebx
@@ -77,10 +77,9 @@ a20_enabled:
   mov $A20_ENABLED_MSG, %ebx
   call print_ln_32
 
-  call kernel_start
+  call load_kernel
 
   jmp .
-  hlt
 
 INIT_REAL_MODE_STAGE2_MSG: .asciz "Stage 2 bootloader loaded in 16-bit real mode"
 ATTEMPT_A20_VIA_BIOS_MSG: .asciz "Attempting to enable the A20 line via the BIOS"
@@ -90,6 +89,7 @@ A20_NOT_ENABLED_KEYCTRL_MSG: .asciz "The A20 line could not be enabled via the k
 A20_NOT_ENABLED_FAST_MSG: .asciz "The A20 line could not be enabled via the Fast A20. Non-recoverable exception. Halting..."
 A20_ENABLED_MSG: .asciz "The A20 line has been enabled."
 
-.include "boot/common/utils-32.s"
-.include "boot/stage2/a20.s"
-.include "boot/stage2/gdt.s"
+.include "src/common/utils-16.s"
+.include "src/common/utils-32.s"
+.include "src/stage2/a20.s"
+.include "src/stage2/gdt.s"

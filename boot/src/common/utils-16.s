@@ -1,11 +1,11 @@
 # print_ln(%si = "str")
 print_ln_16:
-  call print_string
+  call print_string_16
   call print_newline
   ret
 
-# print_string(%si = "str")
-print_string:
+# print_string_16(%si = "str")
+print_string_16:
   # BIOS ISR (interrupt service routine) for teletype mode
   # https://www.ctyme.com/intr/rb-0106.htm
   mov $0xE, %ah
@@ -15,17 +15,15 @@ print_char:
   # loads the byte from the address in si into al and increments si
   lodsb
   cmp $0, %al
-  je print_string_done
+  je print_string_16_done
   # The actual interrupt which runs the ISR
   int $0x10
   jmp print_char
 
-print_string_done:
+print_string_16_done:
   ret
 
 print_newline:
-  pusha
-
   mov $0xE, %ah
   # Newline
   mov $0x0a, %al
@@ -34,7 +32,6 @@ print_newline:
   mov $0x0d, %al
   int $0x10
 
-  popa
   ret
 
 # print_hex(%dx = 0x1234)
@@ -87,7 +84,7 @@ place_char:
 
 print_hex_done:
   mov $HEX_OUT, %si
-  call print_string
+  call print_string_16
 
   popa
   ret

@@ -1,7 +1,14 @@
+# The BIOS loads us into 16-bit real mode for backward compatibility purposes (i.e. old 8086 processors).
+# That is, in this mode memory addresses are calculated using 16-bit values;
+# we can directly address up to 64kb of memory, starting from address 0x00000 to 0xFFFFF.
+# Therefore, we instruct the assembler to generate 16-bit machine code here,
+# affecting the size of registers, instructions, and memory addresses.
+# Note, we can use the segment registers to reference addresses up to 1Mb.
 .code16
 
 # This is our entry-point at 0x7C00
 .global _start
+.extern stage2_start
 
 # https://wiki.osdev.org/FAT#BPB_(BIOS_Parameter_Block)
 # Prevent BIOS from overwriting the next ~30 bytes of our code on some devices e.g. USB
@@ -48,17 +55,13 @@ load_rm:
 
 load_stage2:
   # Start sector
-  # For example, if _start = 0x7c00 and stage2_start (512 bytes away) is 0x7e00,
-  # then the diff is 0x0200; divided by 512, that's 1. We start at the second sector.
-  lea (stage2_start - _start)/512, %ax
+  lea stage2_sector, %ax
   # Num 512b sectors to read
-  lea (kernel_end - stage2_start)/512, %cx
-
+  mov $num_sectors, %cx
   # Clear %dx - this will be the buffer base
   xor %dx, %dx
   # Buffer offset i.e. where we'll jump to
   lea stage2_start, %bx
-
   # Clear the buffer segment
   call disk_load_16
 
@@ -67,5 +70,5 @@ load_stage2:
 # TODO: logging/debug mode
 INIT_REAL_MODE_MSG: .asciz "Stage 1 bootloader loaded in 16-bit real mode"
 
-.include "boot/common/utils-16.s"
-.include "boot/common/disk-16.s"
+.include "src/common/utils-16.s"
+.include "src/common/disk-16.s"
