@@ -1,33 +1,25 @@
 #include "boot.h"
+#include "drivers/disk/ata.h"
+#include "fs/elf.h"
+
+#define TMP_ELF_LOCATION 0x10000
 
 void
 load_kernel (void) {
-  asm("mov $0xB8000, %edx\n"
-      "movb $'X', %al\n"
-      "mov $0x0F, %ah\n"
-      "mov %ax, (%edx)\n"
-      "inc %edx");
-  asm("movb $'X', %al\n"
-      "mov $0x0F, %ah\n"
-      "mov %ax, (%edx)\n"
-      "inc %edx");
-  asm("movb $'X', %al\n"
-      "mov $0x0F, %ah\n"
-      "mov %ax, (%edx)\n"
-      "inc %edx");
-  asm("movb $'X', %al\n"
-      "mov $0x0F, %ah\n"
-      "mov %ax, (%edx)\n"
-      "inc %edx");
+  elf32_header *elf = (elf32_header *)TMP_ELF_LOCATION;
 
-  unsigned short int* vga = (unsigned short int*)(0xB80000);
+  // Read the first page on disk
+  ata_read_segment((uint8_t *)elf, 8 * ATA_SECTOR_SZ, 0);
 
-  vga[100]                = 0x0341;
-  vga[101]                = 0x0341;
-  vga[102]                = 0x0341;
-  vga[103]                = 0x0341;
-  vga[101]                = ('h' & 0xff) | 0x0700;
-  while (1) {
-    vga[100] = 0x0341;
+  if (elf->e_magic != ELF_MAGIC) {
+    asm("movb $'X', %al\n"
+        "mov $0x0F, %ah\n"
+        "mov %ax, (%edx)\n"
+        "inc %edx");
+  } else {
+    asm("movb $'Y', %al\n"
+        "mov $0x0F, %ah\n"
+        "mov %ax, (%edx)\n"
+        "inc %edx");
   }
 }
