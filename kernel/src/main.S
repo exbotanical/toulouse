@@ -1,4 +1,7 @@
 #include "arch/mmu.h"
+#define KERNBASE 0x80000000         // First kernel virtual address
+#define V2P_WO(x) ((x) - KERNBASE)
+
 # This is the kernel entry-point.
 # There's two ways we can end up here:
 # 1. The bootloader implemented in boot/ loaded this code into memory, then
@@ -28,9 +31,11 @@
   .long CHECKSUM
 
 .globl _start
-_start:
-.type enable_paging, @function
-enable_paging:
+_start = V2P_WO(entry)
+
+.type entry, @function
+entry:
+  hlt
   # Turn on page size extension for 4Mbyte pages
   // movl    %cr4, %eax
   // orl     $(CR4_PSE), %eax

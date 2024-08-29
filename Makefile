@@ -1,12 +1,18 @@
 include Makefile.config
 
-.PHONY: bootblock dist clean
+.PHONY: shared bootblock dist clean
 .DELETE_ON_ERROR:
 
-bootblock:
+shared:
+	$(MAKE) -C shared all
+
+bootblock: shared
 	$(MAKE) -C boot all
 
-dist: bootblock
+kernel: shared
+	$(MAKE) -C kernel all
+
+dist: bootblock kernel
 	$(MAKE) -C dist all
 
 # Exit Qemu focus trap with ctrl+alt+g
@@ -16,5 +22,7 @@ test:
 	$(QEMU) -drive file=$(DISTPATH)/$(TARGET),index=0,media=disk,format=raw
 
 clean:
+	$(MAKE) -C shared clean
 	$(MAKE) -C boot clean
+	$(MAKE) -C kernel clean
 	$(MAKE) -C dist clean
