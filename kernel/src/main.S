@@ -1,3 +1,4 @@
+.code32
 #include "arch/mmu.h"
 
 .global _start
@@ -25,7 +26,7 @@
 .set MAGIC,       0x1BADB002
 .set CHECKSUM,    -(MAGIC + FLAGS)
 
-.section .multiboot.data, "a"
+.section .multiboot_header, "a"
 .align 4
 .long MAGIC
 .long FLAGS
@@ -48,8 +49,7 @@ boot_page_table1:
 	.skip 4096
 # Further page tables may be required if the kernel grows beyond 3 MiB.
 
-.section .multiboot.text, "a"# The kernel entry point.
-.global _start
+.section .entry, "a"# The kernel entry point.
 .type _start, @function
 _start:
 	# Physical address of boot_page_table1.

@@ -5,7 +5,6 @@ include $(ROOTPATH)/Makefile.config
 .DELETE_ON_ERROR:
 
 BUILD_DIR			:= build
-BIN_DIR				:= bin
 
 SRC_DIR				:= src
 INC_DIR 		 	:= include
@@ -28,7 +27,6 @@ all: dirs $(OBJS)
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -rf $(BIN_DIR)
 
 dirs:
-	@mkdir -p $(BUILD_DIR) $(BIN_DIR)
+	@mkdir -p $(BUILD_DIR)

@@ -30,7 +30,7 @@ $(SHARED_OBJS):
 
 $(OBJS): $(BUILD_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(shell dirname $@)
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -I../shared/include -o $@ $<
 
 all: dirs $(OBJS) $(SHARED_OBJS) build/main.o
 	$(LD) $(LDFLAGS) -T linker.ld build/main.o $(OBJS) $(SHARED_OBJS) -o bin/kernel

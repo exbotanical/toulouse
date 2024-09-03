@@ -20,6 +20,7 @@ test:
 	$(MAKE) clean
 	$(MAKE) dist
 	$(QEMU) -drive file=$(DISTPATH)/$(TARGET),index=0,media=disk,format=raw
+#-d int
 
 clean:
 	$(MAKE) -C shared clean

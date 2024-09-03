@@ -46,8 +46,6 @@ vga_print (unsigned int num) {
 
 void
 load_kernel (void) {
-  clear_screen();
-
   elf32_hdr *elf = (elf32_hdr *)TMP_ELF_LOCATION;
   // Read the elf header into memory
   ata_read_segment((uint8_t *)elf, 4096, 0);
@@ -75,7 +73,10 @@ load_kernel (void) {
     }
   }
 
+  clear_screen();
+
   // Jump to the kernel entrypoint
   void (*entry)(void) = (void (*)(void))(elf->e_entry);
   entry();
+  vga_print(100);
 }
