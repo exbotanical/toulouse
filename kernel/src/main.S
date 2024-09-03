@@ -13,12 +13,11 @@
 # copied just the kernel and not the full image with boot/ prepended.
 
 # This allows us to support any bootloader that implements the multiboot spec.
-# We're going to use multiboot 1 for now (TODO: impl multiboot 2).
+# We're going to use multiboot 1 for now.
 
 # Zero means we promise all loaded boot modules will be aligned on 4kb page boundaries.
 .set ALIGNMENT,   1 << 0
 # Says the bootloader should supply a memory map
-# TODO: actually do this in /boot
 .set MEMINFO,     1 << 1
 # Flags basically provide metadata about our multiboot setup.
 .set FLAGS,       ALIGNMENT | MEMINFO
@@ -151,7 +150,7 @@ _start:
 
 
 HELLO:.asciz  " HELLO MOTO"
-.equ VIDEO_MEMORY, 0xB8000
+.equ VIDEO_MEMORY, 0xB8000-0xC0000000
 
 print_ln_32:
   call print_string_32

@@ -1,26 +1,24 @@
 ROOTPATH ?= $(shell readlink -f ..)
 include $(ROOTPATH)/Makefile.config
 
-.PHONY: all dirs clean
+.PHONY: all clean dirs
 .DELETE_ON_ERROR:
 
-BUILD_DIR			:= build
-BIN_DIR				:= bin
+BUILD_DIR    := build
+BIN_DIR      := bin
 
-SRC_DIR				:= src
-INC_DIR 		 	:= include
-CSRCS 				:= $(shell find -L $(SRC_DIR) -type f -name "*.c")
-OBJS 				:= $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(CSRCS))
-SHARED_OBJS := $(shell find -L ../shared/ -type f -name "*.o")
+SRC_DIR      := src
+INC_DIR      := include
+CSRCS        := $(shell find -L $(SRC_DIR) -type f -name "*.c")
+OBJS         := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(CSRCS))
+SHARED_OBJS  := $(shell find -L ../shared/ -type f -name "*.o")
 
-CFLAGS := -Wall -Wextra -Werror -Wno-missing-field-initializers \
-  -Wno-unused-parameter -Wno-unused-function -Wno-unused-value                 \
-	-m32 -I$(INC_DIR) -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding -c \
-	-O3
-# TODO: improve flags (see boot)
+CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding -c -O3
+CFLAGS       += $(C_STRICTMODE_FLAGS)
+CFLAGS       += -I$(INC_DIR)
 
-LDFLAGS := -nostdlib -O3
-LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
+LDFLAGS      := -nostdlib -O3
+LDFLAGS      += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
 
 build/main.o: src/main.S
 	$(CC) $(CFLAGS) -c $< -o $@

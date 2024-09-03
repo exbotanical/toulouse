@@ -1,7 +1,7 @@
 ROOTPATH ?= $(shell readlink -f ..)
 include $(ROOTPATH)/Makefile.config
 
-.PHONY: all dirs clean
+.PHONY: all clean dirs
 .DELETE_ON_ERROR:
 
 BUILD_DIR     := build
@@ -14,10 +14,6 @@ LOADER_OBJ    := $(BUILD_DIR)/loader.o
 BOOT_TARGET   := $(BIN_DIR)/bootblock
 
 SHARED_OBJS := $(shell find -L ../shared/ -type f -name "*.o")
-
-C_STRICTMODE_FLAGS := -Wall -Werror -Wextra -Wno-missing-field-initializers \
-	-Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition \
-	-Wno-unused-parameter -Wno-unused-function -Wno-unused-value -pedantic
 
 # -mkernel?
 CFLAGS  := -m32 -static -nostdinc -fno-builtin -fno-omit-frame-pointer \

@@ -1,3 +1,5 @@
+#include "kmain.h"
+
 #include "drivers/console/vga.h"
 
 void
