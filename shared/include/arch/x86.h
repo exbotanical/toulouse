@@ -134,4 +134,19 @@ outsl (uint16_t port, const void *addr, uint32_t c) {
                : "cc");
 }
 
+/**
+ * Stores `c` bytes of data in memory starting at `addr`.
+ *
+ * @param addr
+ * @param data
+ * @param c
+ */
+static inline void
+stosb (void *addr, int32_t data, int32_t c) {
+  asm volatile("cld; rep stosb"
+               : "=D"(addr), "=c"(c)
+               : "0"(addr), "1"(c), "a"(data)
+               : "memory", "cc");
+}
+
 #endif /* X86_H */

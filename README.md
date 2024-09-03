@@ -1,8 +1,9 @@
 # toulouse
 
-toulouse is a compact, multi-tasking toy kernel
+toulouse is a 32-bit operating system kernel written for x86 ISA
 
-
-## bootloader
-
-compile with `make`
+## Features
+* [x] 2-stage bootloader
+* [x] multi-boot 1 compliant entrypoint
+* [ ] higher half kernel
+* [ ] ...

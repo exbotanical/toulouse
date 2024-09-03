@@ -1,0 +1,2 @@
+void
+kmain (void) {}
