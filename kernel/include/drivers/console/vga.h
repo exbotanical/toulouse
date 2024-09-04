@@ -3,7 +3,7 @@
 
 #include "common/types.h"
 
-#define VGA_BUFFER 0xC03FF000
+#define VGA_BUFFER 0xB8000
 
 /* Hardware text mode color constants. */
 typedef enum {

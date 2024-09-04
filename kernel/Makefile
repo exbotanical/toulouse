@@ -13,7 +13,8 @@ CSRCS        := $(shell find -L $(SRC_DIR) -type f -name "*.c")
 OBJS         := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(CSRCS))
 SHARED_OBJS  := $(shell find -L ../shared/ -type f -name "*.o")
 
-CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding -c -O3
+CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding -fno-stack-protector \
+	-c -O3
 CFLAGS       += $(C_STRICTMODE_FLAGS)
 CFLAGS       += -I$(INC_DIR)
 
