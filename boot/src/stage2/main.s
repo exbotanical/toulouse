@@ -6,8 +6,12 @@ call print_ln_16
 # We'll check if it's enabled and try other methods if needed once in 32-bit protected mode.
 mov $ATTEMPT_A20_VIA_BIOS_MSG, %si
 call print_ln_16
-
 call try_enable_a20_via_bios
+
+# Get the memory map from the BIOS
+mov $READ_MMAP_MSG, %si
+call print_ln_16
+call mmap_init
 
 # Disable interrupts
 # We do this because once we switch to 32-bit protected mode, the IVT that the BIOS
@@ -16,6 +20,7 @@ call try_enable_a20_via_bios
 cli
 # Load the GDT
 lgdt gdt_descriptor
+
 # Set the first bit of the %cr0 control register
 mov %cr0, %eax
 or $0x1, %eax
@@ -83,6 +88,7 @@ a20_enabled:
 
 INIT_REAL_MODE_STAGE2_MSG: .asciz "Stage 2 bootloader loaded in 16-bit real mode"
 ATTEMPT_A20_VIA_BIOS_MSG: .asciz "Attempting to enable the A20 line via the BIOS"
+READ_MMAP_MSG: .asciz "Reading in memory map from BIOS"
 INIT_PROT_MODE_MSG: .asciz "Stage 2 bootloader loaded in 32-bit protected mode"
 A20_NOT_ENABLED_BIOS_MSG: .asciz "The A20 line could not be enabled via the BIOS. Attempting enablement via keyboard controller..."
 A20_NOT_ENABLED_KEYCTRL_MSG: .asciz "The A20 line could not be enabled via the keyboard controller. Attempting enablement via fast A20..."
@@ -90,6 +96,7 @@ A20_NOT_ENABLED_FAST_MSG: .asciz "The A20 line could not be enabled via the Fast
 A20_ENABLED_MSG: .asciz "The A20 line has been enabled."
 
 .include "src/common/utils-16.s"
+.include "src/stage2/mmap.s"
 .include "src/common/utils-32.s"
 .include "src/stage2/a20.s"
 .include "src/stage2/gdt.s"

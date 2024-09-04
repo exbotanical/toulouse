@@ -45,7 +45,7 @@ vga_print (unsigned int num) {
 }
 
 void
-load_kernel (void) {
+load_kernel (const int boot_string) {
   elf32_hdr *elf = (elf32_hdr *)TMP_ELF_LOCATION;
   // Read the elf header into memory
   ata_read_segment((uint8_t *)elf, 4096, 0);
