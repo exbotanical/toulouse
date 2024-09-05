@@ -140,3 +140,18 @@ get_memory_sz_error:
   mov $0, %bx
 
   jmp get_memory_sz_use_ax
+
+mmap_setup:
+  xor %eax, %eax
+  xor %ebx, %ebx
+  call get_memory_sz
+  mov %bx, .memhi
+  mov %ax, .memlo
+  mov $0x0, .bootdev
+
+  call mmap_init
+
+  mov %ax, .mmap_len
+  mov $MMAP_ENTRIES+4, .mmap_addr
+
+  ret

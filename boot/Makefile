@@ -39,7 +39,7 @@ $(STAGE2_OBJ): src/stage2/main.s
 $(LOADER_OBJ): src/main.c
 	$(CC) $(CFLAGS) -I../shared/include -c $< -o $@
 
-$(BOOT_TARGET): $(STAGE1_OBJ) $(STAGE2_OBJ) $(LOADER_OBJ) $(SHARED_OBJS)
+$(BOOT_TARGET): $(STAGE1_OBJ) $(STAGE2_OBJ) $(LOADER_OBJ) $(OBJS) $(SHARED_OBJS)
 	$(LD) $(LDFLAGS) -T linker.ld $^ -o $@
 
 all: dirs $(BOOT_TARGET)

@@ -1,3 +1,4 @@
+.code16
 # This is where we'll store the drive number of the booted disk.
 # We'll default to 0x80 (first HD).
 DISK_DRIVE_NO: .byte 0x80

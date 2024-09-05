@@ -82,6 +82,7 @@ a20_enabled:
   mov $A20_ENABLED_MSG, %ebx
   call print_ln_32
 
+  lea multiboot_info, %esi
   call load_kernel
 
   jmp .
