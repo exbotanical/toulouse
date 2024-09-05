@@ -22,47 +22,37 @@
 # descriptors after switching to protected mode. If an addressing attempt is made with the
 # null descriptor, then the CPU will raise an exception (interrupt).
 # "
+.data
+.equ      CODE_SEG, gdt_code - gdt_start
+.equ      DATA_SEG, gdt_data - gdt_start
 
-# Note - we'll be using paging later so much of the GDT setup isn't going to be all that
-# important for long.
+# Note - we'll be using paging later so much of the GDT setup isn't going to be all that important for long.
 gdt_start:
 
-gdt_null:
-  # The aforementioned 8-byte NULL descriptor at the beginning
-  .quad 0x0
+gdt_null:                         # The aforementioned 8-byte NULL descriptor at the beginning
+  .quad   0x0
 
-# GDT entry for the code segment - base=0x00000000, length=0xFFFFF
-gdt_code:
-  # Segment length i.e. "limit"
-  .word 0xFFFF
-  # Segment base (bits 0-15)
-  .word 0x0
-  # Segment base (bits 16-23)
-  .byte 0x0
-  # Flags (8 bits)
-  # 1st flags -> (present)1 (privilege)00 (descriptor type)1 -> 1001 b
-  # type flags -> (code)1 (conforming)0 (readable)1 (accessed)0 -> 1010 b
-  .byte 0b10011010
-  # Flags (4 bits) + segment length (bits 16-19)
-  # 2nd flags -> (granularity)1 (32 - bit default)1 (64 - bit seg)0 (AVL)0 -> 1100 b
-  .byte 0b11001111
-  # Segment base (bits 24-31)
-  .byte 0x0
+gdt_code:                         # GDT entry for the code segment - base=0x00000000, length=0xFFFFF
+  .word   0xFFFF                  # Segment length i.e. "limit"
+  .word   0x0                     # Segment base (bits 0-15)
+  .byte   0x0                     # Segment base (bits 16-23)
+  .byte   0b10011010              # Flags (8 bits)
+                                  # 1st flags -> (present)1 (privilege)00 (descriptor type)1 -> 1001 b
+                                  # type flags -> (code)1 (conforming)0 (readable)1 (accessed)0 -> 1010 b
+  .byte   0b11001111              # Flags (4 bits) + segment length (bits 16-19)
+                                  # 2nd flags -> (granularity)1 (32 - bit default)1 (64 - bit seg)0 (AVL)0 -> 1100 b
+  .byte   0x0                     # Segment base (bits 24-31)
 
-# Now the data segment. The flags are the same as the code segment except for the type flags
-gdt_data:
-  .word 0xFFFF
-  .word 0x0
-  .byte 0x0
-  .byte 0b10010010
-  .byte 0b11001111
-  .byte 0x0
+gdt_data:                         # Now the data segment. The flags are the same as the code segment except for the type flags
+  .word   0xFFFF
+  .word   0x0
+  .byte   0x0
+  .byte   0b10010010
+  .byte   0b11001111
+  .byte   0x0
 
 gdt_end:
 
 gdt_descriptor:
-  .word gdt_end - gdt_start - 1
-  .long gdt_start
-
-.equ CODE_SEG, gdt_code - gdt_start
-.equ DATA_SEG, gdt_data - gdt_start
+  .word   gdt_end - gdt_start - 1
+  .long   gdt_start

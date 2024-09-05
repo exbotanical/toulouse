@@ -7,48 +7,41 @@
 
 # To calculate char position, we can use the following formula: 0xb8000 + 2 * (row * 80 + col)
 .code32
-.equ VIDEO_MEMORY, 0xB8000
+.data
+.equ      VIDEO_MEMORY, 0xB8000
 
+.text
 print_ln_32:
-  call print_string_32
-  call print_newline_32
+  call    print_string_32
+  call    print_newline_32
   ret
 
 print_string_32:
   pusha
-  mov $VIDEO_MEMORY, %edx
+  mov     $VIDEO_MEMORY, %edx
 
 print_string_32_loop:
-  # Set char at the string pointer in the low bits
-  movb (%ebx), %al
-  # Set the attributes in the high bits (white fg, black bg)
-  mov $0x0F, %ah
+  movb    (%ebx), %al             # Set char at the string pointer in the low bits
+  mov     $0x0F, %ah              # Set the attributes in the high bits (white fg, black bg)
 
-  # Null term check
-  cmp $0, %al
-  je print_string_32_done
+  cmp     $0, %al                 # Null term check
+  je      print_string_32_done
 
-  # Place our filled out %ax register into the VGA cell
-  mov %ax, (%edx)
-  # Next character (str++)
-  inc %ebx
-  # Next VGA position
-  add $2, %edx
-  jmp print_string_32_loop
+  mov     %ax, (%edx)             # Place our filled out %ax register into the VGA cell
+  inc     %ebx                    # Next character (str++)
+  add     $2, %edx                # Next VGA position
+  jmp     print_string_32_loop
 
 print_string_32_done:
   popa
   ret
 
 print_newline_32:
-  mov $VIDEO_MEMORY, %edx
-
-  movb $0x0a, %al
-  movb $0x0d, %al
-  # Set the attributes in the high bits (white fg, black bg)
-  mov $0x0F, %ah
-  mov %ax, (%edx)
-
-  add $2, %edx
+  mov     $VIDEO_MEMORY, %edx
+  movb    $0x0a, %al
+  movb    $0x0d, %al
+  mov     $0x0F, %ah              # Set the attributes in the high bits (white fg, black bg)
+  mov     %ax, (%edx)
+  add     $2, %edx
 
   ret

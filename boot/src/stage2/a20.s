@@ -23,73 +23,73 @@
 # 7. Test if enabled in a loop with a time-out (I guess by "fast" they don't mean fast).
 # 8. Failing all that, bork.
 .code16
+.data
+# TODO: per error
+EMSG_BIOS_A20:
+  .asciz  "Failed to enable A20 line via BIOS"
 
+.text
 # Interrupt 15: https://www.ctyme.com/intr/int-15.htm
 try_enable_a20_via_bios:
   pusha
-  # 1. Ask the BIOS if the A20 gate is supported
-  # See: https://www.ctyme.com/intr/rb-1338.htm
-  mov $0x2403, %ax
-  int $0x15
+  mov     $0x2403, %ax            # 1. Ask the BIOS if the A20 gate is supported
+                                  # See: https://www.ctyme.com/intr/rb-1338.htm
+  int     $0x15
+  jb      fail                    # Failed if CF is set (CF cleared means success)
 
-  # Failed if CF is set (CF cleared means success)
-  jb fail
-  cmp $0x00, %ah
-  # Failed if %ah not set to zero
-  jne fail
+  cmp     $0x00, %ah              # Failed if %ah not set to zero
+  jne     fail
 
-  # 2. Get A20 status
-  # See: https://www.ctyme.com/intr/rb-1337.htm
-  mov $0x2402, %ax
-  int $0x15
-  jb fail
-  cmp $0x00, %ah
-  jne fail
-  # AL = current state (00h disabled, 01h enabled)
-  cmp $0x01, %al
-  # If eq, A20 already enabled
-  je done
+  mov     $0x2402, %ax            # 2. Get A20 status
+                                  # See: https://www.ctyme.com/intr/rb-1337.htm
+  int     $0x15
+  jb      fail
 
-  # 3. Try to enable the A20 line
-  # See: https://www.ctyme.com/intr/rb-1336.htm
-  mov $0x2401, %ax
+  cmp     $0x00, %ah
+  jne     fail
+
+  cmp     $0x01, %al              # AL = current state (00h disabled, 01h enabled)
+  je      done                    # If eq, A20 already enabled
+
+
+
+  mov     $0x2401, %ax            # 3. Try to enable the A20 line
+                                  # See: https://www.ctyme.com/intr/rb-1336.htm
   # TODO: abstract this repeat logic into a fn
-  int $0x15
-  jb fail
-  cmp $0x00, %ah
-  je done
+  int     $0x15
+  jb      fail
+  cmp     $0x00, %ah
+  je      done
 
 fail:
-  mov $EMSG_BIOS_A20, %si
-  call print_ln_16
+  mov     $EMSG_BIOS_A20, %si
+  call    print_ln_16
 
 done:
   popa
   ret
 
 .code32
+
+.text
+
 # Return register: %eax
 # Retval: 0 if disabled, 1 if enabled
+# TODO: (push/pop)al
 is_a20_enabled:
-  # pushal TODO:
-  # Odd mb address
-  mov $0x112345, %edi
-  # Even mb address
-  mov $0x012345, %esi
-
-  # Compare - if the contents of both addresses actually
-  # point to the same address, then we're wrapping (A20 disabled).
-  mov %esi, (%esi)
-  mov %edi, (%edi)
+  mov     $0x112345, %edi         # Odd mb address
+  mov     $0x012345, %esi         # Even mb address
+  mov     %esi, (%esi)            # Compare - if the contents of both addresses actually
+                                  # point to the same address, then we're wrapping (A20 disabled).
+  mov     %edi, (%edi)
   cmpsl
-  jne enabled
+  jne     enabled
 
 disabled:
-  mov $0, %eax
-enabled:
-  mov $1, %eax
+  mov     $0, %eax
 
-  # popal
+enabled:
+  mov     $1, %eax
   ret
 
 # Tries to enable the A20 line via the keyboard controller.
@@ -99,63 +99,57 @@ enable_a20_via_keyctrl:
   pushal
   cli
 
-  call keyctrl_wait_till_writable
-  mov $0xAD, %al
-  out %al, $0x64
+  call    keyctrl_until_writable
+  mov     $0xAD, %al
+  out     %al, $0x64
 
-  call keyctrl_wait_till_writable
-  mov $0xD0, %al
-  out %al, $0x64
+  call    keyctrl_until_writable
+  mov     $0xD0, %al
+  out     %al, $0x64
 
-  call keyctrl_wait_till_readable
-  in $0x60, %al
-  push %eax
+  call    keyctrl_until_readable
+  in      $0x60, %al
+  push    %eax
 
-  call keyctrl_wait_till_writable
-  mov $0xD1, %al
-  out %al, $0x64
+  call    keyctrl_until_writable
+  mov     $0xD1, %al
+  out     %al, $0x64
 
-  call keyctrl_wait_till_writable
-  pop %eax
-  or $0x02, %al
-  out %al, $0x60
+  call    keyctrl_until_writable
+  pop     %eax
+  or      $0x02, %al
+  out     %al, $0x60
 
-  call keyctrl_wait_till_writable
-  mov $0xAE, %al
-  out %al, $0x64
+  call    keyctrl_until_writable
+  mov     $0xAE, %al
+  out     %al, $0x64
 
-  call keyctrl_wait_till_writable
+  call    keyctrl_until_writable
 
   sti
   popal
   ret
 
-keyctrl_wait_till_writable:
-  # "the chip will catch accesses to ports 0x64 and 0x60 and simulate the expected behaviour,
-  # also when no keyboard controller is present"
-  # See: https://www.win.tue.nl/~aeb/linux/kbd/A20.html
-  in $0x64, %al
-  # Input buffer status: 0 -> empty and ready, 1 -> full/busy
-  test $0x02, %al
-  jnz keyctrl_wait_till_writable
+# "the chip will catch accesses to ports 0x64 and 0x60 and simulate the expected behaviour,
+# also when no keyboard controller is present"
+keyctrl_until_writable:
+  in      $0x64, %al              # See: https://www.win.tue.nl/~aeb/linux/kbd/A20.html
+  test    $0x02, %al              # Input buffer status: 0 -> empty and ready, 1 -> full/busy
+  jnz     keyctrl_until_writable
 
   ret
 
-keyctrl_wait_till_readable:
-  in $0x64, %al
-  # Output buffer status: 0 -> full/ready, 1 -> empty
-  test $0x01, %al
-  jz keyctrl_wait_till_readable
+keyctrl_until_readable:
+  in      $0x64, %al
+  test    $0x01, %al              # Output buffer status: 0 -> full/ready, 1 -> empty
+  jz      keyctrl_until_readable
   ret
 
 enable_a20_via_fast:
   pushal
-  in $0x92, %al
-  or $0x02, %al
-  out %al, $0x92
+  in      $0x92, %al
+  or      $0x02, %al
+  out     %al, $0x92
 
   popal
   ret
-
-# TODO: per error
-EMSG_BIOS_A20: .asciz "Failed to enable A20 line via BIOS"

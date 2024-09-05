@@ -25,7 +25,7 @@ CFLAGS  += -I$(INC_DIR)
 LDFLAGS := -nostdlib -O3
 LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
 
-ASFLAGS := -m32 -Wa,-divide
+ASFLAGS := --32 -divide
 
 $(SHARED_OBJS):
 	$(MAKE) -C ../shared all
@@ -39,7 +39,7 @@ $(STAGE2_OBJ): src/stage2/main.s
 $(LOADER_OBJ): src/main.c
 	$(CC) $(CFLAGS) -I../shared/include -c $< -o $@
 
-$(BOOT_TARGET): $(STAGE1_OBJ) $(STAGE2_OBJ) $(LOADER_OBJ) $(OBJS) $(SHARED_OBJS)
+$(BOOT_TARGET): $(STAGE1_OBJ) $(STAGE2_OBJ) $(LOADER_OBJ) $(SHARED_OBJS)
 	$(LD) $(LDFLAGS) -T linker.ld $^ -o $@
 
 all: dirs $(BOOT_TARGET)
