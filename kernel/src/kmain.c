@@ -40,12 +40,11 @@ itoa (int value, char *buff, int base) {
 }
 
 void
-kmain (void) {
-  smap_entry_t *ptr = (smap_entry_t *)0xA504;
+kmain (multiboot_info_t *mbi) {
   vga_globl_console_init();
   // vga_console_writestr(global_vga_con, "HELLO MOO");
 
   char s[100];
-  itoa(ptr->acpi, s, 10);
+  itoa(mbi->mmap->len, s, 10);
   vga_console_writestr(global_vga_con, s);
 }

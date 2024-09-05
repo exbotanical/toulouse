@@ -48,7 +48,7 @@ _start:
 start_kernel:
 	# Set up the stack.
 	mov $stack_top, %esp
-  lea 0xA504, %esi
+  // lea 0xA504, %esi
   push %esi
 	# Enter the high-level kernel
 	call kmain

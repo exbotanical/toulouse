@@ -1,6 +1,8 @@
 #ifndef KMAIN_H
 #define KMAIN_H
 
-void kmain(void);
+#include "init/multiboot.h"
+
+void kmain(multiboot_info_t *mbi);
 
 #endif /* KMAIN_H */
