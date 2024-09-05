@@ -118,8 +118,7 @@ typedef struct {
 static bool
 elf_is_valid_sig (elf32_hdr* elf) {
   return elf->e_ident[EI_MAG0] == ELFMAG0 && elf->e_ident[EI_MAG1] == ELFMAG1
-         && elf->e_ident[EI_MAG2] == ELFMAG2
-         && elf->e_ident[EI_MAG3] == ELFMAG3;
+         && elf->e_ident[EI_MAG2] == ELFMAG2 && elf->e_ident[EI_MAG3] == ELFMAG3;
 }
 
 static bool
@@ -155,9 +154,8 @@ elf_has_phdr (elf32_hdr* elf) {
 
 static bool
 elf_is_valid_executable (elf32_hdr* elf) {
-  return elf_is_valid_sig(elf) && elf_is_valid_class(elf)
-         && elf_is_valid_encoding(elf) && elf_is_valid_version(elf)
-         && elf_is_valid_machine(elf) && elf_is_executable(elf)
+  return elf_is_valid_sig(elf) && elf_is_valid_class(elf) && elf_is_valid_encoding(elf)
+         && elf_is_valid_version(elf) && elf_is_valid_machine(elf) && elf_is_executable(elf)
          && elf_has_phdr(elf);
 }
 

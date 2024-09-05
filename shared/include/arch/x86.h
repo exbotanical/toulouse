@@ -128,10 +128,7 @@ insl (uint16_t port, void *addr, uint32_t c) {
  */
 static inline void
 outsl (uint16_t port, const void *addr, uint32_t c) {
-  asm volatile("cld; rep outsl"
-               : "=S"(addr), "=c"(c)
-               : "d"(port), "0"(addr), "1"(c)
-               : "cc");
+  asm volatile("cld; rep outsl" : "=S"(addr), "=c"(c) : "d"(port), "0"(addr), "1"(c) : "cc");
 }
 
 /**

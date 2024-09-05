@@ -49,8 +49,7 @@ ata_read_segment (uint8_t *dest, uint32_t c, uint32_t offset) {
   uint32_t sector_num      = (offset / ATA_SECTOR_SZ) + 12;
 
   // Read each sector sequentially
-  for (; start_phys_addr < end_phys_addr;
-       start_phys_addr += ATA_SECTOR_SZ, sector_num++) {
+  for (; start_phys_addr < end_phys_addr; start_phys_addr += ATA_SECTOR_SZ, sector_num++) {
     ata_read_sector(start_phys_addr, sector_num);
   }
 }
