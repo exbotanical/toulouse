@@ -32,7 +32,7 @@ stage2:
   # Get the memory map from the BIOS
   mov     $READ_MMAP_MSG, %si
   call    print_ln_16
-  call    mmap_init
+  call    mmap_setup
 
   # Disable interrupts
   # We do this because once we switch to 32-bit protected mode, the IVT that the BIOS

@@ -17,6 +17,24 @@ vga_entry (uint8_t uc, uint8_t color) {
   return (uint16_t)uc | (uint16_t)color << 8;
 }
 
+void vga_console_scroll(vga_console_t* cons);
+
+void
+vga_console_scroll (vga_console_t* cons) {
+  for (uint32_t y = 1; y < VGA_HEIGHT; y++) {
+    for (uint32_t x = 0; x < VGA_WIDTH; x++) {
+      cons->buffer[(y - 1) * VGA_WIDTH + x] = cons->buffer[y * VGA_WIDTH + x];
+    }
+  }
+
+  // Clear the last row
+  for (uint32_t x = 0; x < VGA_WIDTH; x++) {
+    cons->buffer[(VGA_HEIGHT - 1) * VGA_WIDTH + x] = vga_entry(' ', cons->color);
+  }
+
+  cons->row = VGA_HEIGHT - 1;
+}
+
 void
 vga_globl_console_init (void) {
   global_vga_con->row    = 0;
@@ -50,11 +68,18 @@ vga_console_putchar_at (vga_console_t* cons, char c, uint32_t x, uint32_t y) {
 
 void
 vga_console_putchar (vga_console_t* cons, char c) {
-  vga_console_putchar_at(cons, c, cons->col, cons->row);
-  if (++cons->col == VGA_WIDTH) {
+  if (c == '\n') {
     cons->col = 0;
     if (++cons->row == VGA_HEIGHT) {
-      cons->row = 0;
+      vga_console_scroll(cons);
+    }
+  } else {
+    vga_console_putchar_at(cons, c, cons->col, cons->row);
+    if (++cons->col == VGA_WIDTH) {
+      cons->col = 0;
+      if (++cons->row == VGA_HEIGHT) {
+        vga_console_scroll(cons);
+      }
     }
   }
 }

@@ -27,9 +27,9 @@
 
 .section .multiboot_header, "a"
 .align 4
-.long MAGIC
-.long FLAGS
-.long CHECKSUM
+.long    MAGIC
+.long    FLAGS
+.long    CHECKSUM
 
 .section .bootstrap_stack, "aw", @nobits
 # Allocate an initial stack (amount is arbitrary - it just must be sufficient enough for initial use)
@@ -37,21 +37,18 @@ stack_bottom:
 .skip 0x4000 # 16kb
 stack_top:
 
-.section .entry, "a"# The kernel entry point.
+.section .entry, "a"
 .type _start, @function
 _start:
-	# Jump to higher half with an absolute jump.
-	lea start_kernel, %ecx
-	jmp *%ecx
+	lea     start_kernel, %ecx      # Jump to higher half with an absolute jump.
+	jmp     *%ecx
 
 .text
 start_kernel:
-	# Set up the stack.
-	mov $stack_top, %esp
-  // lea 0xA504, %esi
-  push %esi
-	# Enter the high-level kernel
-	call kmain
+
+	mov     $stack_top, %esp        # Set up the stack.
+  push    %esi                    # Push the multi_boot info onto the stack
+	call    kmain                   # Enter the high-level kernel
 
 	cli
-  jmp .
+  jmp     .
