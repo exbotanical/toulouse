@@ -21,7 +21,7 @@ CFLAGS       += -I$(INC_DIR)
 LDFLAGS      := -nostdlib -O3
 LDFLAGS      += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
 
-build/main.o: src/main.S
+build/loader.o: src/loader.S
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(SHARED_OBJS):
@@ -31,8 +31,8 @@ $(OBJS): $(BUILD_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS) -I../shared/include -o $@ $<
 
-all: dirs $(OBJS) $(SHARED_OBJS) build/main.o
-	$(LD) $(LDFLAGS) -T linker.ld build/main.o $(OBJS) $(SHARED_OBJS) -o bin/kernel
+all: dirs $(OBJS) $(SHARED_OBJS) build/loader.o
+	$(LD) $(LDFLAGS) -T linker.ld build/loader.o $(OBJS) $(SHARED_OBJS) -o bin/kernel
 
 clean:
 	rm -rf $(BUILD_DIR)

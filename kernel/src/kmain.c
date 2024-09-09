@@ -2,92 +2,21 @@
 
 #include "drivers/console/vga.h"
 
-typedef struct smap_entry {
-  uint64_t base_addr;
-  uint64_t len;
-  uint32_t type;
-  uint32_t acpi;
-} __attribute__((packed)) smap_entry_t;
-
-char *itoa(int value, char *buff, int base);
-
-char *
-itoa (int value, char *buff, int base) {
-  char *charset = "0123456789abcdefghijklmnopqrstuvwxyz";
-  char *ret     = buff;
-  char  scratch[64];
-  int   idx = 0;
-  if (value < 0) {
-    *buff++ = '-';
-    value   = -value;
-  }
-  if (value == 0) {
-    *buff++ = '0';
-    *buff   = 0;
-    return ret;
-  }
-  while (value > 0) {
-    scratch[idx++]  = charset[value % base];
-    value          /= base;
-  }
-  while (idx > 0) {
-    *buff++ = scratch[--idx];
-  }
-  *buff = 0;
-  return ret;
-}
-
-void print_physical_memory_info(multiboot_info_t *mbi);
-void print_smap(uint32_t len, uint32_t addr);
+// TMP TODO: remove
+void  print_physical_memory_info(multiboot_info_t *mbi);
+void  print_smap(uint32_t len, uint32_t addr);
+char *print_hex(uint32_t hex_num, char *hs);
 
 void
 kmain (multiboot_info_t *mbi) {
   vga_globl_console_init();
-  // uint32_t mmapl = *(uint32_t *)0xA500;
-  char s[100];
-  itoa(mbi->mmap_length, s, 10);
+
+  char hex_string[80];
+  print_hex(mbi->mmap_length, hex_string);
   vga_console_writestr(global_vga_con, "LENGTH: ");
-  vga_console_writestr(global_vga_con, s);
+  vga_console_writestr(global_vga_con, hex_string);
 
   print_physical_memory_info(mbi);
-  // print_smap(mmapl, 0xA504);
-}
-
-void
-print_smap (uint32_t len, uint32_t addr) {
-  smap_entry_t *mmaps = (smap_entry_t *)addr;
-
-  char s[100];
-  for (uint32_t i = 0; i < len; i++) {
-    smap_entry_t mmap = mmaps[i];
-
-    itoa(i, s, 10);
-    vga_console_writestr(global_vga_con, "Region: ");
-    vga_console_writestr(global_vga_con, s);
-    vga_console_writestr(global_vga_con, "\n");
-
-    itoa(mmap.acpi, s, 10);
-    vga_console_writestr(global_vga_con, " acpi: ");
-    vga_console_writestr(global_vga_con, s);
-    vga_console_writestr(global_vga_con, "\n");
-
-    itoa(mmap.type, s, 10);
-    vga_console_writestr(global_vga_con, " type: ");
-    vga_console_writestr(global_vga_con, s);
-    vga_console_writestr(global_vga_con, "\n");
-
-    itoa(mmap.len, s, 10);
-    vga_console_writestr(global_vga_con, " len: ");
-    vga_console_writestr(global_vga_con, s);
-    vga_console_writestr(global_vga_con, "\n");
-
-    itoa(mmap.base_addr, s, 10);
-    vga_console_writestr(global_vga_con, " base_addr: ");
-    vga_console_writestr(global_vga_con, s);
-    vga_console_writestr(global_vga_con, "\n");
-
-    vga_console_writestr(global_vga_con, "\n");
-  }
 }
 
 void
@@ -95,30 +24,74 @@ print_physical_memory_info (multiboot_info_t *mbi) {
   for (uint32_t i = 0; i < mbi->mmap_length; i++) {
     multiboot_memory_map_t mmap = mbi->mmap[i];
 
-    char s[100];
-    if (i == 100) {
-      break;
-    }
-    itoa(i, s, 10);
+    char s[80];
+    print_hex(i, s);
     vga_console_writestr(global_vga_con, "Region: ");
     vga_console_writestr(global_vga_con, s);
     vga_console_writestr(global_vga_con, "\n");
 
-    itoa(mmap.addr, s, 10);
+    print_hex(mmap.addr, s);
     vga_console_writestr(global_vga_con, " base: ");
     vga_console_writestr(global_vga_con, s);
     vga_console_writestr(global_vga_con, "\n");
 
-    itoa(mmap.len, s, 10);
+    print_hex(mmap.len, s);
     vga_console_writestr(global_vga_con, " length: ");
     vga_console_writestr(global_vga_con, s);
     vga_console_writestr(global_vga_con, "\n");
 
-    itoa(mmap.type, s, 10);
+    print_hex(mmap.type, s);
     vga_console_writestr(global_vga_con, " type: ");
     vga_console_writestr(global_vga_con, s);
     vga_console_writestr(global_vga_con, "\n");
 
     vga_console_writestr(global_vga_con, "\n");
   }
+}
+
+// Taken from quesofuego
+char *
+print_hex (uint32_t hex_num, char *hex_string) {
+  char   *ascii_numbers = "0123456789ABCDEF";
+  uint8_t nibble;
+  uint8_t i   = 0, j, temp;
+  uint8_t pad = 0;
+
+  // If passed in 0, print a 0
+  if (hex_num == 0) {
+    strncpy(hex_string, "0\0", 2);
+    i = 1;
+  }
+
+  if (hex_num < 0x10) {
+    pad = 1;  // If one digit, will pad out to 2 later
+  }
+
+  while (hex_num > 0) {
+    // Convert hex values to ascii string
+    nibble          = (uint8_t)hex_num & 0x0F;  // Get lowest 4 bits
+    nibble          = ascii_numbers[nibble];    // Hex to ascii
+    hex_string[i]   = nibble;                   // Move ascii char into string
+    hex_num       >>= 4;                        // Shift right by 4 for next nibble
+    i++;
+  }
+
+  if (pad) {
+    hex_string[i++] = '0';  // Pad out string with extra 0
+  }
+
+  // Add initial "0x" to front of hex string
+  hex_string[i++] = 'x';
+  hex_string[i++] = '0';
+  hex_string[i]   = '\0';  // Null terminate string
+
+  // Number is stored backwards in hex_string, reverse the string by swapping ends
+  //   until they meet in the middle
+  i--;  // Skip null byte
+  for (j = 0; j < i; j++, i--) {
+    temp          = hex_string[j];
+    hex_string[j] = hex_string[i];
+    hex_string[i] = temp;
+  }
+  return hex_string;
 }
