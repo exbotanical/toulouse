@@ -29,7 +29,7 @@ GNU_FTP_URL='https://ftp.gnu.org'
 TARGET='i686-elf'
 
 # Build deps - gitignore this
-DEPS_DIR="$(pwd)/deps"
+DEPS_DIR="$(pwd)/cross"
 # Where we'll store the deps we need - primarily gcc and binutils
 TOOLS_DIR="$DEPS_DIR/src"
 # Where we'll install the cross-compiler
@@ -131,4 +131,4 @@ main () {
 
 main
 
-# ./deps/opt/cross/bin/i686-elf-gcc --version
+# ./cross/opt/cross/bin/i686-elf-gcc --version

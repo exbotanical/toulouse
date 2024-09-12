@@ -3,15 +3,21 @@ include $(ROOTPATH)/Makefile.config
 
 .PHONY: all clean dirs
 .DELETE_ON_ERROR:
+UNIT_TARGET := unit_test
 
 BUILD_DIR    := build
 BIN_DIR      := bin
 
 SRC_DIR      := src
 INC_DIR      := include
+DEPSDIR      := deps
+TESTDIR      := t
+
 CSRCS        := $(shell find -L $(SRC_DIR) -type f -name "*.c")
 OBJS         := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(CSRCS))
 SHARED_OBJS  := $(shell find -L ../shared/ -type f -name "*.o")
+TEST_DEPS    := $(wildcard $(DEPSDIR)/libtap/*.c)
+TESTSRCS     := $(shell find -L $(TESTDIR) -type f -name "*.c")
 
 CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding -fno-stack-protector \
 	-c -O3
@@ -37,6 +43,12 @@ all: dirs $(OBJS) $(SHARED_OBJS) build/loader.o
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -rf $(BIN_DIR)
+	rm -rf $(UNIT_TARGET)
 
 dirs:
 	@mkdir -p $(BUILD_DIR) $(BIN_DIR)
+
+unit_test: $(OBJS)
+	$(CC) -m32 $(TESTSRCS) $(TEST_DEPS) $(OBJS) -I$(DEPSDIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
+	./$(UNIT_TARGET)
+	$(MAKE) clean

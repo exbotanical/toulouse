@@ -59,7 +59,7 @@ print_hex (uint32_t hex_num, char *hex_string) {
 
   // If passed in 0, print a 0
   if (hex_num == 0) {
-    strncpy(hex_string, "0\0", 2);
+    // strncpy(hex_string, "0\0", 2);
     i = 1;
   }
 

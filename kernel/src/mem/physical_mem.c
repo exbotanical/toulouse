@@ -1,5 +1,7 @@
 #include "mem/physical_mem.h"
 
+#include "lib/k_string.h"
+
 int32_t
 phys_alloc_first_free (void) {
   for (uint32_t i = 0; i < phys_alloc_max_blocks / 32; i++) {
@@ -24,8 +26,7 @@ phys_alloc_init (const uint32_t start_addr, const uint32_t sz) {
   phys_alloc_max_blocks  = sz / PHYSM_ALLOC_BLOCK_SZ;
   // Start off with every block reserved/used
   phys_alloc_used_blocks = phys_alloc_max_blocks;
-  // TODO:
-  // memset(phys_alloc_mmap, 0xFF, phys_alloc_max_blocks / PHYSM_ALLOC_BLOCKS_PER_BYTE);
+  k_memset(phys_alloc_mmap, 0xFF, phys_alloc_max_blocks / PHYSM_ALLOC_BLOCKS_PER_BYTE);
 }
 
 void

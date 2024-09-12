@@ -1,6 +1,6 @@
 #include "drivers/console/vga.h"
 
-#include "lib/string.h"
+#include "lib/k_string.h"
 
 static const uint32_t VGA_WIDTH  = 80;
 static const uint32_t VGA_HEIGHT = 25;
@@ -93,5 +93,5 @@ vga_console_write (vga_console_t* cons, const char* data, uint32_t size) {
 
 void
 vga_console_writestr (vga_console_t* cons, const char* data) {
-  vga_console_write(cons, data, strlen(data));
+  vga_console_write(cons, data, k_strlen(data));
 }
