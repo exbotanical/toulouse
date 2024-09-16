@@ -3,22 +3,6 @@
 
 #include "common/types.h"
 
-/**
- * Disables interrupts.
- */
-static inline void
-cli (void) {
-  asm volatile("cli");
-}
-
-/**
- * Enables interrupts.
- */
-static inline void
-sti (void) {
-  asm volatile("sti");
-}
-
 // See: https://wiki.osdev.org/I/O_Ports
 
 /**

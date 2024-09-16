@@ -11,24 +11,43 @@
  */
 
 /**
- * Extrapolates the list node data.
- */
-#define list_entry(ptr, type, member) containerof(ptr, type, member)
-
-/**
  * Initializes a new list_head_t.
  */
-#define list_head(name)               {&(name), &(name)}
+#define list_head(name)                {&(name), &(name)}
 
 /**
  * Defines a new list.
  */
-#define define_list(name)             list_head_t name = list_head(name)
+#define define_list(name)              list_head_t name = list_head(name)
 
 /**
- * Generates a loop beginning with list node `head`. Each element is placed in `pos`.
+ * Extrapolates the list node data.
  */
-#define list_foreach(pos, head)       for (pos = (head)->next; pos != (head); pos = pos->next)
+#define list_entry(ptr, type, member)  containerof(ptr, type, member)
+
+/**
+ * Retrieves the data entry (`member`) of the first list node after `ptr`.
+ */
+#define list_first(ptr, type, member)  list_entry((ptr)->next, type, member)
+
+/**
+ * Determines whether the given list node is the last in the list.3
+ */
+#define list_is_last(el, head, member) (&(el)->member == (head))
+
+/**
+ * Retrieves the next node in the list after `el`.
+ */
+#define list_next(el, head, member)    list_entry((el)->member.next, typeof(*el), member)
+
+/**
+ * Generates a loop beginning with list node `head`. Each element is placed in `el`.
+ */
+#define list_foreach(el, head)         for (el = (head)->next; el != (head); el = el->next)
+
+#define list_foreach_entry(el, head, member)                                        \
+  for (el = list_first(head, typeof(*el), member); !list_is_last(el, head, member); \
+       el = list_next(el, head, member))
 
 typedef struct list_head list_head_t;
 
