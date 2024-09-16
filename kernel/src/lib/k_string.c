@@ -89,7 +89,7 @@ k_memcmp (const void* s1, const void* s2, size_t bytes) {
 
 void*
 k_memchr (void* s, int value, size_t bytes) {
-  unsigned char* p = (unsigned char*)ptr;
+  unsigned char* p = (unsigned char*)s;
   unsigned char  v = (unsigned char)value;
 
   for (unsigned int i = 0; i < bytes; i++) {
