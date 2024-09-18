@@ -1,4 +1,4 @@
-#include "lib/k_string.h"
+#include "lib/string.h"
 
 size_t
 k_strlen (const char* s) {

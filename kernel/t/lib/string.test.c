@@ -1,7 +1,8 @@
+#include "lib/string.h"
+
 #include <stdio.h>
 
 #include "../tests.h"
-#include "lib/k_string.h"
 
 void
 k_strlen_test (void) {

@@ -1,5 +1,5 @@
-#ifndef LIST_H
-#define LIST_H
+#ifndef KLIB_LIST_H
+#define KLIB_LIST_H
 
 #include "common/compiler.h"
 
@@ -117,4 +117,4 @@ list_remove (list_head_t *entry) {
   list_init(entry);
 }
 
-#endif /* LIST_H */
+#endif /* KLIB_LIST_H */

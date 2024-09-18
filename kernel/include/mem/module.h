@@ -13,9 +13,6 @@ typedef struct {
   uint32_t cmdline;
 } module_t;
 
-static uint32_t num_modules;
-static module_t modules[MAX_MODULES];
-
 void module_init(multiboot_info_t* mbi);
 
 /**

@@ -1,7 +1,10 @@
 #include "mem/module.h"
 
-#include "lib/k_math.h"
+#include "lib/math.h"
 #include "mem/base.h"
+
+static uint32_t num_modules;
+static module_t modules[MAX_MODULES];
 
 static inline uint32_t
 get_module_page (uint32_t phys) {

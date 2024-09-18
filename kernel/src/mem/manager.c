@@ -1,8 +1,9 @@
+#include "mem/manager.h"
+
 #include "common/types.h"
-#include "init/multiboot.h"
-#include "lib/k_math.h"
-#include "lib/k_string.h"
 #include "lib/list.h"
+#include "lib/math.h"
+#include "lib/string.h"
 #include "mem/base.h"
 #include "mem/module.h"
 

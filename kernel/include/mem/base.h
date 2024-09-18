@@ -2,7 +2,7 @@
 #define MEM_BASE_H
 
 #include "common/types.h"
-#include "lib/k_math.h"
+#include "lib/math.h"
 
 #define NUM_ENTRIES    1024
 #define PAGE_SZ        4096

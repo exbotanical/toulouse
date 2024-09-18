@@ -1,6 +1,6 @@
 #include "drivers/console/vga.h"
 
-#include "lib/k_string.h"
+#include "lib/string.h"
 
 static const uint32_t VGA_WIDTH  = 80;
 static const uint32_t VGA_HEIGHT = 25;

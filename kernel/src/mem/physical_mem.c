@@ -1,6 +1,6 @@
 #include "mem/physical_mem.h"
 
-#include "lib/k_string.h"
+#include "lib/string.h"
 
 int32_t
 phys_alloc_first_free (void) {

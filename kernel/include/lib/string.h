@@ -1,5 +1,5 @@
-#ifndef K_STRING_H
-#define K_STRING_H
+#ifndef KLIB_STRING_H
+#define KLIB_STRING_H
 
 #include "common/types.h"
 
@@ -99,4 +99,4 @@ int k_memcmp(const void* s1, const void* s2, size_t bytes);
  */
 void* k_memchr(void* s, int value, size_t bytes);
 
-#endif /* K_STRING_H */
+#endif /* KLIB_STRING_H */
