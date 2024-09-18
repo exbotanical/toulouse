@@ -1,5 +1,4 @@
 .code32
-#include "arch/mmu.h"
 
 .global _start
 

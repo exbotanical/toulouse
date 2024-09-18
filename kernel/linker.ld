@@ -9,7 +9,7 @@ SECTIONS
 	/* which will be mapped to 1MB in the physical address space. */
 	/* Note that we page-align the sections. */
 
-	kernel_start = .;
+	image_start = .;
 
 	.multiboot_header : {
 		*(.multiboot_header)
@@ -40,5 +40,5 @@ SECTIONS
 		*(.bootstrap_stack)
 	}
 	/* Add a symbol that indicates the end address of the kernel. */
-	_kernel_end = .;
+	image_end = .;
 }
