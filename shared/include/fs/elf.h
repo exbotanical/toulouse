@@ -2,6 +2,7 @@
 #define ELF_H
 // See: https://refspecs.linuxfoundation.org/elf/elf.pdf
 
+#include "common/compiler.h"
 #include "common/types.h"
 
 // #define ELF_MAGIC    0x464C457FU
@@ -102,7 +103,7 @@ typedef struct {
   elf32_half e_shentsize;
   elf32_half e_shnum;
   elf32_half e_shstrndx;
-} __attribute__((packed)) elf32_hdr;
+} packed elf32_hdr;
 
 typedef struct {
   elf32_word p_type;
@@ -113,7 +114,7 @@ typedef struct {
   elf32_word p_memsz;
   elf32_word p_flags;
   elf32_word p_align;
-} __attribute__((packed)) elf32_phdr;
+} packed elf32_phdr;
 
 static bool
 elf_is_valid_sig (elf32_hdr* elf) {

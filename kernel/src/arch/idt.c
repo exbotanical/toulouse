@@ -6,5 +6,5 @@ void idt_init(void);
 
 void
 idt_init (void) {
-  cli();
+  // cli();
 }

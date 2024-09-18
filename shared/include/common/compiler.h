@@ -31,4 +31,14 @@
     (type *)((char *)__mptr - offsetof(type, member)); \
   })
 
+#define packed         __attribute__((__packed__))
+
+/**
+ * Prevents compiler optimizations and ensures the value passed as a parameter is accessed exactly
+ * once by the generated code. It works by applying `volatile` to the storage location.
+ *
+ * See: https://lwn.net/Articles/508991
+ */
+#define access_once(x) (*((volatile typeof(x) *)&(x)))
+
 #endif /* COMPILER_H */

@@ -26,6 +26,8 @@
 #ifndef MULTIBOOT_HEADER
 #define MULTIBOOT_HEADER
 
+#include "common/compiler.h"
+
 /* How many bytes from the start of the file we search for the header. */
 #define MULTIBOOT_SEARCH                8192
 
@@ -147,7 +149,7 @@ typedef struct multiboot_mmap_entry {
 #  define MULTIBOOT_MEMORY_AVAILABLE 1
 #  define MULTIBOOT_MEMORY_RESERVED  2
   multiboot_uint32_t type;
-} __attribute__((packed)) multiboot_memory_map_t;
+} packed multiboot_memory_map_t;
 
 typedef struct multiboot_mod_list {
   /* the memory used goes from bytes 'start' to 'end-1' inclusive */
@@ -159,7 +161,7 @@ typedef struct multiboot_mod_list {
 
   /* padding to take it to 16 bytes (must be zero) */
   multiboot_uint32_t pad;
-} __attribute__((packed)) multiboot_module_t;
+} packed multiboot_module_t;
 
 typedef struct multiboot_info {
   /* Multiboot info version number */

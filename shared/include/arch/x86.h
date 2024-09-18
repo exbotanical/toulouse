@@ -130,4 +130,33 @@ stosb (void *addr, int32_t data, int32_t c) {
                : "memory", "cc");
 }
 
+static inline void
+halt (void) {
+  do {
+    asm volatile("hlt");
+  } while (0);
+}
+
+/**
+ * Forces the compiler to NOT reorder around the barrier in either direction such that no operation
+ * before the barrier can reorder with any operation after the barrier (and vice versa).
+ */
+static inline void
+barrier (void) {
+  do {
+    asm volatile("" ::: "memory");
+  } while (0);
+}
+
+/**
+ * Idles the CPU via a no-op instruction. Uses `rep nop` aka OpCode F390 aka "pause", optimized on
+ * x86.
+ */
+static inline void
+idle (void) {
+  do {
+    asm volatile("rep; nop" ::: "memory");
+  } while (0);
+}
+
 #endif /* X86_H */

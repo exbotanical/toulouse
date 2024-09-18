@@ -12,22 +12,23 @@
 static inline uint32_t
 eflags_get (void) {
   unsigned int eflags;
-  __asm__ __volatile__("pushf\n\t"
-                       "pop %0"
-                       : "=r"(eflags));
+  asm __volatile__("pushf\n\t"
+                   "pop %0"
+                   : "=r"(eflags));
+  return eflags;
 }
 
 static inline void
 eflags_set (uint32_t eflags) {
-  __asm__ __volatile__("pop %%ecx\n\t"
-                       "popf\n\t"
-                       // Restore the stack frame
-                       "sub $4, %%esp\n\t"
-                       // Return to the caller's stack frame
-                       "jmp *%%ecx"
-                       :
-                       : "g"(eflags)
-                       : "ecx", "memory");
+  asm __volatile__("pop %%ecx\n\t"
+                   "popf\n\t"
+                   // Restore the stack frame
+                   "sub $4, %%esp\n\t"
+                   // Return to the caller's stack frame
+                   "jmp *%%ecx"
+                   :
+                   : "g"(eflags)
+                   : "ecx", "memory");
 }
 
 #endif /* EFLAGS_H */
