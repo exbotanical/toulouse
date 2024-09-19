@@ -1,5 +1,7 @@
 #include "lib/string.h"
 
+static char* CHARSET = "0123456789abcdefghijklmnopqrstuvwxyz";
+
 size_t
 k_strlen (const char* s) {
   size_t l = 0;
@@ -102,5 +104,57 @@ k_memchr (void* s, int value, size_t bytes) {
   return NULL;
 }
 
-// char *itoa(int value, char *buff, int base);
-// int   atoi(char *str);
+char*
+k_itoa (int value, char* buff, int base) {
+  char* ret = buff;
+  char  tmp[64];
+  int   idx = 0;
+
+  if (value < 0) {
+    *buff++ = '-';
+    value   = -value;
+  }
+
+  if (value == 0) {
+    *buff++ = '0';
+    *buff   = 0;
+    return ret;
+  }
+
+  while (value > 0) {
+    tmp[idx++]  = CHARSET[value % base];
+    value      /= base;
+  }
+
+  while (idx > 0) {
+    *buff++ = tmp[--idx];
+  }
+  *buff = 0;
+  return ret;
+}
+
+int
+k_atoi (char* str) {
+  int      i      = 0;
+  uint32_t factor = 1;
+
+  if (*str == '-') {
+    factor = -1;
+    str++;
+  }
+
+  if (*str == '+') {
+    str++;
+  }
+
+  while (*str) {
+    if (*str < '0' || *str > '9') {
+      break;
+    }
+    i *= 10;
+    i += *str - '0';
+    str++;
+  }
+
+  return i * factor;
+}

@@ -157,6 +157,29 @@ k_memchr_test_no_match (void) {
 }
 
 void
+k_atoi_test (void) {
+  int i = k_atoi("123567");
+  ok(i == 123567, "converts an unsigned integer");
+
+  i = k_atoi("-5893");
+  ok(i == -5893, "converts a signed integer");
+}
+
+void
+k_itoa_test (void) {
+  char s[64];
+
+  k_itoa(123567, s, 10);
+  is(s, "123567", "converts an unsigned integer");
+
+  k_itoa(-5893, s, 10);
+  is(s, "-5893", "converts a signed integer");
+
+  k_itoa(4096, s, 16);
+  is(s, "1000", "converts a base 16 integer");
+}
+
+void
 run_string_tests (void) {
   k_strlen_test();
   k_strlen_test_empty();
@@ -182,4 +205,7 @@ run_string_tests (void) {
   k_memchr_test();
   k_memchr_test_null_byte();
   k_memchr_test_no_match();
+
+  k_atoi_test();
+  k_itoa_test();
 }

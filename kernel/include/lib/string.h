@@ -99,4 +99,22 @@ int k_memcmp(const void* s1, const void* s2, size_t bytes);
  */
 void* k_memchr(void* s, int value, size_t bytes);
 
+/**
+ * Converts a string to an integer.
+ *
+ * @param str
+ * @return int
+ */
+int k_atoi(char* str);
+
+/**
+ * Converts an integer to a string.
+ *
+ * @param value
+ * @param buff
+ * @param base
+ * @return char*
+ */
+char* k_itoa(int value, char* buff, int base);
+
 #endif /* KLIB_STRING_H */
