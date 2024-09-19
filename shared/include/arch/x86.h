@@ -132,9 +132,7 @@ stosb (void *addr, int32_t data, int32_t c) {
 
 static inline void
 halt (void) {
-  do {
-    asm volatile("hlt");
-  } while (0);
+  asm volatile("hlt");
 }
 
 /**
@@ -143,9 +141,7 @@ halt (void) {
  */
 static inline void
 barrier (void) {
-  do {
-    asm volatile("" ::: "memory");
-  } while (0);
+  asm volatile("" ::: "memory");
 }
 
 /**
@@ -154,9 +150,7 @@ barrier (void) {
  */
 static inline void
 idle (void) {
-  do {
-    asm volatile("rep; nop" ::: "memory");
-  } while (0);
+  asm volatile("rep; nop" ::: "memory");
 }
 
 #endif /* X86_H */

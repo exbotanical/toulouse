@@ -1,6 +1,7 @@
 #include "mem/manager.h"
 
 #include "common/types.h"
+#include "debug/panic.h"
 #include "lib/list.h"
 #include "lib/math.h"
 #include "lib/string.h"
@@ -119,13 +120,15 @@ memm_init (multiboot_info_t *mbi) {
   // Save the mmap to a buffer as well...
   mmap_length = mbi->mmap_length / sizeof(multiboot_memory_map_t);
   if (mmap_length > MMAP_BUFF_SIZE) {
-    // TODO: panic
+    // TODO: k_panicf
+    k_panic("mmap too large");
   }
-  k_memcpy(mmaps, mbi->mmap, mbi->mmap_length);
+
+  k_memcpy(mmaps, mbi->mmap, mmap_length * sizeof(multiboot_memory_map_t));
 
   heap_start = memm_find_region(NUM_HEAP_PAGES);
   if (!heap_start) {
-    // TODO: panic
+    k_panic("could not find a sufficiently large contiguous memory region for heap");
   }
   heap_end = heap_start + HEAP_SZ;
 }

@@ -41,4 +41,6 @@
  */
 #define access_once(x) (*((volatile typeof(x) *)&(x)))
 
+#define noreturn  __attribute__((noreturn))
+
 #endif /* COMPILER_H */
