@@ -19,8 +19,11 @@ SHARED_OBJS  := $(shell find -L ../shared/ -type f -name "*.o")
 TEST_DEPS    := $(wildcard $(DEPSDIR)/libtap/*.c)
 TESTSRCS     := $(shell find -L $(TESTDIR) -type f -name "*.c")
 
-CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding -fno-stack-protector \
-	-c -O3
+CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding \
+	-c -mno-sse -O3 -fno-stack-protector
+# Why no SSE - see: https://forum.osdev.org/viewtopic.php?p=234155
+# TODO: -fstack-protector-all (need to link)
+
 CFLAGS       += $(C_STRICTMODE_FLAGS)
 CFLAGS       += -I$(INC_DIR)
 
