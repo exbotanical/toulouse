@@ -7,5 +7,5 @@
 void
 kmain (multiboot_info_t *mbi) {
   vga_globl_console_init();
-  memm_init(mbi);
+  mm_init(mbi);
 }

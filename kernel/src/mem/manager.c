@@ -2,6 +2,7 @@
 
 #include "common/types.h"
 #include "debug/panic.h"
+#include "drivers/console/vga.h"
 #include "lib/list.h"
 #include "lib/math.h"
 #include "lib/string.h"
@@ -108,7 +109,7 @@ memm_find_region (uint32_t num_pages) {
 }
 
 void
-memm_init (multiboot_info_t *mbi) {
+mm_init (multiboot_info_t *mbi) {
   for (uint32_t i = 0; i <= MAX_ORDER; i++) {
     // TODO: define_list vs list_init - make use-cases more apparent
     list_init(&free_page_list[i]);
@@ -118,7 +119,7 @@ memm_init (multiboot_info_t *mbi) {
   module_init(mbi);
 
   // Save the mmap to a buffer as well...
-  mmap_length = mbi->mmap_length / sizeof(multiboot_memory_map_t);
+  mmap_length = mbi->mmap_length;
   if (mmap_length > MMAP_BUFF_SIZE) {
     // TODO: k_panicf
     k_panic("mmap too large");
