@@ -33,6 +33,8 @@
 
 #define packed         __attribute__((__packed__))
 
+#define aligned(a)     __attribute__((aligned((a))))
+
 /**
  * Prevents compiler optimizations and ensures the value passed as a parameter is accessed exactly
  * once by the generated code. It works by applying `volatile` to the storage location.
@@ -41,6 +43,6 @@
  */
 #define access_once(x) (*((volatile typeof(x) *)&(x)))
 
-#define noreturn  __attribute__((noreturn))
+#define noreturn       __attribute__((noreturn))
 
 #endif /* COMPILER_H */

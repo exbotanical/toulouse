@@ -18,7 +18,29 @@ typedef struct {
   ticket_pair_t tickets;
   int           holder;
   list_head_t   list;
-} packed spinlock_t;
+} spinlock_t;  // TODO: inner packed
+
+static inline spinlock_t *
+spinlock_create (void) {
+  spinlock_t *sl = &(spinlock_t){
+    .holder  = 0xFFFF,
+    .tickets = {.next = 0, .owner = 0},
+  };
+
+  list_init(&sl->list);
+
+  return sl;
+}
+
+static inline void
+spinlock_init (spinlock_t *sl) {
+  *sl = (spinlock_t){
+    .holder  = 0xFFFF,
+    .tickets = {.next = 0, .owner = 0},
+  };
+
+  list_init(&sl->list);
+}
 
 bool spinlock_trylock(volatile spinlock_t *lock);
 void spinlock_lock(volatile spinlock_t *lock);

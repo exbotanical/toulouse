@@ -2,6 +2,7 @@
 
 #include "debug/panic.h"
 #include "drivers/console/vga.h"
+#include "lib/string.h"
 #include "mem/manager.h"
 
 void

@@ -3,7 +3,7 @@
 
 #include "common/types.h"
 
-#define VGA_BUFFER 0xB8000
+#define VGA_ADDR 0xB8000
 
 /* Hardware text mode color constants. */
 typedef enum {
@@ -41,5 +41,6 @@ void vga_console_putchar_at(char c, uint32_t x, uint32_t y);
 void vga_console_putchar(char c);
 void vga_console_write(const char* data, uint32_t size);
 void vga_console_writestr(const char* data);
+void vga_early_remap(void);
 
 #endif /* VGA_H */

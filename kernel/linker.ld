@@ -1,14 +1,17 @@
+KERNEL_PHYSICAL_BASE = 0x00100000;
+KERNEL_VIRTUAL_BASE = 0xC0000000;
+
+/* TODO:? https://stackoverflow.com/questions/28837199/can-i-use-preprocessor-directives-in-ld-file */
 OUTPUT_FORMAT("elf32-i386")
 OUTPUT_ARCH(i386)
 ENTRY(_start)
-
 SECTIONS
 {
-	. = 0x00100000;
+	. = KERNEL_PHYSICAL_BASE;
+
 	/* The kernel will live at 3GB + 1MB in the virtual address space, */
 	/* which will be mapped to 1MB in the physical address space. */
 	/* Note that we page-align the sections. */
-
 	image_start = .;
 
 	.multiboot_header : {
@@ -19,26 +22,30 @@ SECTIONS
 		*(.entry)
 	}
 
-	/* . += 0xC0000000; */
-	/* Add a symbol that indicates the start address of the kernel. */
-	.text ALIGN (4K) : AT (ADDR (.text) ) /* - 0xC0000000*/
+	. += KERNEL_VIRTUAL_BASE;
+
+	.text ALIGN (4K) : AT (ADDR (.text) - KERNEL_VIRTUAL_BASE)
 	{
 		*(.text)
-	}
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) ) /* - 0xC0000000*/
-	{
 		*(.rodata)
 	}
-	.data ALIGN (4K) : AT (ADDR (.data) ) /* - 0xC0000000*/
+
+	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VIRTUAL_BASE)
 	{
 		*(.data)
 	}
-	.bss ALIGN (4K) : AT (ADDR (.bss) ) /* - 0xC0000000*/
+
+	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VIRTUAL_BASE)
 	{
 		*(COMMON)
 		*(.bss)
 		*(.bootstrap_stack)
 	}
-	/* Add a symbol that indicates the end address of the kernel. */
-	image_end = .;
+
+	image_end = . - KERNEL_VIRTUAL_BASE;
+
+	/DISCARD/ : {
+		*(.comment)
+		*(.note.gnu.build-id)
+	}
 }

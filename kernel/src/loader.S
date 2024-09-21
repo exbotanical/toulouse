@@ -31,23 +31,48 @@
 .long    CHECKSUM
 
 .section .bootstrap_stack, "aw", @nobits
+.align 32
 # Allocate an initial stack (amount is arbitrary - it just must be sufficient enough for initial use)
-stack_bottom:
 .skip 0x4000 # 16kb
 stack_top:
+
+.section .data
+
+.align 0x1000
+boot_page_table:
+.set addr, 0
+.rept 1024
+.long addr | 1
+.set addr, addr + 0x1000
+.endr
+
+.align 0x1000
+boot_page_directory:
+.rept 1024
+.long (boot_page_table - 0xC0000000) + 1
+.endr
 
 .section .entry, "a"
 .type _start, @function
 _start:
+	cli
+
+	mov     $(boot_page_directory - 0xC0000000), %ecx
+	mov     %ecx, %cr3
+
+	mov     %cr0, %ecx
+	or      $0x80000000, %ecx
+	mov     %ecx, %cr0              # Enable paging. From this point onward, addresses are translated by the MMU.
+
 	lea     start_kernel, %ecx      # Jump to higher half with an absolute jump.
 	jmp     *%ecx
 
-.text
+.section .text
+.type start_kernel, @function
 start_kernel:
 
 	mov     $stack_top, %esp        # Set up the stack.
   push    %esi                    # Push the multi_boot info onto the stack
 	call    kmain                   # Enter the high-level kernel
 
-	cli
   jmp     .

@@ -26,7 +26,7 @@ int_enabled (void) {
 }
 
 static void
-int_save (uint32_t *flags) {
+int_save_disable (uint32_t *flags) {
   *flags = int_enabled();
   int_disable();
 }

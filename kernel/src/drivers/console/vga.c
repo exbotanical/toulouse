@@ -1,6 +1,7 @@
 #include "drivers/console/vga.h"
 
 #include "lib/string.h"
+#include "mem/mmu.h"
 
 static const uint32_t VGA_WIDTH  = 80;
 static const uint32_t VGA_HEIGHT = 25;
@@ -39,7 +40,7 @@ vga_globl_console_init (void) {
   global_vga_con->row    = 0;
   global_vga_con->col    = 0;
   global_vga_con->color  = vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-  global_vga_con->buffer = (uint16_t*)VGA_BUFFER;
+  global_vga_con->buffer = (uint16_t*)VGA_ADDR;
 
   vga_console_clear_screen();
 }
@@ -93,4 +94,9 @@ vga_console_write (const char* data, uint32_t size) {
 void
 vga_console_writestr (const char* data) {
   vga_console_write(data, k_strlen(data));
+}
+
+void
+vga_early_remap (void) {
+  global_vga_con->buffer = (uint16_t*)map_page(VGA_ADDR);
 }

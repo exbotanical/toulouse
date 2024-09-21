@@ -4,15 +4,13 @@
 #include "common/types.h"
 #include "lib/math.h"
 
-#define NUM_ENTRIES    1024
-#define PAGE_SZ        4096
+// TODO: Base addresses should be shared with linker script
+#define KERNEL_PHYSICAL_BASE 0x00100000
+#define KERNEL_VIRTUAL_BASE  0xC0000000
 
-#define NUM_HEAP_PAGES div_up(sizeof(page_t) * NUM_ENTRIES * NUM_ENTRIES, PAGE_SZ)
-
-typedef struct {
-  uint32_t addr;
-  uint8_t  flags;
-} page_t;
+#define KERNEL_NUM_TABLES    256
+#define NUM_ENTRIES          1024
+#define PAGE_SZ              4096
 
 typedef uint32_t phys_addr_t;
 
