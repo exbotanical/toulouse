@@ -1,7 +1,7 @@
 .code32
 
 .global _start
-
+.extern kmain
 # This is the kernel entry-point.
 # There's two ways we can end up here:
 # 1. The bootloader implemented in boot/ loaded this code into memory, then
@@ -30,13 +30,13 @@
 .long    FLAGS
 .long    CHECKSUM
 
-.section .bootstrap_stack, "aw", @nobits
+.section .data
 .align 32
 # Allocate an initial stack (amount is arbitrary - it just must be sufficient enough for initial use)
 .skip 0x4000 # 16kb
 stack_top:
 
-.section .data
+.section .init.data
 
 .align 0x1000
 boot_page_table:
@@ -52,11 +52,9 @@ boot_page_directory:
 .long (boot_page_table - 0xC0000000) + 1
 .endr
 
-.section .entry, "a"
-.type _start, @function
+.section .entry, "ax"
 _start:
 	cli
-
 	mov     $(boot_page_directory - 0xC0000000), %ecx
 	mov     %ecx, %cr3
 
@@ -67,7 +65,7 @@ _start:
 	lea     start_kernel, %ecx      # Jump to higher half with an absolute jump.
 	jmp     *%ecx
 
-.section .text
+.text
 .type start_kernel, @function
 start_kernel:
 

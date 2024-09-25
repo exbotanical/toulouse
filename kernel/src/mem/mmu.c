@@ -2,6 +2,7 @@
 
 #include "arch/interrupt.h"
 #include "drivers/console/vga.h"
+#include "lib/string.h"
 #include "mem/manager.h"
 #include "sync/spinlock.h"
 
@@ -17,8 +18,8 @@ static page_dir_t page_directory aligned(PAGE_SZ);
 static page_table_t page_tables[KERNEL_NUM_TABLES] aligned(PAGE_SZ);
 
 static inline phys_addr_t
-v_to_phys (uint32_t kaddr) {
-  return kaddr - KERNEL_VIRTUAL_BASE;
+v_to_phys (void* kaddr) {
+  return ((uint32_t)kaddr) - KERNEL_VIRTUAL_BASE;
 }
 
 /**
@@ -76,6 +77,10 @@ get_page_offset (uint32_t addr) {
  */
 static inline uint32_t
 get_next_virtual (uint32_t phys_addr) {
+  uint32_t x = (next_page * 4096) + 0xC0000000;
+
+  vga_print_int(x);
+
   return (next_page * PAGE_SZ) + KERNEL_VIRTUAL_BASE + get_page_offset(phys_addr);
 }
 
@@ -111,8 +116,8 @@ build_page_dir (page_dir_t* dir) {
   }
 
   for (uint32_t i = 0; i < KERNEL_NUM_TABLES; i++) {
-    phys_addr_t phys_addr = v_to_phys((uint32_t)&page_tables[i]);
-    dirent_set(dir, i + base_offset, phys_addr, MMUFLAG_PRESENT | MMUFLAG_WRITABLE);
+    phys_addr_t phys_addr = v_to_phys(&page_tables[i]);
+    dirent_set(dir, i + base_offset, phys_addr, MMU_FLAG_PRESENT | MMU_FLAG_WRITABLE);
   }
 }
 
@@ -133,7 +138,7 @@ setup_page (phys_addr_t phys_addr) {
     &page_tables[idx],
     get_page_table(next_page_boundary),
     phys_addr,
-    MMUFLAG_WRITABLE | MMUFLAG_PRESENT
+    MMU_FLAG_WRITABLE | MMU_FLAG_PRESENT
   );
 
   // Invalidate any old/pre-existing TLB entry
@@ -187,9 +192,11 @@ mmu_init (phys_addr_t kernel_end, phys_addr_t heap_start) {
   uint32_t pages = map_pages(heap_start, NUM_HEAP_PAGES);
 
   build_page_dir(&page_directory);
-  loadcr3(v_to_phys((uint32_t)&page_directory));
+
+  loadcr3(v_to_phys(&page_directory));
+
   // Map physical addresses such as the VGA so they continue to work
-  vga_early_remap();
+  // vga_early_remap(global_vga_con);
 
   return pages;
 }

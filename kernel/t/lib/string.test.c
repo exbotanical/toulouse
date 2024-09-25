@@ -177,6 +177,9 @@ k_itoa_test (void) {
 
   k_itoa(4096, s, 16);
   is(s, "1000", "converts a base 16 integer");
+
+  k_itoa(23126016 + 0xC0000000, s, 10);
+  is(s, "3244351488", "converts a large integer");
 }
 
 void

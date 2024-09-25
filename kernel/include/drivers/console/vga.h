@@ -41,6 +41,8 @@ void vga_console_putchar_at(char c, uint32_t x, uint32_t y);
 void vga_console_putchar(char c);
 void vga_console_write(const char* data, uint32_t size);
 void vga_console_writestr(const char* data);
-void vga_early_remap(void);
+void vga_early_remap(vga_console_t* cons);
+
+void vga_print_int(int x);
 
 #endif /* VGA_H */

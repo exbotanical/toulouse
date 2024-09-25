@@ -35,11 +35,19 @@ SECTIONS
 		*(.data)
 	}
 
-	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VIRTUAL_BASE)
+	.bss : AT (ADDR (.bss) - KERNEL_VIRTUAL_BASE)
 	{
 		*(COMMON)
 		*(.bss)
-		*(.bootstrap_stack)
+	}
+
+	.init.text ALIGN (4K) : AT(ADDR(.init.text) - KERNEL_VIRTUAL_BASE) {
+		init_mem_start = . - KERNEL_VIRTUAL_BASE;
+		*(.init.text)
+	}
+
+	.init.data ALIGN (4K) : AT(ADDR(.init.data) - KERNEL_VIRTUAL_BASE) {
+		*(.init.data)
 	}
 
 	image_end = . - KERNEL_VIRTUAL_BASE;

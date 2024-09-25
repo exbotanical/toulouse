@@ -19,8 +19,7 @@ dist: bootblock kernel
 test:
 	$(MAKE) clean
 	$(MAKE) dist
-	$(QEMU) -drive file=$(DISTPATH)/$(TARGET),index=0,media=disk,format=raw
-#-d int
+	$(QEMU) -drive file=$(DISTPATH)/$(TARGET),index=0,media=disk,format=raw -d int -no-reboot -D qemu_log.txt
 
 clean:
 	$(MAKE) -C shared clean

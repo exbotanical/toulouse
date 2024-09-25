@@ -105,31 +105,31 @@ k_memchr (void* s, int value, size_t bytes) {
 }
 
 char*
-k_itoa (int value, char* buff, int base) {
-  char* ret = buff;
+k_itoa (int value, char* buf, int radix) {
+  char* ret = buf;
   char  tmp[64];
   int   idx = 0;
 
   if (value < 0) {
-    *buff++ = '-';
-    value   = -value;
+    *buf++ = '-';
+    value  = -value;
   }
 
   if (value == 0) {
-    *buff++ = '0';
-    *buff   = 0;
+    *buf++ = '0';
+    *buf   = 0;
     return ret;
   }
 
   while (value > 0) {
-    tmp[idx++]  = CHARSET[value % base];
-    value      /= base;
+    tmp[idx++]  = CHARSET[value % radix];
+    value      /= radix;
   }
 
   while (idx > 0) {
-    *buff++ = tmp[--idx];
+    *buf++ = tmp[--idx];
   }
-  *buff = 0;
+  *buf = 0;
   return ret;
 }
 

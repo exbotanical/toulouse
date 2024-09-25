@@ -3,10 +3,11 @@
 #include "lib/string.h"
 #include "mem/mmu.h"
 
-static const uint32_t VGA_WIDTH  = 80;
-static const uint32_t VGA_HEIGHT = 25;
+static const uint32_t VGA_WIDTH     = 80;
+static const uint32_t VGA_HEIGHT    = 25;
 
-vga_console_t* global_vga_con    = NULL;
+vga_console_t*       global_vga_con = NULL;
+static vga_console_t glob;
 
 static inline uint8_t
 vga_entry_color (vga_color_t fg, vga_color_t bg) {
@@ -37,6 +38,7 @@ vga_console_scroll (void) {
 
 void
 vga_globl_console_init (void) {
+  global_vga_con         = &glob;
   global_vga_con->row    = 0;
   global_vga_con->col    = 0;
   global_vga_con->color  = vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
@@ -97,6 +99,14 @@ vga_console_writestr (const char* data) {
 }
 
 void
-vga_early_remap (void) {
-  global_vga_con->buffer = (uint16_t*)map_page(VGA_ADDR);
+vga_early_remap (vga_console_t* cons) {
+  cons->buffer = (uint16_t*)map_page(VGA_ADDR);
+}
+
+void
+vga_print_int (int x) {
+  char s[32];
+  k_itoa(x, s, 10);
+  vga_console_writestr(s);
+  vga_console_writestr("\n");
 }

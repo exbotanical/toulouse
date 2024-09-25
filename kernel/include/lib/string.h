@@ -111,10 +111,10 @@ int k_atoi(char* str);
  * Converts an integer to a string.
  *
  * @param value
- * @param buff
- * @param base
+ * @param buf
+ * @param radix
  * @return char*
  */
-char* k_itoa(int value, char* buff, int base);
+char* k_itoa(int value, char* buf, int radix);
 
 #endif /* KLIB_STRING_H */

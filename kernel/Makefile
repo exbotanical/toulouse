@@ -40,8 +40,12 @@ $(OBJS): $(BUILD_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS) -I../shared/include -o $@ $<
 
-all: dirs $(OBJS) $(SHARED_OBJS) build/loader.o
-	$(LD) $(LDFLAGS) -T linker.ld build/loader.o $(OBJS) $(SHARED_OBJS) -o bin/kernel
+# TODO: fix
+build/arch_idt.o:
+	$(CC) $(CFLAGS) src/arch/idt.s -o build/arch_idt.o
+
+all: dirs $(OBJS) $(SHARED_OBJS) build/loader.o build/arch_idt.o
+	$(LD) $(LDFLAGS) -T linker.ld build/loader.o $(OBJS) $(SHARED_OBJS) build/arch_idt.o -o bin/kernel
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -52,6 +56,6 @@ dirs:
 	@mkdir -p $(BUILD_DIR) $(BIN_DIR)
 
 unit_test: $(OBJS)
-	$(CC) -m32 $(TESTSRCS) $(TEST_DEPS) $(OBJS) -I$(DEPSDIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
+	gcc -m32 $(TESTSRCS) $(TEST_DEPS) $(OBJS) -I$(DEPSDIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
 	./$(UNIT_TARGET)
 	$(MAKE) clean

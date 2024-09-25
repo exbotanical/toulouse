@@ -20,8 +20,6 @@
 
 extern uint32_t image_start;
 extern uint32_t image_end;
-extern uint32_t image_start;
-extern uint32_t image_end;
 
 static phys_addr_t kernel_start;
 static phys_addr_t kernel_end;
@@ -30,8 +28,8 @@ static phys_addr_t heap_end;
 
 static list_head_t free_page_list[MAX_ORDER + 1];
 
-static multiboot_memory_map_t mmaps[MMAP_BUFF_SIZE];
-static uint32_t               mmap_length;
+static __attribute__((section(".init.data"))) multiboot_memory_map_t mmaps[MMAP_BUFF_SIZE];
+static __attribute__((section(".init.data"))) uint32_t               mmap_length;
 
 page_t *all_pages;
 
@@ -238,6 +236,9 @@ mm_init (multiboot_info_t *mbi) {
     list_init(&free_page_list[i]);
   }
 
+  kernel_start = (uint32_t)&image_start;
+  kernel_end   = (uint32_t)&image_end;  // 20E820
+
   // Save the module list to a buffer
   module_init(mbi);
 
@@ -261,16 +262,13 @@ mm_init (multiboot_info_t *mbi) {
 
   // At this point, we can assume everything that wasn't kernel memory or module memory has been
   // clobbered. Henceforth, we may only use addresses for pre-allocated space.
-
   // ...This includes the multiboot data, so we nullify the pointer.
   mbi       = NULL;
 
-  for (uint32_t page = 0; page < NUM_ENTRIES * NUM_ENTRIES; page++) {
-    all_pages[page].addr         = 0;
-    all_pages[page].flags        = PAGE_FLAG_PERM | PAGE_FLAG_USED;
-    all_pages[page].order        = 0;
-    all_pages[page].compound_num = 0;
-  }
+  // for (uint32_t page = 0; page < NUM_ENTRIES * NUM_ENTRIES; page++) {
+  //   all_pages[page].flags = PAGE_FLAG_PERM | PAGE_FLAG_USED;
+  //   all_pages[page].order = 0;
+  // }
 
-  claim_all_pages();
+  // claim_all_pages();
 }
