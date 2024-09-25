@@ -5,9 +5,9 @@
 #include "common/types.h"
 #include "mem/base.h"
 
-#define MMUFLAG_PRESENT  (1 << 0)
-#define MMUFLAG_WRITABLE (1 << 1)
-#define MMUFLAG_USER     (1 << 2)
+#define MMU_FLAG_PRESENT  (1 << 0)
+#define MMU_FLAG_WRITABLE (1 << 1)
+#define MMU_FLAG_USER     (1 << 2)
 
 typedef struct {
   uint32_t flags     : 12;

@@ -30,8 +30,8 @@ static phys_addr_t heap_end;
 
 static list_head_t free_page_list[MAX_ORDER + 1];
 
-static multiboot_memory_map_t mmaps[MMAP_BUFF_SIZE];
-static uint32_t               mmap_length;
+static __attribute__((section(".init.data"))) multiboot_memory_map_t mmaps[MMAP_BUFF_SIZE];
+static __attribute__((section(".init.data"))) uint32_t               mmap_length;
 
 page_t *all_pages;
 
@@ -244,6 +244,12 @@ mm_init (multiboot_info_t *mbi) {
   // Save the mmap to a buffer as well...
   mmap_length = mbi->mmap_length;
   if (mmap_length > MMAP_BUFF_SIZE) {
+    char s[32];
+    k_itoa(mbi->mmap_length, s, 10);
+    vga_console_writestr("SZ: ");
+    vga_console_writestr(s);
+    vga_console_writestr("\n");
+
     // TODO: k_panicf
     k_panic("mmap too large");
   }
@@ -261,7 +267,6 @@ mm_init (multiboot_info_t *mbi) {
 
   // At this point, we can assume everything that wasn't kernel memory or module memory has been
   // clobbered. Henceforth, we may only use addresses for pre-allocated space.
-
   // ...This includes the multiboot data, so we nullify the pointer.
   mbi       = NULL;
 

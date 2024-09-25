@@ -1,7 +1,5 @@
 #include "sync/spinlock.h"
 
-#include <stdio.h>
-
 #include "arch/atomic.h"
 #include "arch/interrupt.h"
 #include "arch/x86.h"
