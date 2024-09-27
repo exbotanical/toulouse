@@ -36,8 +36,6 @@
 .skip 0x4000 # 16kb
 stack_top:
 
-.section .init.data
-
 .align 0x1000
 boot_page_table:
 .set addr, 0

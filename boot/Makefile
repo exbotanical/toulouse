@@ -17,7 +17,7 @@ SHARED_OBJS := $(shell find -L ../shared/ -type f -name "*.o")
 
 # -mkernel?
 CFLAGS  := -m32 -static -nostdinc -fno-builtin -fno-omit-frame-pointer \
-	-fno-pic -ffreestanding -O3 -fno-stack-protector
+	-fno-pic -ffreestanding -O3
 
 CFLAGS  += $(C_STRICTMODE_FLAGS)
 CFLAGS  += -I$(INC_DIR)

@@ -12,7 +12,7 @@
 #include "mem/module.h"
 #include "sync/spinlock.h"
 
-#define ADDRESS_SPACE_SZ 4294967295ULL  // TODO: wut
+#define ADDRESS_SPACE_SZ 4294967295ULL
 #define MAX_ORDER        10
 #define MMAP_BUFF_SIZE   256
 
@@ -28,8 +28,8 @@ static phys_addr_t heap_end;
 
 static list_head_t free_page_list[MAX_ORDER + 1];
 
-static __attribute__((section(".init.data"))) multiboot_memory_map_t mmaps[MMAP_BUFF_SIZE];
-static __attribute__((section(".init.data"))) uint32_t               mmap_length;
+static multiboot_memory_map_t mmaps[MMAP_BUFF_SIZE];
+static uint32_t               mmap_length;
 
 page_t *all_pages;
 
@@ -237,12 +237,13 @@ mm_init (multiboot_info_t *mbi) {
   }
 
   kernel_start = (uint32_t)&image_start;
-  kernel_end   = (uint32_t)&image_end;  // 20E820
+  kernel_end   = (uint32_t)&image_end;
 
   // Save the module list to a buffer
   module_init(mbi);
 
   // Save the mmap to a buffer as well...
+  // TODO: check if multiboot sets num maps or byte length (in which case we need to / by struct sz)
   mmap_length = mbi->mmap_length;
   if (mmap_length > MMAP_BUFF_SIZE) {
     // TODO: k_panicf
@@ -257,18 +258,20 @@ mm_init (multiboot_info_t *mbi) {
   }
   heap_end  = heap_start + HEAP_SZ;
 
-  // Replace the temporary page table we used on boot with a better one.
   all_pages = (page_t *)mmu_init(kernel_end, heap_start);
-
   // At this point, we can assume everything that wasn't kernel memory or module memory has been
   // clobbered. Henceforth, we may only use addresses for pre-allocated space.
   // ...This includes the multiboot data, so we nullify the pointer.
   mbi       = NULL;
 
-  // for (uint32_t page = 0; page < NUM_ENTRIES * NUM_ENTRIES; page++) {
-  //   all_pages[page].flags = PAGE_FLAG_PERM | PAGE_FLAG_USED;
-  //   all_pages[page].order = 0;
-  // }
+  // Off by one???!!!
+  for (uint32_t page = 0; page < (NUM_ENTRIES * NUM_ENTRIES) - 1; page++) {
+    all_pages[page].flags        = PAGE_FLAG_PERM | PAGE_FLAG_USED;
+    all_pages[page].order        = 0;
+    all_pages[page].addr         = 0;
+    all_pages[page].compound_num = 0;
+  }
 
+  vgaprintf("HALLO %s\n", "moto");
   // claim_all_pages();
 }

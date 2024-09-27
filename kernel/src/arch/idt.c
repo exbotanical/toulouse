@@ -12,7 +12,7 @@ extern void load_idt(idtr_desc_t* idtr);
 
 static void
 page_fault_handler (uint32_t ec) {
-  vga_console_writestr("PAGE FAULT!");
+  vga_printf("%s", "PAGE FAULT!");
 
   while (true) {
     idle();

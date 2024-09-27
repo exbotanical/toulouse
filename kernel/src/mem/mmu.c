@@ -46,15 +46,15 @@ loadcr3 (uint32_t phys) {
 static inline uint32_t
 get_page_dir (phys_addr_t addr) {
   // Keep the higher 20 bits (i.e. mask off the lower 12 - the page offset)
-  uint32_t aligned = addr & 0xFFFFF000;
-  return (aligned / PAGE_SZ) / NUM_ENTRIES;
+  uint32_t aligned_addr = addr & 0xFFFFF000;
+  return (aligned_addr / PAGE_SZ) / NUM_ENTRIES;
 }
 
 static inline uint32_t
 get_page_table (phys_addr_t addr) {
   // Keep the higher 20 bits (i.e. mask off the lower 12 - the page offset)
-  uint32_t aligned = addr & 0xFFFFF000;
-  return (aligned / PAGE_SZ) % NUM_ENTRIES;
+  uint32_t aligned_addr = addr & 0xFFFFF000;
+  return (aligned_addr / PAGE_SZ) % NUM_ENTRIES;
 }
 
 /**
@@ -77,10 +77,6 @@ get_page_offset (uint32_t addr) {
  */
 static inline uint32_t
 get_next_virtual (uint32_t phys_addr) {
-  uint32_t x = (next_page * 4096) + 0xC0000000;
-
-  vga_print_int(x);
-
   return (next_page * PAGE_SZ) + KERNEL_VIRTUAL_BASE + get_page_offset(phys_addr);
 }
 
@@ -185,18 +181,18 @@ map_pages (phys_addr_t phys_addr, uint32_t pages) {
 
 uint32_t
 mmu_init (phys_addr_t kernel_end, phys_addr_t heap_start) {
-  // Map 0xC0000000->0x00000000, 0xC0001bda_putl000->0x00001000, ...
+  next_page = 0;
+  // Map 0xC0000000->0x00000000, 0xC0001000->0x00001000, ...
   // We're essentially mapping over the entire kernel image, then the page table list immediately
   // thereafter.
-  map_pages(0, div_up(kernel_end, PAGE_SZ));
-  uint32_t pages = map_pages(heap_start, NUM_HEAP_PAGES);
+  map_pages(0, div_up(kernel_end, PAGE_SZ));               // 0 - 2162753 (529 pages)
+  uint32_t pages = map_pages(heap_start, NUM_HEAP_PAGES);  // 4625 - 5120
 
   build_page_dir(&page_directory);
-
   loadcr3(v_to_phys(&page_directory));
 
   // Map physical addresses such as the VGA so they continue to work
-  // vga_early_remap(global_vga_con);
+  vga_early_remap(global_vga_con);
 
   return pages;
 }

@@ -20,7 +20,7 @@ TEST_DEPS    := $(wildcard $(DEPSDIR)/libtap/*.c)
 TESTSRCS     := $(shell find -L $(TESTDIR) -type f -name "*.c")
 
 CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding \
-	-c -mno-sse -O3 -fno-stack-protector
+	-c -mno-sse -O3 -g
 # Why no SSE - see: https://forum.osdev.org/viewtopic.php?p=234155
 # TODO: -fstack-protector-all (need to link)
 

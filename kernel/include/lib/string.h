@@ -109,6 +109,7 @@ int k_atoi(char* str);
 
 /**
  * Converts an integer to a string.
+ * NOTE: This function can only handle the max signed integer size for std c.
  *
  * @param value
  * @param buf

@@ -2,6 +2,7 @@
 #define VGA_H
 
 #include "common/types.h"
+#include "lib/printf.h"
 
 #define VGA_ADDR 0xB8000
 
@@ -35,14 +36,19 @@ typedef struct {
 extern vga_console_t* global_vga_con;
 
 void vga_globl_console_init(void);
-void vga_console_clear_screen(void);
-void vga_console_setcolor(vga_color_t color);
-void vga_console_putchar_at(char c, uint32_t x, uint32_t y);
-void vga_console_putchar(char c);
-void vga_console_write(const char* data, uint32_t size);
-void vga_console_writestr(const char* data);
+void vga_console_clear_screen(vga_console_t* cons);
+void vga_console_setcolor(vga_console_t* cons, vga_color_t color);
+void vga_console_putchar_at(vga_console_t* cons, char c, uint32_t x, uint32_t y);
+void vga_console_putchar(vga_console_t* cons, char c);
+void vga_console_write(vga_console_t* cons, const char* data, uint32_t size);
 void vga_early_remap(vga_console_t* cons);
+void vga_printf(const char* fmt, ...);
 
-void vga_print_int(int x);
+#define vgaprintf(fmt, ...)                                \
+  {                                                        \
+    char buf[1024];                                        \
+    sprintf(buf, fmt, __VA_ARGS__);                        \
+    vga_console_write(global_vga_con, buf, k_strlen(buf)); \
+  }
 
 #endif /* VGA_H */
