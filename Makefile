@@ -1,6 +1,6 @@
 include Makefile.config
 
-.PHONY: shared bootblock dist clean
+.PHONY: shared bootblock dist clean grub
 .DELETE_ON_ERROR:
 
 shared:
@@ -14,6 +14,10 @@ kernel: shared
 
 dist: bootblock kernel
 	$(MAKE) -C dist all
+
+# TODO: flag instead of target
+grub: kernel
+	$(MAKE) -C dist grub
 
 # Exit Qemu focus trap with ctrl+alt+g
 test:

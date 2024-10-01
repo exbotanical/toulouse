@@ -124,12 +124,13 @@ free_page (page_t *page) {
   spinlock_lock(&lock);
 
   uint32_t page_sz = 1 << page->order;
+  vgaprintf("page_sz=%u\n", page_sz);
   for (uint32_t i = 0; i < page_sz; i++) {
     // ???
-    page[i].flags = 0;
+    // page[i].flags = 0;
   }
 
-  ripple_join(page);
+  // ripple_join(page);
 
   spinlock_unlock(&lock);
   int_store(flags);
@@ -215,6 +216,10 @@ claim_all_pages (void) {
 
       uint32_t start = div_up(mmap.addr, PAGE_SZ);
       uint64_t end   = div_up(mmap.addr + mmap.len, PAGE_SZ);
+      // 0 - 160
+      // 256 - 32736
+      vgaprintf("start=%u\n", mmap.addr);
+      vgaprintf("end=%u\n", mmap.addr + mmap.len);
 
       if (end > ADDRESS_SPACE_SZ / PAGE_SZ) {
         end = ADDRESS_SPACE_SZ / PAGE_SZ;
@@ -243,8 +248,7 @@ mm_init (multiboot_info_t *mbi) {
   module_init(mbi);
 
   // Save the mmap to a buffer as well...
-  // TODO: check if multiboot sets num maps or byte length (in which case we need to / by struct sz)
-  mmap_length = mbi->mmap_length;
+  mmap_length = mbi->mmap_length / sizeof(multiboot_memory_map_t);
   if (mmap_length > MMAP_BUFF_SIZE) {
     // TODO: k_panicf
     k_panic("mmap too large");
@@ -264,14 +268,40 @@ mm_init (multiboot_info_t *mbi) {
   // ...This includes the multiboot data, so we nullify the pointer.
   mbi       = NULL;
 
-  // Off by one???!!!
-  for (uint32_t page = 0; page < (NUM_ENTRIES * NUM_ENTRIES) - 1; page++) {
+  for (uint32_t page = 0; page < NUM_HEAP_PAGES; page++) {
     all_pages[page].flags        = PAGE_FLAG_PERM | PAGE_FLAG_USED;
     all_pages[page].order        = 0;
     all_pages[page].addr         = 0;
     all_pages[page].compound_num = 0;
   }
 
-  vgaprintf("HALLO %s\n", "moto");
-  // claim_all_pages();
+  claim_all_pages();
+
+  for (uint32_t i = 0; i < mmap_length; i++) {
+    multiboot_memory_map_t mmap = mmaps[i];
+    if (mmap.type != MULTIBOOT_MEMORY_AVAILABLE) {
+      continue;
+    }
+
+    vgaprintf("MBI: %d\n", i);
+    vgaprintf("mmap.addr: %u\n", mmap.addr);
+    vgaprintf("mmap.len: %u\n", mmap.len);
+    vgaprintf("mmap.size: %u\n", mmap.size);
+    vgaprintf("mmap.type: %u\n", mmap.type);
+  }
 }
+
+/*
+MMAP 0
+addr: 0
+len: 654336
+size: 20
+type: 1
+
+MMAP 3
+addr 1048576
+len: 133038080
+size: 20
+type: 1
+
+*/

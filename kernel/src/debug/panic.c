@@ -24,7 +24,7 @@ k_panic (char* msg) {
 
   dispatch_proc_interrupts();
 
-  vga_printf("\nKERNEL PANIC: %s\n", msg);
+  vgaprintf("\nKERNEL PANIC: %s\n", msg);
 
   dump_stack_trace();
 

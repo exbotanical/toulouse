@@ -30,6 +30,7 @@ stage2:
   call    try_enable_a20_via_bios
 
   # Get the memory map from the BIOS
+  # FIXME: mmap_length is wrong (is num maps, but should be byte len)
   mov     $READ_MMAP_MSG, %si
   call    print_ln_16
   call    mmap_setup
@@ -103,6 +104,7 @@ a20_enabled:
   mov     $A20_ENABLED_MSG, %ebx
   call    print_ln_32
 
+  # FIXME: should be in %ebx (see kernel/src/loader.S)
   lea     multiboot_info, %esi
   call    load_kernel
 

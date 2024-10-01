@@ -68,7 +68,9 @@ _start:
 start_kernel:
 
 	mov     $stack_top, %esp        # Set up the stack.
-  push    %esi                    # Push the multi_boot info onto the stack
+
+	push    %ebx                    # Push the multi_boot info onto the stack
+	# push    %eax                    # ...and the magic number
 	call    kmain                   # Enter the high-level kernel
 
   jmp     .

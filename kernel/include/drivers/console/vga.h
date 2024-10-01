@@ -3,6 +3,7 @@
 
 #include "common/types.h"
 #include "lib/printf.h"
+#include "lib/string.h"
 
 #define VGA_ADDR 0xB8000
 

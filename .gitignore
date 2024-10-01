@@ -7,3 +7,4 @@ tmp*
 *.img
 .vscode
 qemu_log.txt
+*.iso

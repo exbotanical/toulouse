@@ -1,8 +1,11 @@
 ROOTPATH ?= $(shell readlink -f ..)
 include $(ROOTPATH)/Makefile.config
 
-.PHONY: all clean
+.PHONY: all clean grub
 .DELETE_ON_ERROR:
+
+GRUB_BASE_DIR := bin/boot
+
 
 $(TARGET): $(BOOTPATH)/bin/bootblock $(KERNELPATH)/bin/kernel
 	dd if=/dev/zero of=$(TARGET) count=10000
@@ -12,5 +15,14 @@ $(TARGET): $(BOOTPATH)/bin/bootblock $(KERNELPATH)/bin/kernel
 
 all: $(TARGET)
 
+grub:
+	mkdir -p $(GRUB_BASE_DIR)/grub
+	cp $(KERNELPATH)/bin/kernel $(GRUB_BASE_DIR)/kernel
+	cp grub/grub.cfg $(GRUB_BASE_DIR)/grub/grub.cfg
+	grub-mkrescue -o $(TARGET) bin
+# TODO: separate run target
+	qemu-system-i386 -cdrom $(TARGET)
+
 clean:
 	rm -rf $(TARGET)
+	rm -rf $(GRUB_BASE_DIR)
