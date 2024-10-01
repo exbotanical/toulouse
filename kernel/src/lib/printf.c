@@ -85,7 +85,7 @@
 #endif
 
 // support for the ptrdiff_t type (%t)
-// ptrdiff_t is normally defined in <stddef.h> as long or long long type
+// ptrdiff_t is normally defined in <stddef.h" as long or long long type
 // default: activated
 #ifndef PRINTF_DISABLE_SUPPORT_PTRDIFF_T
 #  define PRINTF_SUPPORT_PTRDIFF_T

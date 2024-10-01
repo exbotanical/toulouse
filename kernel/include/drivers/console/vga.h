@@ -4,8 +4,9 @@
 #include "common/types.h"
 #include "lib/printf.h"
 #include "lib/string.h"
+#include "mem/base.h"
 
-#define VGA_ADDR 0xB8000
+#define VGA_ADDR 0xB8000 + KERNEL_PAGE_OFFSET
 
 /* Hardware text mode color constants. */
 typedef enum {
@@ -36,13 +37,12 @@ typedef struct {
 
 extern vga_console_t* global_vga_con;
 
-void vga_globl_console_init(void);
+void vga_global_console_init(void);
 void vga_console_clear_screen(vga_console_t* cons);
 void vga_console_setcolor(vga_console_t* cons, vga_color_t color);
 void vga_console_putchar_at(vga_console_t* cons, char c, uint32_t x, uint32_t y);
 void vga_console_putchar(vga_console_t* cons, char c);
 void vga_console_write(vga_console_t* cons, const char* data, uint32_t size);
-void vga_early_remap(vga_console_t* cons);
 void vga_printf(const char* fmt, ...);
 
 #define vgaprintf(fmt, ...)                                \

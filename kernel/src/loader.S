@@ -1,76 +1,135 @@
 .code32
 
-.global _start
+#define ASM_SOURCE 1
+
+#include "mem/segments.h"
+#include "init/multiboot.h"
+
+.extern tmp_paging_init
+.extern bss_init
+.extern gdt_init
 .extern kmain
-# This is the kernel entry-point.
-# There's two ways we can end up here:
-# 1. The bootloader implemented in boot/ loaded this code into memory, then
-# jumped to it via a long jump; or
-# 2. A different bootloader - such as GRUB - was used, in which case it will
-# have jumped directly to this code.
-# Effectively, both are doing the same thing. For #2, the host disk will
-# copied just the kernel and not the full image with boot/ prepended.
 
-# This allows us to support any bootloader that implements the multiboot spec.
-# We're going to use multiboot 1 for now.
+// This is the kernel entry-point.
+// There's two ways we can end up here:
+// 1. The bootloader implemented in boot/ loaded this code into memory, then
+// jumped to it via a long jump; or
+// 2. A different bootloader - such as GRUB - was used, in which case it will
+// have jumped directly to this code.
+// Effectively, both are doing the same thing. For //2, the host disk will
+// copied just the kernel and not the full image with boot/ prepended.
 
-# Zero means we promise all loaded boot modules will be aligned on 4kb page boundaries.
-.set ALIGNMENT,   1 << 0
-# Says the bootloader should supply a memory map
-.set MEMINFO,     1 << 1
-# Flags basically provide metadata about our multiboot setup.
-.set FLAGS,       ALIGNMENT | MEMINFO
-# Yes, the magic work really must be this (or 0x2BADB002 if we're a bootloader).
-.set MAGIC,       0x1BADB002
-.set CHECKSUM,    -(MAGIC + FLAGS)
+// This allows us to support any bootloader that implements the multiboot spec.
+// We're going to use multiboot 1 for now.
 
-.section .multiboot_header, "a"
+#define CR0_MP      0x00000002    // bit 01: enable monitor coprocessor
+#define CR0_NE      0x00000020    // bit 05: enable native x87 FPU mode
+#define CR0_WP      0x00010000    // bit 16: enable write protect (for CoW)
+#define CR0_AM      0x00040000    // bit 18: enable alignment checking
+#define CR0_PG      0x80000000    // bit 31: enable paging
+
+// Flags basically provide metadata about our multiboot setup.
+// e.g. we promise all loaded boot modules will be aligned on 4kb page boundaries.
+// and the bootloader should supply a memory map
+#define FLAGS       MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO
+// Yes, the magic word really must be this (or 0x2BADB002 if we're a bootloader).
+#define MAGIC       MULTIBOOT_HEADER_MAGIC
+#define CHECKSUM    -(MAGIC + FLAGS)
+
+.section .setup, "a"
+
 .align 4
-.long    MAGIC
-.long    FLAGS
-.long    CHECKSUM
+tmp_gdtr:
+  .word ((3 * 8) - 1)
+tmp_gdta:
+  .long tmp_gdt
 
-.section .data
-.align 32
-# Allocate an initial stack (amount is arbitrary - it just must be sufficient enough for initial use)
-.skip 0x4000 # 16kb
-stack_top:
+.align 4
+tmp_gdt:
+  // null desc
+  .word    0x0000
+  .word    0x0000
+  .word    0x0000
+  .word    0x0000
 
-.align 0x1000
-boot_page_table:
-.set addr, 0
-.rept 1024
-.long addr | 1
-.set addr, addr + 0x1000
-.endr
+  // kernel code
+  .word    0xFFFF                 // segment limit 15-00
+  .word    0x0000                 // base address 15-00
+  .byte    0x00                   // base address 23-16
+  .byte    0x9A                   // P=1 DPL=00 S=1 TYPE=1010 (exec/read)
+  .byte    0xCF                   // G=1 DB=1 0=0 AVL=0 SEGLIM=1111
+  .byte    GDT_BASE >> 24         // base address 31-24
 
-.align 0x1000
-boot_page_directory:
-.rept 1024
-.long (boot_page_table - 0xC0000000) + 1
-.endr
+  // kernel data
+  .word    0xFFFF                 // segment limit 15-00
+  .word    0x0000                 // base address 15-00
+  .byte    0x00                   // base address 23-16
+  .byte    0x92                   // P=1 DPL=00 S=1 TYPE=0010 (read/write)
+  .byte    0xCF                   // G=1 DB=1 0=0 AVL=0 SEGLIM=1111
+  .byte    GDT_BASE >> 24         // base address 31-24
 
-.section .entry, "ax"
-_start:
-	cli
-	mov     $(boot_page_directory - 0xC0000000), %ecx
-	mov     %ecx, %cr3
+.align 4
+multiboot_header:
+  .long   MAGIC
+  .long   FLAGS
+  .long   CHECKSUM
 
-	mov     %cr0, %ecx
-	or      $0x80000000, %ecx
-	mov     %ecx, %cr0              # Enable paging. From this point onward, addresses are translated by the MMU.
+  .long   0x0                     // header_addr
+  .long   0x0                     // load_addr
+  .long   0x0                     // load_end_addr
+  .long   0x0                     // bss_end_addr
+  .long   0x0                     // entry_addr
 
-	lea     start_kernel, %ecx      # Jump to higher half with an absolute jump.
-	jmp     *%ecx
+  .long   0x0                     // mode_type
+  .long   0x0                     // width
+  .long   0x0                     // height
+  .long   0x0                     // depth
+
+.align 4
+.global _start; _start:
+  cli
+  lgdt    tmp_gdtr
+  movw    $KERNEL_DS, %cx
+  movw    %cx, %ds
+  movw    %cx, %es
+  movw    %cx, %fs
+  movw    %cx, %gs
+  movw    %cx, %ss
+  // Jump to higher half with an absolute jump.
+  ljmp    $KERNEL_CS, $start_kernel
 
 .text
+.align 4
 .type start_kernel, @function
 start_kernel:
+  // Setup the kernel stack
+  movl    $KERNEL_PAGE_OFFSET + 0x10000, %esp
+  pushl   $0                      // Reset EFLAGS
+  popf
 
-	mov     $stack_top, %esp        # Set up the stack.
+  // Enable paging. From this point onward, addresses are translated by the MMU.
+  pushl   %ebx                    // Persist multiboot info
+  pushl   %eax                    // Persist multiboot magic value
+  call    tmp_paging_init         // Setup a temporary pagedir
+  movl    %eax, %cr3
 
-	push    %ebx                    # Push the multi_boot info onto the stack
-	# push    %eax                    # ...and the magic number
-	call    kmain                   # Enter the high-level kernel
+  movl    %cr0, %eax
+  andl    $0x00000011, %eax       // Disable everything but preserve ET and PE (Grub) TODO: wut
+  orl     $CR0_PG, %eax
+  orl     $CR0_AM, %eax
+  orl     $CR0_WP, %eax
+  orl     $CR0_NE, %eax
+  orl     $CR0_MP, %eax
+  movl    %eax, %cr0
+
+  call    bss_init
+  call    gdt_init
+
+  // popl    %ecx                 // Restore multiboot magic
+  // popl    %ebx                 // Restore multiboot info
+  // pushl   %ebx
+  // pushl   %ecx
+
+  call    kmain                   // Enter the high-level kernel
 
   jmp     .

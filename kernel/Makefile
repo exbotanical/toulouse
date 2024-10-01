@@ -3,7 +3,9 @@ include $(ROOTPATH)/Makefile.config
 
 .PHONY: all clean dirs
 .DELETE_ON_ERROR:
-UNIT_TARGET := unit_test
+
+UNIT_TARGET  := unit_test
+LD_TARGET    := $(shell mktemp)
 
 BUILD_DIR    := build
 BIN_DIR      := bin
@@ -14,7 +16,10 @@ DEPSDIR      := deps
 TESTDIR      := t
 
 CSRCS        := $(shell find -L $(SRC_DIR) -type f -name "*.c")
+ASM_SRCS     := $(shell find -L $(SRC_DIR) -type f -name "*.S")
+
 OBJS         := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(CSRCS))
+ASM_OBJS     := $(patsubst $(SRC_DIR)/%.S,$(BUILD_DIR)/%.asm.o,$(ASM_SRCS))
 SHARED_OBJS  := $(shell find -L ../shared/ -type f -name "*.o")
 TEST_DEPS    := $(wildcard $(DEPSDIR)/libtap/*.c)
 TESTSRCS     := $(shell find -L $(TESTDIR) -type f -name "*.c")
@@ -24,36 +29,36 @@ CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding \
 # Why no SSE - see: https://forum.osdev.org/viewtopic.php?p=234155
 # TODO: -fstack-protector-all (need to link)
 
+INC          := -I$(INC_DIR) -I../shared/include/
 CFLAGS       += $(C_STRICTMODE_FLAGS)
-CFLAGS       += -I$(INC_DIR)
+CFLAGS       += $(INC)
 
 LDFLAGS      := -nostdlib -O3
 LDFLAGS      += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
-
-build/loader.o: src/loader.S
-	$(CC) $(CFLAGS) -c $< -o $@
 
 $(SHARED_OBJS):
 	$(MAKE) -C ../shared all
 
 $(OBJS): $(BUILD_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(shell dirname $@)
-	$(CC) $(CFLAGS) -I../shared/include -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $<
 
-# TODO: fix
-build/arch_idt.o:
-	$(CC) $(CFLAGS) src/arch/idt.s -o build/arch_idt.o
+$(ASM_OBJS): $(BUILD_DIR)/%.asm.o : $(SRC_DIR)/%.S
+	@mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS) -o $@ $<
 
-all: dirs $(OBJS) $(SHARED_OBJS) build/loader.o build/arch_idt.o
-	$(LD) $(LDFLAGS) -T linker.ld build/loader.o $(OBJS) $(SHARED_OBJS) build/arch_idt.o -o bin/kernel
+all: dirs linker $(OBJS) $(SHARED_OBJS) $(ASM_OBJS)
+	$(LD) $(LDFLAGS) -T $(LD_TARGET) $(ASM_OBJS) $(OBJS) $(SHARED_OBJS) -o bin/kernel
 
 clean:
-	rm -rf $(BUILD_DIR)
-	rm -rf $(BIN_DIR)
-	rm -rf $(UNIT_TARGET)
+	rm -rf $(BUILD_DIR) $(BIN_DIR)
+	rm -rf $(UNIT_TARGET) $(LD_TARGET)
 
 dirs:
 	@mkdir -p $(BUILD_DIR) $(BIN_DIR)
+
+linker:
+	cpp -P linker.ld $(INC) >| $(LD_TARGET)
 
 unit_test: $(OBJS)
 	gcc -m32 $(TESTSRCS) $(TEST_DEPS) $(OBJS) -I$(DEPSDIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)

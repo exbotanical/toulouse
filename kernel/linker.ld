@@ -1,7 +1,8 @@
-KERNEL_PHYSICAL_BASE = 0x00100000;
-KERNEL_VIRTUAL_BASE = 0xC0000000;
+#define ASM_SOURCE 1
+#include "mem/base.h"
 
 /* TODO:? https://stackoverflow.com/questions/28837199/can-i-use-preprocessor-directives-in-ld-file */
+/* TODO: preprocessor first */
 OUTPUT_FORMAT("elf32-i386")
 OUTPUT_ARCH(i386)
 ENTRY(_start)
@@ -14,41 +15,36 @@ SECTIONS
 	/* Note that we page-align the sections. */
 	image_start = .;
 
-	.multiboot_header : {
-		*(.multiboot_header)
+	.setup ALIGN(4K) :
+	{
+		*(.setup)
 	}
 
-	.entry : {
-		*(.entry)
-	}
+	. += KERNEL_PAGE_OFFSET;
 
-	. += KERNEL_VIRTUAL_BASE;
-
-	.text ALIGN (4K) : AT (ADDR (.text) - KERNEL_VIRTUAL_BASE)
+	.text : AT (ADDR(.text) - KERNEL_PAGE_OFFSET)
 	{
 		*(.text)
 	}
+	text_end = .;
 
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VIRTUAL_BASE)
-	{
-		*(.rodata)
-	}
-
-	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VIRTUAL_BASE)
+	.data ALIGN (4K) : AT (ADDR(.data) - KERNEL_PAGE_OFFSET)
 	{
 		*(.data)
+		*(.rodata)
 	}
+	data_end = .;
 
-	.bss : AT (ADDR (.bss) - KERNEL_VIRTUAL_BASE)
+	.bss : AT (ADDR (.bss) - KERNEL_PAGE_OFFSET)
 	{
 		*(COMMON)
 		*(.bss)
 	}
+	bss_end = .;
 
-	image_end = . - KERNEL_VIRTUAL_BASE;
+	image_end = . - KERNEL_PAGE_OFFSET;
 
 	/DISCARD/ : {
-		*(.comment)
-		*(.note.gnu.build-id)
+		*(.eh_frame)
 	}
 }

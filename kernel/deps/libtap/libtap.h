@@ -37,13 +37,8 @@ __s_fmt__ (char* fmt, ...) {
   return buf;
 }
 
-unsigned int __ok(
-  unsigned int       ok,
-  const char*        fn_name,
-  const char*        file,
-  const unsigned int line,
-  char*              msg
-);
+unsigned int
+__ok(unsigned int ok, const char* fn_name, const char* file, const unsigned int line, char* msg);
 
 void __skip(unsigned int num_skips, char* msg);
 
@@ -61,8 +56,7 @@ unsigned int exit_status(void);
 
 unsigned int bail_out(const char* fmt, ...);
 
-#define ok(test, ...) \
-  __ok(test ? 1 : 0, __func__, __FILE__, __LINE__, __s_fmt__(__VA_ARGS__))
+#define ok(test, ...) __ok(test ? 1 : 0, __func__, __FILE__, __LINE__, __s_fmt__(__VA_ARGS__))
 
 #define is(actual, expected, ...)              \
   __ok(                                        \

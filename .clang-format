@@ -98,11 +98,11 @@ IfMacros:
   - KJ_IF_MAYBE
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: ^<ext/.*\.h>
+  - Regex: ^<ext/.*\.h"
     Priority: 2
     SortPriority: 0
     CaseSensitive: false
-  - Regex: ^<.*\.h>
+  - Regex: ^<.*\.h"
     Priority: 1
     SortPriority: 0
     CaseSensitive: false

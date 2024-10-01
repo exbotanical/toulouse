@@ -3,7 +3,6 @@
 #include <stdarg.h>
 
 #include "lib/string.h"
-#include "mem/mmu.h"
 
 #define WRITE_BUFFER_SZ 2048
 
@@ -40,7 +39,7 @@ vga_console_scroll (vga_console_t* cons) {
 }
 
 void
-vga_globl_console_init (void) {
+vga_global_console_init (void) {
   global_vga_con         = &glob;
   global_vga_con->row    = 0;
   global_vga_con->col    = 0;
@@ -107,9 +106,4 @@ vga_printf (const char* fmt, ...) {
   va_end(va);
 
   vga_console_write(global_vga_con, buf, k_strlen(buf));
-}
-
-void
-vga_early_remap (vga_console_t* cons) {
-  cons->buffer = (uint16_t*)map_page(VGA_ADDR);
 }

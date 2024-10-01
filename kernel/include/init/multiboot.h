@@ -96,7 +96,7 @@
 /* Is there video information? */
 #define MULTIBOOT_INFO_VIDEO_INFO       0x00000800
 
-#ifndef ASM_FILE
+#ifndef ASM_SOURCE
 
 typedef unsigned short     multiboot_uint16_t;
 typedef unsigned int       multiboot_uint32_t;
@@ -214,6 +214,6 @@ typedef struct multiboot_info {
 
 extern multiboot_info_t *mbi;
 
-#endif /* ! ASM_FILE */
+#endif /* ! ASM_SOURCE */
 
 #endif /* ! MULTIBOOT_HEADER */

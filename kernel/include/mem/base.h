@@ -1,17 +1,19 @@
 #ifndef MEM_BASE_H
 #define MEM_BASE_H
 
-#include "common/types.h"
-#include "lib/math.h"
+#define KERNEL_PHYSICAL_BASE 0x100000
+#define KERNEL_PAGE_OFFSET   0xC0000000
 
-// TODO: Base addresses should be shared with linker script
-#define KERNEL_PHYSICAL_BASE 0x00100000
-#define KERNEL_VIRTUAL_BASE  0xC0000000
+#ifndef ASM_SOURCE
 
-#define KERNEL_NUM_TABLES    256
-#define NUM_ENTRIES          1024
-#define PAGE_SZ              4096
+#  include "common/types.h"
+
+#  define KERNEL_BSS_SZ ((int)bss_end - (int)data_end)
+
+extern char text_end[], data_end[], bss_end[];
 
 typedef uint32_t phys_addr_t;
+
+#endif /* ASM_SOURCE */
 
 #endif /* MEM_BASE_H */

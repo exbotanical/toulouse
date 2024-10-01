@@ -15,7 +15,7 @@
 #endif
 
 #ifdef WANT_PTHREAD
-#  include <pthread.h>
+#  include <pthread.h"
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 #  define lock()   pthread_mutex_lock(&mutex)
 #  define unlock() pthread_mutex_unlock(&mutex)
@@ -100,13 +100,7 @@ cleanup (void) {
 }
 
 unsigned int
-__ok (
-  unsigned int       ok,
-  const char*        fn_name,
-  const char*        file,
-  const unsigned int line,
-  char*              msg
-) {
+__ok (unsigned int ok, const char* fn_name, const char* file, const unsigned int line, char* msg) {
   lock();
 
   num_ran_tests++;
@@ -136,13 +130,7 @@ __ok (
   free(msg);
 
   if (!ok) {
-    diag(
-      "\tFailed %stest (%s:%s at line %d)",
-      is_todo_block ? "(TODO)" : "",
-      file,
-      fn_name,
-      line
-    );
+    diag("\tFailed %stest (%s:%s at line %d)", is_todo_block ? "(TODO)" : "", file, fn_name, line);
   }
 
   unlock();
@@ -167,14 +155,7 @@ __write_shared_mem (int status) {
   int         prev;
 
   if (!test_died) {
-    test_died = mmap(
-      0,
-      sizeof(int),
-      PROT_READ | PROT_WRITE,
-      MAP_SHARED | MAP_ANONYMOUS,
-      -1,
-      0
-    );
+    test_died  = mmap(0, sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     *test_died = 0;
   }
 
