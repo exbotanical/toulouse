@@ -6,6 +6,10 @@
 #include "interrupt/idt.h"
 #include "interrupt/irq.h"
 #include "interrupt/pic.h"
+#include "kernel.h"
+
+int k_param_memsize;
+int k_param_extmemsize;
 
 void
 kmain (unsigned int magic, unsigned int mbi) {
@@ -21,8 +25,6 @@ kmain (unsigned int magic, unsigned int mbi) {
   // Register interrupts and exception handlers
   idt_init();
   vgaprintf("[INIT] %s\n", "IDT initialized");
-
-  asm volatile("int $0");
 
   vgaprintf("MAGICK: 0x%X\n", magic);
 }
