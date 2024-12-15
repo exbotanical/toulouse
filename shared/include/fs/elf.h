@@ -81,6 +81,18 @@
 #define PT_LOPROC    0x70000000
 #define PT_HIPROC    0x7fffffff
 
+#define STB_LOCAL    0
+#define STB_GLOBAL   1
+#define STB_WEAK     2
+#define STB_NUM      3
+
+#define STT_NOTYPE   0
+#define STT_OBJECT   1
+#define STT_FUNC     2
+#define STT_SECTION  3
+#define STT_FILE     4
+#define STT_NUM      5
+
 typedef uint32_t elf32_addr;
 typedef uint16_t elf32_half;
 typedef uint32_t elf32_off;
@@ -115,6 +127,28 @@ typedef struct {
   elf32_word p_flags;
   elf32_word p_align;
 } packed elf32_phdr;
+
+typedef struct {
+  elf32_word sh_name;
+  elf32_word sh_type;
+  elf32_word sh_flags;
+  elf32_addr sh_addr;
+  elf32_off  sh_offset;
+  elf32_word sh_size;
+  elf32_word sh_link;
+  elf32_word sh_info;
+  elf32_word sh_addralign;
+  elf32_word sh_entsize;
+} elf32_shdr;
+
+typedef struct {
+  elf32_word    st_name;
+  elf32_addr    st_value;
+  elf32_word    st_size;
+  unsigned char st_info;
+  unsigned char st_other;
+  elf32_half    st_shndx;
+} elf32_sym;
 
 static bool
 elf_is_valid_sig (elf32_hdr* elf) {

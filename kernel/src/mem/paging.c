@@ -1,4 +1,4 @@
-#include "mem/mgmt.h"
+#include "mem/paging.h"
 
 #include "init/multiboot.h"
 #include "lib/string.h"

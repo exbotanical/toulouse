@@ -214,6 +214,8 @@ typedef struct multiboot_info {
 
 extern multiboot_info_t *mbi;
 
+void multiboot_init(unsigned int magic, unsigned int mbi_ptr);
+
 #endif /* ! ASM_SOURCE */
 
 #endif /* ! MULTIBOOT_HEADER */

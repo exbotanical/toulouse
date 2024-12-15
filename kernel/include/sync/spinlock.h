@@ -9,7 +9,7 @@ typedef uint16_t ticket_t;
 
 // Must be strictly in this order, or else head will overflow into tail
 // This ordering will arrange a DWORD in memory like (0xTTTTHHHH)
-typedef struct ticket_pair {
+typedef struct {
   ticket_t owner;
   ticket_t next;
 } packed ticket_pair_t;

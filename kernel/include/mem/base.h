@@ -3,6 +3,8 @@
 
 #define KERNEL_PHYSICAL_BASE 0x100000
 #define KERNEL_PAGE_OFFSET   0xC0000000
+#define P2V(addr)            (addr < KERNEL_PAGE_OFFSET ? addr + KERNEL_PAGE_OFFSET : addr)
+#define V2P(addr)            (addr - KERNEL_PAGE_OFFSET)
 
 #ifndef ASM_SOURCE
 
