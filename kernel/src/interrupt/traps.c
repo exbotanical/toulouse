@@ -1,5 +1,6 @@
 #include "interrupt/traps.h"
 
+#include "debug/panic.h"
 #include "drivers/console/vga.h"
 #include "fs/elf.h"
 #include "mem/base.h"
@@ -62,7 +63,7 @@ elf_lookup_symbol (unsigned int addr) {
 }
 
 static void
-print_stacktrace (void) {
+print_trap_stacktrace (void) {
   vgaprintf("%s\n", "stacktrace:");
   int           n;
   unsigned int* esp;
@@ -79,7 +80,7 @@ print_stacktrace (void) {
       vgaprintf("%s", "\n");
     }
   }
-  vgaprintf("%s", "Kernel backtrace:\n");
+  vgaprintf("%s", "Kernel stacktrace:\n");
   asm volatile("movl %%esp, %0" : "=r"(esp));
 
   esp += (sizeof(sigcontext_t) / sizeof(unsigned int)) - 5;
@@ -97,23 +98,23 @@ print_stacktrace (void) {
 }
 
 static bool
-dump_registers (unsigned int trap, sigcontext_t* sc) {
-  bool is_page_fault = trap == 14;
+dump_trap_registers (unsigned int trap_num, sigcontext_t* sc) {
+  bool is_page_fault = trap_num == 14;
 
   if (is_page_fault) {
     unsigned int cr2;
     asm volatile("movl %%cr2, %0" : "=r"(cr2));
     vgaprintf(
       "%s at 0x%08x (%s) with errcode 0x%02x%s",
-      traps_table[trap].name,
+      traps_table[trap_num].name,
       cr2,
       sc->err & PAGE_FAULT_WRIT ? "writing" : "reading",
       sc->err,
       sc->err & PAGE_FAULT_USRMOD ? "\n" : " in kernel mode.\n"
     );
   } else {
-    vgaprintf("[ERROR]: %s", traps_table[trap].name);
-    if (traps_table[trap].errcode) {
+    vgaprintf("[ERROR]: %s", traps_table[trap_num].name);
+    if (traps_table[trap_num].errcode) {
       vgaprintf(": error code 0x%08x (0b%b)", sc->err, sc->err);
     }
     vgaprintf("%s", "\n");
@@ -144,12 +145,12 @@ dump_registers (unsigned int trap, sigcontext_t* sc) {
   vgaprintf(" ds: 0x%04x\t es: 0x%04x\t fs: 0x%04x\t gs: 0x%04x\n", sc->ds, sc->es, sc->fs, sc->gs);
 
   if (sc->cs == KERNEL_CS) {
-    print_stacktrace();
+    print_trap_stacktrace();
   }
 
   bool was_in_kernel_mode = sc->cs == KERNEL_CS;
   if (was_in_kernel_mode) {
-    print_stacktrace();
+    print_trap_stacktrace();
     return false;
   }
 
@@ -157,73 +158,72 @@ dump_registers (unsigned int trap, sigcontext_t* sc) {
 }
 
 void
-trap_handle (unsigned int trap, sigcontext_t sc) {
-  traps_table[trap].handler(trap, &sc);
+trap_handle (unsigned int trap_num, sigcontext_t sc) {
+  traps_table[trap_num].handler(trap_num, &sc);
   sc.err = -sc.err;
+  while (1);
 }
 
 void
-trap_divide_error (unsigned int trap, sigcontext_t* sc) {
-  if (!dump_registers(trap, sc)) {
-    // k_panic("Failed to dump registers in trap_divide_error");
+trap_divide_error (unsigned int trap_num, sigcontext_t* sc) {
+  if (!dump_trap_registers(trap_num, sc)) {
+    k_panic("%s", "Failed to dump registers in trap_divide_error");
   }
 }
 
 void
-trap_debug (unsigned int trap, sigcontext_t* sc) {}
+trap_debug (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_nmi_interrupt (unsigned int trap, sigcontext_t* sc) {}
+trap_nmi_interrupt (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_breakpoint (unsigned int trap, sigcontext_t* sc) {}
+trap_breakpoint (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_overflow (unsigned int trap, sigcontext_t* sc) {}
+trap_overflow (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_bound (unsigned int trap, sigcontext_t* sc) {}
+trap_bound (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_invalid_opcode (unsigned int trap, sigcontext_t* sc) {
-  vgaprintf("ERR: %s %d \n", "FUCK!", trap);
-}
+trap_invalid_opcode (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_no_math_coprocessor (unsigned int trap, sigcontext_t* sc) {}
+trap_no_math_coprocessor (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_double_fault (unsigned int trap, sigcontext_t* sc) {}
+trap_double_fault (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_coprocessor_segment_overrun (unsigned int trap, sigcontext_t* sc) {}
+trap_coprocessor_segment_overrun (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_invalid_tss (unsigned int trap, sigcontext_t* sc) {}
+trap_invalid_tss (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_segment_not_present (unsigned int trap, sigcontext_t* sc) {}
+trap_segment_not_present (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_stack_segment_fault (unsigned int trap, sigcontext_t* sc) {}
+trap_stack_segment_fault (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_general_protection (unsigned int trap, sigcontext_t* sc) {}
+trap_general_protection (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_page_fault (unsigned int trap, sigcontext_t* sc) {}
+trap_page_fault (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_reserved (unsigned int trap, sigcontext_t* sc) {}
+trap_reserved (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_floating_point_error (unsigned int trap, sigcontext_t* sc) {}
+trap_floating_point_error (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_alignment_check (unsigned int trap, sigcontext_t* sc) {}
+trap_alignment_check (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_machine_check (unsigned int trap, sigcontext_t* sc) {}
+trap_machine_check (unsigned int trap_num, sigcontext_t* sc) {}
 
 void
-trap_simd_fault (unsigned int trap, sigcontext_t* sc) {}
+trap_simd_fault (unsigned int trap_num, sigcontext_t* sc) {}

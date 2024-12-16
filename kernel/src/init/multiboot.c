@@ -15,19 +15,19 @@ multiboot_set_video_props_from_info (multiboot_info_t *mbi) {
   video.address              = (unsigned int *)vbe_mode->phys_base;
   video.port                 = 0;
   video.memsize              = vbe_ctrl->total_memory * vbe_mode->win_size * 1024;
-  video.columns              = vbe_mode->x_resolution / vbe_mode->x_char_size;
-  video.rows                 = vbe_mode->y_resolution / vbe_mode->y_char_size;
-  video.version              = vbe_ctrl->version;
-  video.width                = vbe_mode->x_resolution;
-  video.height               = vbe_mode->y_resolution;
-  video.char_width           = vbe_mode->x_char_size;
-  video.char_height          = vbe_mode->y_char_size;
-  video.bpp                  = vbe_mode->bits_per_pixel;
-  video.pixelwidth           = vbe_mode->bits_per_pixel / 8;
-  video.pitch                = vbe_mode->bytes_per_scanline;
-  video.rowsize              = video.pitch * video.char_height;
-  video.size                 = vbe_mode->x_resolution * vbe_mode->y_resolution * video.pixelwidth;
-  video.vsize                = video.rows * video.pitch * video.char_height;
+  video.columns     = vbe_mode->x_resolution / (vbe_mode->x_char_size ? vbe_mode->x_char_size : 1);
+  video.rows        = vbe_mode->y_resolution / (vbe_mode->y_char_size ? vbe_mode->y_char_size : 1);
+  video.version     = vbe_ctrl->version;
+  video.width       = vbe_mode->x_resolution;
+  video.height      = vbe_mode->y_resolution;
+  video.char_width  = vbe_mode->x_char_size;
+  video.char_height = vbe_mode->y_char_size;
+  video.bpp         = vbe_mode->bits_per_pixel;
+  video.pixelwidth  = vbe_mode->bits_per_pixel / 8;
+  video.pitch       = vbe_mode->bytes_per_scanline;
+  video.rowsize     = video.pitch * video.char_height;
+  video.size        = vbe_mode->x_resolution * vbe_mode->y_resolution * video.pixelwidth;
+  video.vsize       = video.rows * video.pitch * video.char_height;
   k_strcpy((char *)video.signature, (char *)vbe_ctrl->signature);
 }
 
@@ -58,7 +58,7 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   k_memcpy(&mbi, (void *)mbi_ptr, sizeof(multiboot_info_t));
 
   if (mbi.flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
-    vgaprintf("bootloader\t-\t%s\n", mbi.boot_loader_name);
+    vgaprintf("bootloader: %s\n", mbi.boot_loader_name);
   }
 
   if (!(mbi.flags & MULTIBOOT_INFO_MEMORY)) {

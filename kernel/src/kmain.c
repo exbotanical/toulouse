@@ -1,5 +1,7 @@
 #include "kmain.h"
 
+#include "arch/cpu.h"
+#include "arch/interrupt.h"
 #include "arch/x86.h"
 #include "drivers/console/vga.h"
 #include "init/multiboot.h"
@@ -27,4 +29,7 @@ kmain (unsigned int magic, unsigned int mbi) {
   vgaprintf("[INIT] %s\n", "IDT initialized");
 
   vgaprintf("MAGICK: 0x%X\n", magic);
+
+  int_enable();
+  cpu_idle();
 }

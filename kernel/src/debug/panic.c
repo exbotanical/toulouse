@@ -2,7 +2,7 @@
 
 #include "arch/interrupt.h"
 #include "debug/stacktrace.h"
-#include "drivers/console/vga.h"
+#include "kernel.h"
 
 volatile bool is_in_panic = false;
 
@@ -12,21 +12,15 @@ dispatch_proc_interrupts (void) {
 }
 
 void noreturn
-k_panic (char* msg) {
-  int_disable();
-
-  if (is_in_panic) {
-    die();
+__k_panic (void) {
+  if (access_once(is_in_panic)) {
+    kernel_stop();
   }
 
   access_once(is_in_panic) = true;
   barrier();
 
-  dispatch_proc_interrupts();
-
-  vgaprintf("\nKERNEL PANIC: %s\n", msg);
-
   dump_stack_trace();
 
-  die();
+  kernel_stop();
 }

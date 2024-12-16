@@ -21,7 +21,7 @@ grub:
 	cp grub/grub.cfg $(GRUB_BASE_DIR)/grub/grub.cfg
 	grub-mkrescue -o $(TARGET) bin
 # TODO: separate run target
-	qemu-system-i386 -cdrom $(TARGET)
+	qemu-system-i386 -cdrom $(TARGET) -vga std
 
 clean:
 	rm -rf $(TARGET)
