@@ -2,9 +2,10 @@
 #define KERNEL_H
 
 #include "common/compiler.h"
+#include "kstat.h"
 
-extern int k_param_memsize;
-extern int k_param_extmemsize;
+extern k_stat       kstat;
+extern unsigned int real_last_addr;
 
 void noreturn kernel_stop(void);
 

@@ -8,6 +8,7 @@
 .extern tmp_paging_init
 .extern bss_init
 .extern gdt_init
+.extern get_last_boot_addr
 .extern kmain
 
 // This is the kernel entry-point.
@@ -124,11 +125,14 @@ start_kernel:
 
   call    bss_init
   call    gdt_init
+  call    get_last_boot_addr
 
-  // popl    %ecx                 // Restore multiboot magic
-  // popl    %ebx                 // Restore multiboot info
-  // pushl   %ebx
-  // pushl   %ecx
+  popl    %ecx                    // restore multiboot magic num
+  popl    %ebx                    // restore multiboot info
+
+  pushl   %eax                    // last boot addr
+  pushl   %ebx
+  pushl   %ecx
 
   call    kmain                   // Enter the high-level kernel
 

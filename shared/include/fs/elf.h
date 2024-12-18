@@ -93,6 +93,20 @@
 #define STT_FILE     4
 #define STT_NUM      5
 
+#define SHT_NULL     0
+#define SHT_PROGBITS 1
+#define SHT_SYMTAB   2
+#define SHT_STRTAB   3
+#define SHT_RELA     4
+#define SHT_HASH     5
+#define SHT_DYNAMIC  6
+#define SHT_NOTE     7
+#define SHT_NOBITS   8
+#define SHT_REL      9
+#define SHT_SHLIB    10
+#define SHT_DYNSYM   11
+#define SHT_NUM      12
+
 typedef uint32_t elf32_addr;
 typedef uint16_t elf32_half;
 typedef uint32_t elf32_off;

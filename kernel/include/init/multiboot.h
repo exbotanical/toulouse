@@ -288,8 +288,9 @@ typedef struct {
 
 extern multiboot_info_t *mbi;
 
-void multiboot_init(unsigned int magic, unsigned int mbi_ptr);
+void         multiboot_init(unsigned int magic, unsigned int mbi_ptr);
+unsigned int get_last_boot_addr(unsigned int magic, unsigned int mbr_init);
 
-#endif /* ! ASM_SOURCE */
+#endif /* ASM_SOURCE */
 
-#endif /* ! MULTIBOOT_HEADER */
+#endif /* MULTIBOOT_HEADER */

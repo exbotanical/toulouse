@@ -2,6 +2,7 @@
 #define SEGMENTS_H
 // Much of this code is copied from Jordi Sanfeliu's Fiwix
 
+#include "common/constants.h"
 #include "mem/base.h"
 
 #define KERNEL_CS       0x08  // kernel code segment
@@ -28,7 +29,7 @@
 #define SD_TSS_PRESENT  0x89  // tss present + not busy
 
 #define NUM_GDT_ENTRIES 6
-#define GDT_BASE        (0xFFFFFFFF - (KERNEL_PAGE_OFFSET - 1))
+#define GDT_BASE        (FOUR_GB - (KERNEL_PAGE_OFFSET - 1))
 
 #ifndef ASM_SOURCE
 

@@ -2,7 +2,7 @@
 
 u_int32_t image_start = 0;
 u_int32_t image_end   = 0;
-u_int32_t bss_end     = 0;
+u_int32_t text_end    = 0;
 u_int32_t data_end    = 0;
 
 int

@@ -40,9 +40,7 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 	}
-	bss_end = .;
-
-	image_end = . - KERNEL_PAGE_OFFSET;
+	image_end = .;
 
 	/DISCARD/ : {
 		*(.eh_frame)

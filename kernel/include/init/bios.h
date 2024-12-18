@@ -1,6 +1,7 @@
 #ifndef INIT_BIOS_H
 #define INIT_BIOS_H
 
+#include "common/types.h"
 #include "init/multiboot.h"
 
 // TODO: Why 50?
@@ -18,5 +19,6 @@ extern bios_mmap_t bios_mmap[NUM_BIOS_MMAP_ENTRIES];
 extern bios_mmap_t kernel_mmap[NUM_BIOS_MMAP_ENTRIES];
 
 void bios_mmap_init(multiboot_mmap_entry_t* mmap, unsigned int mmap_len);
+bool bios_mmap_has_addr(unsigned int addr);
 
 #endif /* INIT_BIOS_H */

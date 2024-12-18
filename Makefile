@@ -20,7 +20,7 @@ grub: kernel
 	$(MAKE) -C dist grub
 
 # Exit Qemu focus trap with ctrl+alt+g
-test:
+dev:
 	$(MAKE) clean
 	$(MAKE) dist
 	$(QEMU) -drive file=$(DISTPATH)/$(TARGET),index=0,media=disk,format=raw -d int -no-reboot -D qemu_log.txt

@@ -2,9 +2,16 @@
 
 #include "drivers/console/vga.h"
 #include "drivers/dev/char/console.h"
+#include "fs/elf.h"
 #include "init/bios.h"
 #include "kernel.h"
+#include "kstat.h"
 #include "lib/string.h"
+#include "mem/base.h"
+#include "mem/paging.h"
+
+elf32_shdr *symtab;
+elf32_shdr *strtab;
 
 static void
 multiboot_set_video_props_from_info (multiboot_info_t *mbi) {
@@ -48,8 +55,8 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
     vgaprintf("[WARN]: invalid multiboot magic number: 0x%x. Assuming 4MB of RAM.\n", magic);
 
     k_memset(&mbi, 0, sizeof(multiboot_info_t));
-    k_param_memsize    = 640;
-    k_param_extmemsize = 3072;
+    kstat.param.memsize    = 640;
+    kstat.param.extmemsize = 3072;
     bios_mmap_init(NULL, 0);
     multiboot_set_video_props_default();
     return;
@@ -64,8 +71,8 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   if (!(mbi.flags & MULTIBOOT_INFO_MEMORY)) {
     vgaprintf("%s\n", "[WARN]: invalid mem_lower, mem_upper values");
   }
-  k_param_memsize    = (unsigned int)mbi.mem_lower;
-  k_param_extmemsize = (unsigned int)mbi.mem_upper;
+  kstat.param.memsize    = (unsigned int)mbi.mem_lower;
+  kstat.param.extmemsize = (unsigned int)mbi.mem_upper;
 
   if (!(mbi.flags & MULTIBOOT_INFO_ELF_SHDR)) {
     vgaprintf("%s\n", "[WARN]: invalid ELF section header table");
@@ -85,4 +92,56 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   if (!video.flags) {
     multiboot_set_video_props_default();
   }
+}
+
+/**
+ * Get the last address used by kernel symbols OR the last address of the last module loaded via
+ * multiboot. We retrieve this address so we can place the kernel stack beyond these addresses.
+ *
+ * @param magic The multiboot magick number
+ * @param mbr_init The multiboot info pointer
+ * @return The last address, as aforementioned.
+ */
+unsigned int
+get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
+  multiboot_info_t                     *mbi;
+  elf32_shdr                           *shdr;
+  multiboot_elf_section_header_table_t *hdr;
+  unsigned int                          addr;
+
+  if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
+    addr = ((unsigned int)image_end & PAGE_MASK) + PAGE_SZ;
+    return P2V(addr);
+  }
+
+  mbi = (struct multiboot_info *)mbr_init;
+
+  // ELF header tables
+  if (mbi->flags & MULTIBOOT_INFO_ELF_SHDR) {
+    symtab = NULL;
+    strtab = NULL;
+    hdr    = &(mbi->u.elf_sec);
+    for (unsigned short int n = 0; n < hdr->num; n++) {
+      shdr = (elf32_shdr *)(hdr->addr + (n * hdr->size));
+      if (shdr->sh_type == SHT_SYMTAB) {
+        symtab = shdr;
+      }
+      if (shdr->sh_type == SHT_STRTAB) {
+        strtab = shdr;
+      }
+    }
+
+    addr = strtab->sh_addr + strtab->sh_size;
+  } else {
+    addr = ((unsigned int)image_end & PAGE_MASK) + PAGE_SZ;
+  }
+
+  if (mbi->flags & MULTIBOOT_INFO_MODS) {
+    multiboot_module_t *mod = (multiboot_module_t *)mbi->mods;
+    for (unsigned short int n = 0; n < mbi->mods_count; n++, mod++) {
+      addr = mod->end;
+    }
+  }
+
+  return P2V(addr);
 }

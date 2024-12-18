@@ -10,14 +10,21 @@
 #include "interrupt/irq.h"
 #include "interrupt/pic.h"
 #include "kernel.h"
+#include "kstat.h"
+#include "mem/base.h"
+#include "mem/paging.h"
 
-int k_param_memsize;
-int k_param_extmemsize;
+unsigned int real_last_addr;
+k_stat       kstat;
 
 void
-kmain (unsigned int magic, unsigned int mbi) {
+kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
+  real_last_addr = (int)&last_addr - KERNEL_PAGE_OFFSET;
+
   vga_global_console_init();
+
   multiboot_init(magic, mbi);
+  vgaprintf("[INIT] %s\n", "Multiboot data processed (if extant)");
 
   // Remap the PIC and mask all interrupts
   pic_init();
@@ -35,6 +42,7 @@ kmain (unsigned int magic, unsigned int mbi) {
   devices_init();
   vgaprintf("[INIT] %s\n", "Devices table allocated");
 
+  mem_init();
   vgaprintf("MAGICK: 0x%X\n", magic);
 
   int_enable();

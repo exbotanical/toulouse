@@ -1,4 +1,5 @@
 #include "arch/x86.h"
+#include "common/constants.h"
 #include "mem/segments.h"
 
 seg_desc_t gdt[NUM_GDT_ENTRIES];
@@ -31,14 +32,14 @@ gdt_init (void) {
   gdt_set_entry(0, 0, 0, 0, 0);
 
   low_flags = SD_CODE | SD_CD | SD_DPL0 | SD_PRESENT;
-  gdt_set_entry(KERNEL_CS, 0, 0xFFFFFFFF, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(KERNEL_CS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
   low_flags = SD_DATA | SD_CD | SD_DPL0 | SD_PRESENT;
-  gdt_set_entry(KERNEL_DS, 0, 0xFFFFFFFF, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(KERNEL_DS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
 
   low_flags = SD_CODE | SD_CD | SD_DPL3 | SD_PRESENT;
-  gdt_set_entry(USER_CS, 0, 0xFFFFFFFF, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(USER_CS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
   low_flags = SD_DATA | SD_CD | SD_DPL3 | SD_PRESENT;
-  gdt_set_entry(USER_DS, 0, 0xFFFFFFFF, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(USER_DS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
 
   low_flags = SD_TSS_PRESENT;
   gdt_set_entry(TSS, 0, sizeof(i386tss_t), low_flags, SD_OPSIZE32);
