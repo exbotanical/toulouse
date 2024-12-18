@@ -8,6 +8,7 @@
 // TODO: uppercase all macros
 #define PAGE_ALIGN(addr)    (((addr) + (PAGE_SZ - 1)) & PAGE_MASK)
 #define GET_PGDIR(addr)     ((unsigned int)((addr) >> 22) & 0x3FF)
+#define GET_PGTBL(address)  ((unsigned int)((address) >> 12) & 0x3FF)
 #define PT_ENTRIES          (PAGE_SZ / sizeof(unsigned int))
 #define PD_ENTRIES          (PAGE_SZ / sizeof(unsigned int))
 
@@ -31,7 +32,6 @@
 #define PFAULT_U            0x04  /* in user mode */
 
 #define DEFAULT_NUM_PAGES   4096
-#define BUDDY_MAX_LEVEL     7
 
 typedef struct page page_t;
 
@@ -46,25 +46,25 @@ struct page {
   page_t *next_free;
 };
 
-typedef struct bl_head bl_head_t;
-
-struct bl_head {
-  unsigned char level; /* size class (exponent of the power of 2) */
-  bl_head_t    *prev;
-  bl_head_t    *next;
-};
-
 extern unsigned int page_table_nbytes;
 extern unsigned int page_hash_table_nbytes;
 
 extern unsigned int *page_dir;
 
-extern page_t  *page_table;
+extern page_t  *page_pool;
 extern page_t **page_hash_table;
 
-unsigned int tmp_paging_init(unsigned int magic, unsigned int mbi_ptr);
+static const unsigned int blocksizes[] = {32, 64, 128, 256, 512, 1024, 2048, 4096};
 
-void mem_init(void);
-void pages_init(unsigned int num_pages);
+unsigned int tmp_paging_init(unsigned int magic, unsigned int mbi_ptr);
+void         mem_init(void);
+void         pages_init(unsigned int num_pages);
+unsigned int map_kaddr(
+  unsigned int *lpage_dir,
+  unsigned int  from,
+  unsigned int  to,
+  unsigned int  addr,
+  int           flags
+);
 
 #endif /* PAGING_H */

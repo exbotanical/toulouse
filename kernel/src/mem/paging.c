@@ -3,17 +3,19 @@
 #include "common/constants.h"
 #include "config.h"
 #include "debug/panic.h"
+#include "drivers/console/vga.h"
+#include "drivers/dev/char/console.h"
 #include "init/bios.h"
 #include "init/multiboot.h"
 #include "kernel.h"
 #include "kstat.h"
 #include "lib/math.h"
 #include "lib/string.h"
+#include "mem/allocator.h"
 #include "mem/base.h"
+#include "mem/buddy.h"
 #include "mem/paging.h"
 #include "mem/segments.h"
-
-static bl_head_t *freelist[BUDDY_MAX_LEVEL + 1];
 
 unsigned int page_table_nbytes      = 0;
 unsigned int page_hash_table_nbytes = 0;
@@ -43,9 +45,41 @@ free_list_insert (page_t *pg) {
   kstat.free_pages++;
 }
 
-static void
-buddy_low_init (void) {
-  k_memset(freelist, 0, sizeof(freelist));
+unsigned int
+map_kaddr (
+  unsigned int *lpage_dir,
+  unsigned int  from,
+  unsigned int  to,
+  unsigned int  addr,
+  int           flags
+) {
+  unsigned int  n;
+  unsigned int  paddr;
+  unsigned int *pgtbl;
+  unsigned int  pde, pte;
+
+  paddr = addr;
+  for (n = from; n < to; n += PAGE_SZ) {
+    pde = GET_PGDIR(n);
+    pte = GET_PGTBL(n);
+    if (!(lpage_dir[pde] & ~PAGE_MASK)) {
+      if (!addr) {
+        paddr = k_malloc(PAGE_SZ);
+        if (!paddr) {
+          vgaprintf("%s(): no memory\n", __func__);
+          return 0;
+        }
+        paddr = V2P(paddr);
+      }
+      lpage_dir[pde] = paddr | flags;
+      k_memset((void *)(paddr + KERNEL_PAGE_OFFSET), 0, PAGE_SZ);
+      paddr += PAGE_SZ;
+    }
+    pgtbl      = (unsigned int *)((lpage_dir[pde] & PAGE_MASK) + KERNEL_PAGE_OFFSET);
+    pgtbl[pte] = n | flags;
+  }
+
+  return paddr;
 }
 
 unsigned int
@@ -97,7 +131,6 @@ void
 mem_init (void) {
   unsigned int physical_page_tables
     = (kstat.physical_pages / 1024) + ((kstat.physical_pages % 1024) ? 1 : 0);
-  // unsigned int physical_memory = (kstat.physical_pages << PAGE_SHIFT);
 
   // align to the next page
   real_last_addr = PAGE_ALIGN(real_last_addr);
@@ -123,39 +156,18 @@ mem_init (void) {
   activate_page_dir();
 
   // We can now use virtual addresses
-  page_dir               = (unsigned int *)P2V((unsigned int)page_dir);
-  real_last_addr         = P2V(real_last_addr);
+  page_dir                = (unsigned int *)P2V((unsigned int)page_dir);
+  real_last_addr          = P2V(real_last_addr);
 
-  // reserve memory space for RAMdisk drives
-  //   last_ramdisk     = 0;
-  //   if (kparm_ramdisksize > 0 || ramdisk_table[0].addr) {
-  //     /*
-  //      * If the 'initrd=' parameter was supplied, then the first
-  //      * RAMdisk drive was already assigned to the initrd image.
-  //      */
-  //     if (ramdisk_table[0].addr) {
-  //       ramdisk_table[0].addr += PAGE_OFFSET;
-  //       last_ramdisk           = 1;
-  //     }
-  //     for (; last_ramdisk < ramdisk_minors; last_ramdisk++) {
-  //       if (!bios_mmap_has_addr(V2P(real_last_addr) + (kparm_ramdisksize * 1024))) {
-  //         kparm_ramdisksize  = 0;
-  //         ramdisk_minors    -= RAMDISK_DRIVES;
-  //         printk("WARNING: RAMdisk drive disabled (not enough physical memory).\n");
-  //         break;
-  //       }
-  //       ramdisk_table[last_ramdisk].addr  = (char *)real_last_addr;
-  //       ramdisk_table[last_ramdisk].size  = kparm_ramdisksize;
-  //       real_last_addr                  += kparm_ramdisksize * 1024;
-  //     }
-  //   }
+  global_vga_con->buffer  = (uint16_t *)real_last_addr;
+  real_last_addr         += (video.columns * video.rows * 1 * 2 * sizeof(uint16_t));
 
   // The last thing must be the page_table structure itself...
-  int n                  = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
-  n                      = max(n, 1); /* 1 page for the hash table as minimum */
-  n                      = min(n, MAX_PAGES_HASH);
+  int n                   = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
+  n                       = max(n, 1); /* 1 page for the hash table as minimum */
+  n                       = min(n, MAX_PAGES_HASH);
 
-  page_hash_table_nbytes = n * PAGE_SZ;
+  page_hash_table_nbytes  = n * PAGE_SZ;
   if (!bios_mmap_has_addr(V2P(real_last_addr) + page_hash_table_nbytes)) {
     k_panic("%s\n", "Not enough memory for page_hash_table");
   }

@@ -6,7 +6,6 @@ include $(ROOTPATH)/Makefile.config
 
 GRUB_BASE_DIR := bin/boot
 
-
 $(TARGET): $(BOOTPATH)/bin/bootblock $(KERNELPATH)/bin/kernel
 	dd if=/dev/zero of=$(TARGET) count=10000
 	dd if=$(BOOTPATH)/bin/bootblock of=$(TARGET) conv=notrunc
