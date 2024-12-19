@@ -8,3 +8,5 @@ tmp*
 .vscode
 qemu_log.txt
 *.iso
+*.sym
+*.log

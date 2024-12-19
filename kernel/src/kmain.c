@@ -43,7 +43,7 @@ kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
   vgaprintf("[INIT] %s\n", "Devices table allocated");
 
   mem_init();
-  vgaprintf("MAGICK: 0x%X\n", magic);
+  vgaprintf("[INIT] %s\n", "Permanent page tables installed");
 
   int_enable();
   cpu_idle();

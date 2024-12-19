@@ -30,6 +30,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 // Modified by Matthew Zito <exbotanical@protonmail.com>
+#ifdef DEBUG
+#  undef PRINTF_SUPPORT_FLOAT
+#  undef PRINTF_SUPPORT_LONG_LONG
+#  define PRINTF_DISABLE_SUPPORT_LONG_LONG 1
+#endif /* DEBUG */
 
 #include "lib/printf.h"
 

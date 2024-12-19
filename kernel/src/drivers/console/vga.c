@@ -57,6 +57,8 @@ vga_console_clear_screen (vga_console_t* cons) {
       cons->buffer[idx]  = vga_entry(' ', cons->color);
     }
   }
+  cons->row = 0;
+  cons->col = 0;
 }
 
 void

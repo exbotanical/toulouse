@@ -153,21 +153,23 @@ mem_init (void) {
         = (unsigned int)&page_table[n] | PAGE_PRESENT | PAGE_RW;
     }
   }
+
   activate_page_dir();
 
-  // We can now use virtual addresses
-  page_dir                = (unsigned int *)P2V((unsigned int)page_dir);
-  real_last_addr          = P2V(real_last_addr);
+  global_vga_con->buffer = (uint16_t *)P2V(VGA_ADDR);
 
-  global_vga_con->buffer  = (uint16_t *)real_last_addr;
-  real_last_addr         += (video.columns * video.rows * 1 * 2 * sizeof(uint16_t));
+  // We can now use virtual addresses
+  page_dir               = (unsigned int *)P2V((unsigned int)page_dir);
+  real_last_addr         = P2V(real_last_addr);
+
+  // real_last_addr         += (video.columns * video.rows * 1 * 2 * sizeof(uint16_t));
 
   // The last thing must be the page_table structure itself...
-  int n                   = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
-  n                       = max(n, 1); /* 1 page for the hash table as minimum */
-  n                       = min(n, MAX_PAGES_HASH);
+  int n                  = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
+  n                      = max(n, 1); /* 1 page for the hash table as minimum */
+  n                      = min(n, MAX_PAGES_HASH);
 
-  page_hash_table_nbytes  = n * PAGE_SZ;
+  page_hash_table_nbytes = n * PAGE_SZ;
   if (!bios_mmap_has_addr(V2P(real_last_addr) + page_hash_table_nbytes)) {
     k_panic("%s\n", "Not enough memory for page_hash_table");
   }
