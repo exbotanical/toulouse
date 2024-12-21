@@ -127,6 +127,7 @@ tmp_paging_init (unsigned int magic, unsigned int mbi_ptr) {
   return (unsigned int)page_dir - KERNEL_PAGE_OFFSET;
 }
 
+// Identity maps kernel addresses. See https://stackoverflow.com/a/36872282
 void
 mem_init (void) {
   unsigned int physical_page_tables
