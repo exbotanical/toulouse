@@ -19,8 +19,7 @@ k_stat       kstat;
 
 void
 kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
-  real_last_addr = (int)&last_addr - KERNEL_PAGE_OFFSET;
-
+  real_last_addr = last_addr - KERNEL_PAGE_OFFSET;
   vga_global_console_init();
 
   multiboot_init(magic, mbi);

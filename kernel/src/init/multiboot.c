@@ -6,6 +6,7 @@
 #include "init/bios.h"
 #include "kernel.h"
 #include "kstat.h"
+#include "lib/math.h"
 #include "lib/string.h"
 #include "mem/base.h"
 #include "mem/paging.h"
@@ -104,15 +105,14 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
  */
 unsigned int
 get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
-  multiboot_info_t                     *mbi;
-  elf32_shdr                           *shdr;
+  multiboot_info_t *mbi;
+
   multiboot_elf_section_header_table_t *hdr;
-  unsigned int                          addr;
+  // Round the address down to the nearest lower page boundary, then setup the next page to avoid
+  // the kernel's static data.
+  unsigned int                          addr = ((unsigned int)image_end & PAGE_MASK) + PAGE_SZ;
 
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-    // Round the address down to the nearest lower page boundary, then setup the next page to avoid
-    // the kernel's static data.
-    addr = ((unsigned int)image_end & PAGE_MASK) + PAGE_SZ;
     return P2V(addr);
   }
 
@@ -124,7 +124,7 @@ get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
     strtab = NULL;
     hdr    = &(mbi->u.elf_sec);
     for (unsigned short int n = 0; n < hdr->num; n++) {
-      shdr = (elf32_shdr *)(hdr->addr + (n * hdr->size));
+      elf32_shdr *shdr = (elf32_shdr *)(hdr->addr + (n * hdr->size));
       if (shdr->sh_type == SHT_SYMTAB) {
         symtab = shdr;
       }
@@ -133,15 +133,13 @@ get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
       }
     }
 
-    addr = strtab->sh_addr + strtab->sh_size;
-  } else {
-    addr = ((unsigned int)image_end & PAGE_MASK) + PAGE_SZ;
+    addr = max(addr, strtab->sh_addr + strtab->sh_size);
   }
 
   if (mbi->flags & MULTIBOOT_INFO_MODS) {
     multiboot_module_t *mod = (multiboot_module_t *)mbi->mods;
     for (unsigned short int n = 0; n < mbi->mods_count; n++, mod++) {
-      addr = mod->end;
+      addr = max(addr, mod->end);
     }
   }
 

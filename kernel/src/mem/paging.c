@@ -162,9 +162,7 @@ mem_init (void) {
   // We can now use virtual addresses
   page_dir               = (unsigned int *)P2V((unsigned int)page_dir);
   real_last_addr         = P2V(real_last_addr);
-  vgaprintf("[xINIT] %s\n", "Permanent page tables installed");
-
-  real_last_addr        += (video.columns * video.rows * 2 * sizeof(uint16_t));
+  // real_last_addr         += (video.columns * video.rows * 2 * sizeof(uint16_t));
 
   // The last thing must be the page_table structure itself...
   int n                  = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
@@ -191,8 +189,6 @@ mem_init (void) {
 
 void
 pages_init (unsigned int num_pages) {
-  // Grub: 1048576, Dev: 32768
-  vgaprintf(">>> %d\n", page_table_bytes);
   k_memset(page_pool, 0, page_table_bytes);
   k_memset(page_hash_table, 0, page_hash_table_bytes);
 

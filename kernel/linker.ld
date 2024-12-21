@@ -1,8 +1,6 @@
 #define ASM_SOURCE 1
 #include "mem/base.h"
 
-/* TODO:? https://stackoverflow.com/questions/28837199/can-i-use-preprocessor-directives-in-ld-file */
-/* TODO: preprocessor first */
 OUTPUT_FORMAT("elf32-i386")
 OUTPUT_ARCH(i386)
 ENTRY(_start)
@@ -35,7 +33,7 @@ SECTIONS
 	}
 	data_end = .;
 
-	.bss : AT (ADDR (.bss) - KERNEL_PAGE_OFFSET)
+	.bss ALIGN(4K) : AT (ADDR (.bss) - KERNEL_PAGE_OFFSET)
 	{
 		*(COMMON)
 		*(.bss)
