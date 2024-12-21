@@ -104,8 +104,8 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
  */
 unsigned int
 get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
-  multiboot_info_t                     *mbi;
-  elf32_shdr                           *shdr;
+  multiboot_info_t *mbi;
+
   multiboot_elf_section_header_table_t *hdr;
   unsigned int                          addr;
 
@@ -124,7 +124,7 @@ get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
     strtab = NULL;
     hdr    = &(mbi->u.elf_sec);
     for (unsigned short int n = 0; n < hdr->num; n++) {
-      shdr = (elf32_shdr *)(hdr->addr + (n * hdr->size));
+      elf32_shdr *shdr = (elf32_shdr *)(hdr->addr + (n * hdr->size));
       if (shdr->sh_type == SHT_SYMTAB) {
         symtab = shdr;
       }

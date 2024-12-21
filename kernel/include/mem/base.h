@@ -10,7 +10,7 @@
 
 #  include "common/types.h"
 
-#  define KERNEL_BSS_SZ ((int)&image_end - (int)&data_end)
+#  define KERNEL_BSS_SZ ((int)image_end - (int)data_end)
 
 // https://wiki.osdev.org/Using_Linker_Script_Values#:~:text=A%20common%20problem%20is%20getting,a%20symbol%2C%20not%20a%20variable.
 extern volatile char text_end[];

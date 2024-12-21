@@ -35,7 +35,7 @@ SECTIONS
 	}
 	data_end = .;
 
-	.bss : AT (ADDR (.bss) - KERNEL_PAGE_OFFSET)
+	.bss ALIGN(4096) : AT (ADDR (.bss) - KERNEL_PAGE_OFFSET)
 	{
 		*(COMMON)
 		*(.bss)
