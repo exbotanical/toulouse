@@ -10,6 +10,7 @@ main () {
   plan(77);
 
   run_string_tests();
+  run_flist_tests();
   run_list_tests();
   run_spinlock_tests();
 

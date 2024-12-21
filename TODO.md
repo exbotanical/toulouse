@@ -7,7 +7,8 @@
 - [ ] any build warnings e.g. LOAD seg w/RWX perms
 
 # Next Steps
-- [ ] Fix unit tests, verify all Make targets
+- [x] Fix unit tests, verify all Make targets
+- [ ] Fix Grub Make target
 - [ ] Refactor linked lists
 - [ ] Refactor VGA, consoles
 - [ ] Add ttys

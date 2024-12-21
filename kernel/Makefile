@@ -1,7 +1,7 @@
 ROOTPATH ?= $(shell readlink -f ..)
 include $(ROOTPATH)/Makefile.config
 
-.PHONY: all clean dirs
+.PHONY: all clean dirs linker unit_test unit_test_dev
 .DELETE_ON_ERROR:
 
 UNIT_TARGET  := unit_test
@@ -12,8 +12,8 @@ BIN_DIR      := bin
 
 SRC_DIR      := src
 INC_DIR      := include
-DEPSDIR      := deps
-TESTDIR      := t
+DEPS_DIR      := deps
+TEST_DIR      := t
 
 CSRCS        := $(shell find -L $(SRC_DIR) -type f -name "*.c")
 ASM_SRCS     := $(shell find -L $(SRC_DIR) -type f -name "*.S")
@@ -21,8 +21,8 @@ ASM_SRCS     := $(shell find -L $(SRC_DIR) -type f -name "*.S")
 OBJS         := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(CSRCS))
 ASM_OBJS     := $(patsubst $(SRC_DIR)/%.S, $(BUILD_DIR)/%.asm.o, $(ASM_SRCS))
 SHARED_OBJS  := $(shell find -L ../shared/ -type f -name "*.o")
-TEST_DEPS    := $(wildcard $(DEPSDIR)/libtap/*.c)
-TEST_SRCS    := $(shell find -L $(TESTDIR) -type f -name "*.c")
+TEST_DEPS    := $(wildcard $(DEPS_DIR)/libtap/*.c)
+TEST_SRCS    := $(shell find -L $(TEST_DIR) -type f -name "*.c")
 TEST_ASM_OBJS    := $(filter-out $(BUILD_DIR)/loader.asm.o, $(ASM_OBJS))
 
 CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding \
@@ -70,6 +70,9 @@ linker:
 	cpp -P linker.ld $(INC) >| $(LD_TARGET)
 
 unit_test: $(TEST_ASM_OBJS) $(OBJS)
-	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $(TEST_ASM_OBJS) $(OBJS) -I$(DEPSDIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
+	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $(TEST_ASM_OBJS) $(OBJS) -I$(DEPS_DIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
 	./$(UNIT_TARGET)
 	$(MAKE) clean
+
+unit_test_dev:
+	ls {$(INC_DIR),$(SRC_DIR),$(TEST_DIR)}/**/*.{h,c} | entr -s 'make -s unit_test'

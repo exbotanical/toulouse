@@ -17,8 +17,8 @@
 #include "mem/paging.h"
 #include "mem/segments.h"
 
-unsigned int page_table_nbytes      = 0;
-unsigned int page_hash_table_nbytes = 0;
+unsigned int page_table_bytes      = 0;
+unsigned int page_hash_table_bytes = 0;
 
 unsigned int *page_dir;
 page_t       *page_pool;      /* page pool */
@@ -162,27 +162,28 @@ mem_init (void) {
   // We can now use virtual addresses
   page_dir               = (unsigned int *)P2V((unsigned int)page_dir);
   real_last_addr         = P2V(real_last_addr);
+  vgaprintf("[xINIT] %s\n", "Permanent page tables installed");
 
-  // real_last_addr         += (video.columns * video.rows * 1 * 2 * sizeof(uint16_t));
+  real_last_addr        += (video.columns * video.rows * 2 * sizeof(uint16_t));
 
   // The last thing must be the page_table structure itself...
   int n                  = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
   n                      = max(n, 1); /* 1 page for the hash table as minimum */
   n                      = min(n, MAX_PAGES_HASH);
 
-  page_hash_table_nbytes = n * PAGE_SZ;
-  if (!bios_mmap_has_addr(V2P(real_last_addr) + page_hash_table_nbytes)) {
+  page_hash_table_bytes  = n * PAGE_SZ;
+  if (!bios_mmap_has_addr(V2P(real_last_addr) + page_hash_table_bytes)) {
     k_panic("%s\n", "Not enough memory for page_hash_table");
   }
-  page_hash_table    = (page_t **)real_last_addr;
-  real_last_addr    += page_hash_table_nbytes;
+  page_hash_table   = (page_t **)real_last_addr;
+  real_last_addr   += page_hash_table_bytes;
 
-  page_table_nbytes  = PAGE_ALIGN(kstat.physical_pages * sizeof(page_t));
-  if (!bios_mmap_has_addr(V2P(real_last_addr) + page_table_nbytes)) {
+  page_table_bytes  = PAGE_ALIGN(kstat.physical_pages * sizeof(page_t));
+  if (!bios_mmap_has_addr(V2P(real_last_addr) + page_table_bytes)) {
     k_panic("%s\n", "Not enough memory for page_table");
   }
   page_pool       = (page_t *)real_last_addr;
-  real_last_addr += page_table_nbytes;
+  real_last_addr += page_table_bytes;
 
   pages_init(kstat.physical_pages);
   buddy_low_init();
@@ -190,15 +191,16 @@ mem_init (void) {
 
 void
 pages_init (unsigned int num_pages) {
-  page_t *pg;
-
-  k_memset(page_pool, 0, page_table_nbytes);
-  k_memset(page_hash_table, 0, page_hash_table_nbytes);
+  // Grub: 1048576, Dev: 32768
+  vgaprintf(">>> %d\n", page_table_bytes);
+  k_memset(page_pool, 0, page_table_bytes);
+  k_memset(page_hash_table, 0, page_hash_table_bytes);
 
   for (unsigned int n = 0; n < num_pages; n++) {
-    pg                = &page_pool[n];
+    page_t *pg        = &page_pool[n];
     pg->page          = n;
 
+    // Flag the kernel pages as reserved
     unsigned int addr = n << PAGE_SHIFT;
     if (addr >= KERNEL_PHYSICAL_BASE && addr < V2P(real_last_addr)) {
       pg->flags = PAGE_RESERVED;
@@ -206,20 +208,21 @@ pages_init (unsigned int num_pages) {
       continue;
     }
 
-    // reserve the kernel stack page
+    // Reserve a page for the kernel stack
     if (addr == 0x0000F000) {
       pg->flags = PAGE_RESERVED;
       kstat.physical_reserved++;
       continue;
     }
 
-    // Skip reserved memory addresses e.g. VGA adapter, BIOS, etc
+    // Flag special memory addresses e.g. VGA, BIOS, etc as reserved
     if (!bios_mmap_has_addr(addr)) {
       pg->flags = PAGE_RESERVED;
       kstat.physical_reserved++;
       continue;
     }
 
+    // Everything else can be inserted into the free page list
     pg->data = (char *)P2V(addr);
     free_list_insert(pg);
   }

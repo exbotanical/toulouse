@@ -31,7 +31,7 @@
 #define list_first(ptr, type, member)  list_entry((ptr)->next, type, member)
 
 /**
- * Determines whether the given list node is the last in the list.3
+ * Determines whether the given list node is the last in the list.
  */
 #define list_is_last(el, head, member) (&(el)->member == (head))
 

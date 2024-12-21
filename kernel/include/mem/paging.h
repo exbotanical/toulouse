@@ -46,8 +46,8 @@ struct page {
   page_t *next_free;
 };
 
-extern unsigned int page_table_nbytes;
-extern unsigned int page_hash_table_nbytes;
+extern unsigned int page_table_bytes;
+extern unsigned int page_hash_table_bytes;
 
 extern unsigned int *page_dir;
 
