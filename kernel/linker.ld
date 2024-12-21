@@ -31,7 +31,7 @@ SECTIONS
 	.data ALIGN (4K) : AT (ADDR(.data) - KERNEL_PAGE_OFFSET)
 	{
 		*(.data)
-		*(.rodata)
+		*(.rodata*)
 	}
 	data_end = .;
 
