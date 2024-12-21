@@ -14,13 +14,13 @@ struct pci_device {
   unsigned char      rev;
   unsigned char      prog_if;
   unsigned short int class;
-  unsigned char      header;
-  unsigned int       bar[6];
-  unsigned char      irq;
-  unsigned char      pin;
-  unsigned int       size[6];
-  struct pci_device *prev;
-  struct pci_device *next;
+  unsigned char header;
+  unsigned int  bar[6];
+  unsigned char irq;
+  unsigned char pin;
+  unsigned int  size[6];
+  pci_device_t *prev;
+  pci_device_t *next;
 };
 
 #endif /* DEV_PCI_H */

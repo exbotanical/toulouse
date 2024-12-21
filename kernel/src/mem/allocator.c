@@ -33,8 +33,8 @@ k_malloc (size_t size) {
 
 void
 k_free (unsigned int addr) {
-  struct page *pg;
-  unsigned     paddr;
+  page_t  *pg;
+  unsigned paddr;
 
   paddr = V2P(addr);
   pg    = &page_pool[paddr >> PAGE_SHIFT];

@@ -18,11 +18,12 @@ TESTDIR      := t
 CSRCS        := $(shell find -L $(SRC_DIR) -type f -name "*.c")
 ASM_SRCS     := $(shell find -L $(SRC_DIR) -type f -name "*.S")
 
-OBJS         := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(CSRCS))
-ASM_OBJS     := $(patsubst $(SRC_DIR)/%.S,$(BUILD_DIR)/%.asm.o,$(ASM_SRCS))
+OBJS         := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(CSRCS))
+ASM_OBJS     := $(patsubst $(SRC_DIR)/%.S, $(BUILD_DIR)/%.asm.o, $(ASM_SRCS))
 SHARED_OBJS  := $(shell find -L ../shared/ -type f -name "*.o")
 TEST_DEPS    := $(wildcard $(DEPSDIR)/libtap/*.c)
-TESTSRCS     := $(shell find -L $(TESTDIR) -type f -name "*.c")
+TEST_SRCS    := $(shell find -L $(TESTDIR) -type f -name "*.c")
+TEST_ASM_OBJS    := $(filter-out $(BUILD_DIR)/loader.asm.o, $(ASM_OBJS))
 
 CFLAGS       := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding \
 	-c -mno-sse
@@ -68,7 +69,7 @@ dirs:
 linker:
 	cpp -P linker.ld $(INC) >| $(LD_TARGET)
 
-unit_test: $(OBJS)
-	gcc -m32 $(TESTSRCS) $(TEST_DEPS) $(OBJS) -I$(DEPSDIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
+unit_test: $(TEST_ASM_OBJS) $(OBJS)
+	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $(TEST_ASM_OBJS) $(OBJS) -I$(DEPSDIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
 	./$(UNIT_TARGET)
 	$(MAKE) clean

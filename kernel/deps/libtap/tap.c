@@ -15,7 +15,7 @@
 #endif
 
 #ifdef WANT_PTHREAD
-#  include <pthread.h"
+#  include <pthread.h>
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 #  define lock()   pthread_mutex_lock(&mutex)
 #  define unlock() pthread_mutex_unlock(&mutex)
@@ -110,7 +110,7 @@ __ok (unsigned int ok, const char* fn_name, const char* file, const unsigned int
     printf("not ");
   }
 
-  fprintf(stdout, "ok %d - ", num_ran_tests);
+  fprintf(stdout, "ok %ld - ", num_ran_tests);
 
   // See "Escaping" - https://testanything.org/tap-version-14-specification.html
   char* c;
@@ -142,7 +142,7 @@ void
 __skip (unsigned int num_skips, char* msg) {
   with_lock({
     while (num_skips--) {
-      fprintf(stdout, "ok %d # SKIP %s", ++num_ran_tests, msg);
+      fprintf(stdout, "ok %ld # SKIP %s", ++num_ran_tests, msg);
       fprintf(stdout, "\n");
     }
     free(msg);
@@ -227,7 +227,7 @@ plan (unsigned int num_ran_tests) {
   has_plan          = 1;
 
   num_planned_tests = num_ran_tests;
-  fprintf(stdout, "1..%d\n", num_planned_tests);
+  fprintf(stdout, "1..%ld\n", num_planned_tests);
 
   unlock();
 }

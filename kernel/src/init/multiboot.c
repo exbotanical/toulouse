@@ -116,7 +116,7 @@ get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
     return P2V(addr);
   }
 
-  mbi = (struct multiboot_info *)mbr_init;
+  mbi = (multiboot_info_t *)mbr_init;
 
   // ELF header tables
   if (mbi->flags & MULTIBOOT_INFO_ELF_SHDR) {
