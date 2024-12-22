@@ -8,8 +8,8 @@
 
 # Next Steps
 - [x] Fix unit tests, verify all Make targets
-- [ ] Fix Grub Make target
-- [ ] Refactor linked lists
+- [x] Fix Grub Make target
+- ~~[ ] Refactor linked lists~~
 - [ ] Refactor VGA, consoles
 - [ ] Add ttys
 - [ ] PCI, PS/2
