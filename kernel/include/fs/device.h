@@ -9,9 +9,18 @@ typedef struct device device_t;
 struct device {
   char         *name;
   unsigned char major;
-  unsigned int  minors[8];    // bitmap of 256 bits
-  unsigned int *block_sz;     // default minor blocksizes, in kb
-  void         *device_data;  // mostly used for minor sizes, in kb
+  /**
+   * bitmap of 256 bits
+   */
+  unsigned int  minors[8];
+  /**
+   * default minor blocksizes, in kb
+   */
+  unsigned int *block_sz;
+  /**
+   * mostly used for minor sizes, in kb
+   */
+  void         *device_data;
   // fs_operations_t *fsop;
   void         *requests_queue;
   void         *xfer_data;

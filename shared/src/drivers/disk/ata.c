@@ -32,7 +32,7 @@ ata_read_sector (void *dest, uint32_t offset) {
 
   // Wait until ready again, then read the data
   ata_wait_disk();
-  insl(ATA_PORT_DATA, dest, ATA_SECTOR_SZ);
+  insl(ATA_PORT_DATA, dest, ATA_SECTOR_SIZE);
 }
 
 void
@@ -42,14 +42,14 @@ ata_read_segment (uint8_t *dest, uint32_t c, uint32_t offset) {
   uint8_t *end_phys_addr   = dest + c;
 
   // Round down to the nearest sector boundary
-  uint8_t *start_phys_addr = dest - (offset % ATA_SECTOR_SZ);
+  uint8_t *start_phys_addr = dest - (offset % ATA_SECTOR_SIZE);
 
   // Derive the sector number; we add 1 to account for the kernel, which resides
   // at sector 1.
-  uint32_t sector_num      = (offset / ATA_SECTOR_SZ) + 12;
+  uint32_t sector_num      = (offset / ATA_SECTOR_SIZE) + 12;
 
   // Read each sector sequentially
-  for (; start_phys_addr < end_phys_addr; start_phys_addr += ATA_SECTOR_SZ, sector_num++) {
+  for (; start_phys_addr < end_phys_addr; start_phys_addr += ATA_SECTOR_SIZE, sector_num++) {
     ata_read_sector(start_phys_addr, sector_num);
   }
 }

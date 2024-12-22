@@ -46,43 +46,6 @@ free_list_insert (page_t *pg) {
 }
 
 unsigned int
-map_kaddr (
-  unsigned int *lpage_dir,
-  unsigned int  from,
-  unsigned int  to,
-  unsigned int  addr,
-  int           flags
-) {
-  unsigned int  n;
-  unsigned int  paddr;
-  unsigned int *pgtbl;
-  unsigned int  pde, pte;
-
-  paddr = addr;
-  for (n = from; n < to; n += PAGE_SZ) {
-    pde = GET_PGDIR(n);
-    pte = GET_PGTBL(n);
-    if (!(lpage_dir[pde] & ~PAGE_MASK)) {
-      if (!addr) {
-        paddr = k_malloc(PAGE_SZ);
-        if (!paddr) {
-          vgaprintf("%s(): no memory\n", __func__);
-          return 0;
-        }
-        paddr = V2P(paddr);
-      }
-      lpage_dir[pde] = paddr | flags;
-      k_memset((void *)(paddr + KERNEL_PAGE_OFFSET), 0, PAGE_SZ);
-      paddr += PAGE_SZ;
-    }
-    pgtbl      = (unsigned int *)((lpage_dir[pde] & PAGE_MASK) + KERNEL_PAGE_OFFSET);
-    pgtbl[pte] = n | flags;
-  }
-
-  return paddr;
-}
-
-unsigned int
 tmp_paging_init (unsigned int magic, unsigned int mbi_ptr) {
   unsigned int num_pages = DEFAULT_NUM_PAGES;
   if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
@@ -103,10 +66,10 @@ tmp_paging_init (unsigned int magic, unsigned int mbi_ptr) {
   unsigned int addr = KERNEL_PAGE_OFFSET + (num_pages * 1024) - num_pages;
   addr              = PAGE_ALIGN(addr);
   page_dir          = (unsigned int *)addr;
-  k_memset(page_dir, 0, PAGE_SZ);
+  k_memset(page_dir, 0, PAGE_SIZE);
 
   // Setup the page table
-  addr                     += PAGE_SZ;
+  addr                     += PAGE_SIZE;
   unsigned int *page_table  = (unsigned int *)addr;
   k_memset(page_table, 0, num_pages);
 
@@ -118,7 +81,7 @@ tmp_paging_init (unsigned int magic, unsigned int mbi_ptr) {
       page_dir_idx = idx / 1024;
 
       unsigned int page_value
-        = (unsigned int)(addr + (PAGE_SZ * page_dir_idx) + GDT_BASE) | PAGE_PRESENT | PAGE_RW;
+        = (unsigned int)(addr + (PAGE_SIZE * page_dir_idx) + GDT_BASE) | PAGE_PRESENT | PAGE_RW;
       page_dir[page_dir_idx]                                 = page_value;
       page_dir[page_dir_idx + GET_PGDIR(KERNEL_PAGE_OFFSET)] = page_value;
     }
@@ -138,13 +101,13 @@ mem_init (void) {
 
   // Page directory
   page_dir       = (unsigned int *)real_last_addr;
-  k_memset(page_dir, 0, PAGE_SZ);
-  real_last_addr           += PAGE_SZ;
+  k_memset(page_dir, 0, PAGE_SIZE);
+  real_last_addr           += PAGE_SIZE;
 
   // Page tables
   unsigned int *page_table  = (unsigned int *)real_last_addr;
-  k_memset((void *)page_table, 0, physical_page_tables * PAGE_SZ);
-  real_last_addr += physical_page_tables * PAGE_SZ;
+  k_memset((void *)page_table, 0, physical_page_tables * PAGE_SIZE);
+  real_last_addr += physical_page_tables * PAGE_SIZE;
 
   // Initialize page dir + tables
   for (unsigned int n = 0; n < kstat.physical_pages; n++) {
@@ -169,7 +132,7 @@ mem_init (void) {
   n                      = max(n, 1); /* 1 page for the hash table as minimum */
   n                      = min(n, MAX_PAGES_HASH);
 
-  page_hash_table_bytes  = n * PAGE_SZ;
+  page_hash_table_bytes  = n * PAGE_SIZE;
   if (!bios_mmap_has_addr(V2P(real_last_addr) + page_hash_table_bytes)) {
     k_panic("%s\n", "Not enough memory for page_hash_table");
   }
@@ -184,7 +147,7 @@ mem_init (void) {
   real_last_addr += page_table_bytes;
 
   pages_init(kstat.physical_pages);
-  buddy_low_init();
+  kbuddy_init();
 }
 
 void
@@ -194,7 +157,7 @@ pages_init (unsigned int num_pages) {
 
   for (unsigned int n = 0; n < num_pages; n++) {
     page_t *pg        = &page_pool[n];
-    pg->page          = n;
+    pg->page_num      = n;
 
     // Flag the kernel pages as reserved
     unsigned int addr = n << PAGE_SHIFT;

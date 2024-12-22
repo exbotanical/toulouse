@@ -2,19 +2,24 @@
 #define BUDDY_H
 
 #include "common/types.h"
+#include "lib/list.h"
 
 #define BUDDY_MAX_LEVEL 7
 
-typedef struct buddy_low_head buddy_low_head_t;
+typedef struct kbuddy_head kbuddy_head_t;
 
-struct buddy_low_head {
-  unsigned char     level; /* size class (exponent of the power of 2) */
-  buddy_low_head_t *prev;
-  buddy_low_head_t *next;
+struct kbuddy_head {
+  /**
+   * size class (exponent of the power of 2)
+   */
+  unsigned char level;
+  list_head_t   list_ref;
 };
 
-void         buddy_low_init(void);
-unsigned int buddy_low_alloc(size_t size);
-void         buddy_low_free(unsigned int addr);
+/**
+ * Initialize the buddy allocator for kernel memory. The buddy allocator is used for resources
+ * smaller than `PAGE_SIZE`.
+ */
+void kbuddy_init(void);
 
 #endif /* BUDDY_H */

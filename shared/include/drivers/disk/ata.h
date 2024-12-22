@@ -3,7 +3,7 @@
 
 #include "common/types.h"
 
-#define ATA_SECTOR_SZ           512
+#define ATA_SECTOR_SIZE         512
 
 #define ATA_PORT_DATA           0x1F0
 #define ATA_PORT_ERR            0x1F1

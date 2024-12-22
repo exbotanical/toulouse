@@ -11,7 +11,7 @@ typedef struct interrupt interrupt_t;
 struct interrupt {
   unsigned int ticks;
   char        *name;
-  void (*handler)(int, sigcontext_t *);
+  void (*handler)(int, sig_context_t *);
   interrupt_t *next;
 };
 
@@ -19,7 +19,7 @@ typedef struct interrupt_bh interrupt_bh_t;
 
 struct interrupt_bh {
   int flags;
-  void (*fn)(sigcontext_t *);
+  void (*fn)(sig_context_t *);
   interrupt_bh_t *next;
 };
 
@@ -76,12 +76,15 @@ extern void irq_14(void);
 extern void irq_15(void);
 extern void irq_unknown(void);
 
+/**
+ * Sets up the IRQ table.
+ */
 void irq_init(void);
-void irq_exec_bottom_half(sigcontext_t *sc);
-void irq_unknown_handler(void);
-void irq_handler(int irq_num, sigcontext_t sc);
+void irq_exec_bottom_half(sig_context_t *sc);
 void irq_disable(int irq_num);
 void irq_enable(int irq_num);
-void irq_handle_spurious_interrupt(int irq_num);
+void irq_handler(int irq_num, sig_context_t sc);
+void irq_unknown_handler(void);
+void irq_spurious_interrupt_handler(int irq_num);
 
 #endif /* INTERRUPT_IRQ_H */

@@ -5,11 +5,6 @@
 #include "arch/x86.h"
 #include "common/compiler.h"
 
-bool
-spinlock_trylock (volatile spinlock_t *lock) {
-  return true;
-}
-
 void
 spinlock_lock (volatile spinlock_t *lock) {
   // TODO: assert interrupts disabled

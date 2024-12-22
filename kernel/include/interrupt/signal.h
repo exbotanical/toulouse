@@ -22,7 +22,7 @@ typedef struct {
   unsigned int eflags;
   unsigned int og_esp;
   unsigned int og_ss;
-} sigcontext_t;
+} sig_context_t;
 
 bool sig_send(void);
 bool sig_test(void);

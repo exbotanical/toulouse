@@ -71,7 +71,7 @@ print_trap_stacktrace (void) {
 
   asm volatile("movl %%esp, %0" : "=r"(esp));
 
-  esp += (sizeof(sigcontext_t) / sizeof(unsigned int)) - 5;
+  esp += (sizeof(sig_context_t) / sizeof(unsigned int)) - 5;
   esp  = (unsigned int*)P2V((unsigned int)esp);
   for (n = 1; n <= 32; n++) {
     vgaprintf(" %08x", *esp);
@@ -83,7 +83,7 @@ print_trap_stacktrace (void) {
   vgaprintf("%s", "Kernel stacktrace:\n");
   asm volatile("movl %%esp, %0" : "=r"(esp));
 
-  esp += (sizeof(sigcontext_t) / sizeof(unsigned int)) - 5;
+  esp += (sizeof(sig_context_t) / sizeof(unsigned int)) - 5;
   esp  = (unsigned int*)P2V((unsigned int)esp);
 
   const char* str;
@@ -98,7 +98,7 @@ print_trap_stacktrace (void) {
 }
 
 static bool
-dump_trap_registers (unsigned int trap_num, sigcontext_t* sc) {
+dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
   bool is_page_fault = trap_num == 14;
 
   if (is_page_fault) {
@@ -158,72 +158,72 @@ dump_trap_registers (unsigned int trap_num, sigcontext_t* sc) {
 }
 
 void
-trap_handle (unsigned int trap_num, sigcontext_t sc) {
+trap_handle (unsigned int trap_num, sig_context_t sc) {
   traps_table[trap_num].handler(trap_num, &sc);
   sc.err = -sc.err;
   while (1);
 }
 
 void
-trap_divide_error (unsigned int trap_num, sigcontext_t* sc) {
+trap_divide_error (unsigned int trap_num, sig_context_t* sc) {
   if (!dump_trap_registers(trap_num, sc)) {
     k_panic("%s", "Failed to dump registers in trap_divide_error");
   }
 }
 
 void
-trap_debug (unsigned int trap_num, sigcontext_t* sc) {}
+trap_debug (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_nmi_interrupt (unsigned int trap_num, sigcontext_t* sc) {}
+trap_nmi_interrupt (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_breakpoint (unsigned int trap_num, sigcontext_t* sc) {}
+trap_breakpoint (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_overflow (unsigned int trap_num, sigcontext_t* sc) {}
+trap_overflow (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_bound (unsigned int trap_num, sigcontext_t* sc) {}
+trap_bound (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_invalid_opcode (unsigned int trap_num, sigcontext_t* sc) {}
+trap_invalid_opcode (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_no_math_coprocessor (unsigned int trap_num, sigcontext_t* sc) {}
+trap_no_math_coprocessor (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_double_fault (unsigned int trap_num, sigcontext_t* sc) {}
+trap_double_fault (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_coprocessor_segment_overrun (unsigned int trap_num, sigcontext_t* sc) {}
+trap_coprocessor_segment_overrun (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_invalid_tss (unsigned int trap_num, sigcontext_t* sc) {}
+trap_invalid_tss (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_segment_not_present (unsigned int trap_num, sigcontext_t* sc) {}
+trap_segment_not_present (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_stack_segment_fault (unsigned int trap_num, sigcontext_t* sc) {}
+trap_stack_segment_fault (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_general_protection (unsigned int trap_num, sigcontext_t* sc) {}
+trap_general_protection (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_page_fault (unsigned int trap_num, sigcontext_t* sc) {}
+trap_page_fault (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_reserved (unsigned int trap_num, sigcontext_t* sc) {}
+trap_reserved (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_floating_point_error (unsigned int trap_num, sigcontext_t* sc) {}
+trap_floating_point_error (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_alignment_check (unsigned int trap_num, sigcontext_t* sc) {}
+trap_alignment_check (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_machine_check (unsigned int trap_num, sigcontext_t* sc) {}
+trap_machine_check (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_simd_fault (unsigned int trap_num, sigcontext_t* sc) {}
+trap_simd_fault (unsigned int trap_num, sig_context_t* sc) {}

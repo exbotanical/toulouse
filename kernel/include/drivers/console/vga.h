@@ -6,7 +6,10 @@
 #include "lib/string.h"
 #include "mem/base.h"
 
-#define VGA_ADDR 0xB8000  // + KERNEL_PAGE_OFFSET
+/**
+ * VGA memory address. Will need to be remapped once paging is enabled.
+ */
+#define VGA_ADDR 0xB8000
 
 /* Hardware text mode color constants. */
 typedef enum {

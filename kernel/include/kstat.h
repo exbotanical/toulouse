@@ -1,11 +1,17 @@
 #ifndef KSTAT_H
 #define KSTAT_H
 
+/**
+ * Represents configurable kernel parameters.
+ */
 typedef struct {
   int memsize;
   int extmemsize;
 } k_param;
 
+/**
+ * Kernel-wide stats and state.
+ */
 typedef struct {
   k_param      param;
   unsigned int physical_pages;

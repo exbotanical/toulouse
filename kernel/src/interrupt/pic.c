@@ -20,7 +20,7 @@ pic_init (void) {
   outb(PIC_SLAVE_DATA, ICW4_8086EOI);
 
   // Mask all IRQs except the cascade (left unmasked because it's used by the slave PIC to signal
-  // the master about interrupts from IRQs 8-15)
+  // the master about interrupts from IRQs 8 - 15)
   outb(PIC_MASTER_DATA, ~(1 << CASCADE_IRQ));
   outb(PIC_SLAVE_DATA, OCW1);
 }
@@ -33,9 +33,6 @@ pic_irq_ack (int irq_num) {
   outb(PIC_MASTER, EOI);
 }
 
-/**
- * Sends the OCW3 command to retrieve the register values.
- */
 unsigned short int
 pic_get_irq_register (int ocw3) {
   outb(PIC_MASTER, ocw3);

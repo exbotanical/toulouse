@@ -110,7 +110,7 @@ get_last_boot_addr (unsigned int magic, unsigned int mbr_init) {
   multiboot_elf_section_header_table_t *hdr;
   // Round the address down to the nearest lower page boundary, then setup the next page to avoid
   // the kernel's static data.
-  unsigned int                          addr = ((unsigned int)image_end & PAGE_MASK) + PAGE_SZ;
+  unsigned int                          addr = ((unsigned int)image_end & PAGE_MASK) + PAGE_SIZE;
 
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
     return P2V(addr);

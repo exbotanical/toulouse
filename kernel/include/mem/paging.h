@@ -1,45 +1,94 @@
 #ifndef PAGING_H
 #define PAGING_H
 
-#define PAGE_SZ             4096
+#define PAGE_SIZE           4096
 #define PAGE_SHIFT          0x0C
-#define PAGE_MASK           ~(PAGE_SZ - 1)
+#define PAGE_MASK           ~(PAGE_SIZE - 1)
 
-// TODO: uppercase all macros
-#define PAGE_ALIGN(addr)    (((addr) + (PAGE_SZ - 1)) & PAGE_MASK)
+/**
+ * Aligns an address to the next page boundary.
+ */
+#define PAGE_ALIGN(addr)    (((addr) + (PAGE_SIZE - 1)) & PAGE_MASK)
+/**
+ * Computes the page directory address.
+ */
 #define GET_PGDIR(addr)     ((unsigned int)((addr) >> 22) & 0x3FF)
+/**
+ * Computes the page table address.
+ */
 #define GET_PGTBL(address)  ((unsigned int)((address) >> 12) & 0x3FF)
-#define PT_ENTRIES          (PAGE_SZ / sizeof(unsigned int))
-#define PD_ENTRIES          (PAGE_SZ / sizeof(unsigned int))
 
 /* Page flags */
-#define PAGE_PRESENT        0x001 /* Present */
-#define PAGE_RW             0x002 /* Read/Write */
-#define PAGE_USER           0x004 /* User */
-#define PAGE_NOALLOC        0x200 /* No Page Allocated (OS managed) */
 
-#define PAGE_FAULT_PROTVIOL 0x01  /* Protection violation */
-#define PAGE_FAULT_WRIT     0x02  /* Fault during write */
-#define PAGE_FAULT_USRMOD   0x04  /* Fault while in user mode */
+/**
+ * Present
+ */
+#define PAGE_PRESENT        0x001
+/**
+ * Read/Write
+ */
+#define PAGE_RW             0x002
+/**
+ * User
+ */
+#define PAGE_USER           0x004
+/**
+ * No Page Allocated (OS managed)
+ */
+#define PAGE_NOALLOC        0x200
 
+/**
+ * Protection violation
+ */
+#define PAGE_FAULT_PROTVIOL 0x01
+/**
+ * Fault during write
+ */
+#define PAGE_FAULT_WRIT     0x02
+/**
+ * Fault while in user mode
+ */
+#define PAGE_FAULT_USRMOD   0x04
+
+/**
+ * Locked
+ */
 #define PAGE_LOCKED         0x001
-#define PAGE_BUDDYLOW       0x010 /* page belongs to buddy_low */
-#define PAGE_RESERVED       0x100 /* kernel, BIOS address, ... */
-#define PAGE_COW            0x200 /* marked for Copy-On-Write */
+/**
+ * page belongs to kbuddy
+ */
+#define PAGE_BUDDYLOW       0x010
+/**
+ * kernel, BIOS address, ...
+ */
+#define PAGE_RESERVED       0x100
+/**
+ * marked for Copy-On-Write
+ */
+#define PAGE_COW            0x200
 
-#define PFAULT_V            0x01  /* protection violation */
-#define PFAULT_W            0x02  /* during write */
-#define PFAULT_U            0x04  /* in user mode */
+/**
+ * protection violation
+ */
+#define PFAULT_V            0x01
+/**
+ * during write
+ */
+#define PFAULT_W            0x02
+/**
+ * in user mode
+ */
+#define PFAULT_U            0x04
 
 #define DEFAULT_NUM_PAGES   4096
 
 typedef struct page page_t;
 
 struct page {
-  int     page;   // Page number
-  int     count;  // Usage counter
+  int     page_num;
+  int     usage_count;
   int     flags;
-  char   *data;   // Page contents
+  char   *data;
   page_t *prev_hash;
   page_t *next_hash;
   page_t *prev_free;
@@ -56,15 +105,25 @@ extern page_t **page_hash_table;
 
 static const unsigned int blocksizes[] = {32, 64, 128, 256, 512, 1024, 2048, 4096};
 
+/**
+ * Initializes a temporary page directory so we can setup the higher-half kernel.
+ *
+ * @param magic The multiboot magic number, if extant.
+ * @param mbi_ptr A pointer to the multiboot info structure, if extant.
+ * @return unsigned int The address of the page directory.
+ */
 unsigned int tmp_paging_init(unsigned int magic, unsigned int mbi_ptr);
-void         mem_init(void);
-void         pages_init(unsigned int num_pages);
-unsigned int map_kaddr(
-  unsigned int *lpage_dir,
-  unsigned int  from,
-  unsigned int  to,
-  unsigned int  addr,
-  int           flags
-);
+
+/**
+ * Initializes the memory manager and permanent page directory. Also allocates kernel resources
+ * beyond the higher-half static kernel memory boundary.
+ */
+void mem_init(void);
+
+/**
+ * Initializes the pages and populates the free-list.
+ * @param num_pages
+ */
+void pages_init(unsigned int num_pages);
 
 #endif /* PAGING_H */

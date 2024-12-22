@@ -70,9 +70,3 @@ idt_init (void) {
 
   idt_load((unsigned int)&idtr);
 }
-
-void
-irq_unknown_handler (void) {
-  // TODO:
-  vgaprintf(">>>> %s\n", "OH NO");
-}

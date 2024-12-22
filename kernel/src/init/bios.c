@@ -61,7 +61,7 @@ bios_mmap_init (multiboot_mmap_entry_t *mmap, unsigned int mmap_len) {
 
             // the first MB is not counted here
             if (from_low >= 0x100000) {
-              kstat.physical_pages += (to_low - from_low) / PAGE_SZ;
+              kstat.physical_pages += (to_low - from_low) / PAGE_SIZE;
             }
           }
         }

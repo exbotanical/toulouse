@@ -3,6 +3,9 @@
 
 #ifdef DEBUG
 
+/**
+ * Create a pseudo-breakpoint for debugging. Not at risk of compiler mangling.
+ */
 static inline void
 pseudo_breakpoint () {
   asm volatile("1: jmp 1b");

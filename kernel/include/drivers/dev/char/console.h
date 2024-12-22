@@ -3,8 +3,14 @@
 
 #include "drivers/dev/pci.h"
 
-#define VIDEO_MODE_VGA_TXT      0x01  // VGA text mode
-#define VIDEO_MODE_VESAFB       0x02  // x86 framebuffer
+/**
+ * VGA text mode
+ */
+#define VIDEO_MODE_VGA_TXT      0x01
+/**
+ * x86 framebuffer
+ */
+#define VIDEO_MODE_VESAFB       0x02
 #define VIDEO_CONS_DEFAULT_COLS 80
 #define VIDEO_CONS_DEFAULT_ROWS 25
 
@@ -28,8 +34,14 @@ typedef struct {
   int           pixelwidth;
   int           pitch;
   int           rowsize;
-  int           size;   // Size of screen based on resolution
-  int           vsize;  // Size of screen based on columns x rows
+  /**
+   * Size of screen based on resolution
+   */
+  int           size;
+  /**
+   * Size of screen based on columns x rows
+   */
+  int           vsize;
 } video_props_t;
 
 extern video_props_t video;

@@ -3,10 +3,14 @@
 
 #include "common/types.h"
 
-// Interrupt enabled flag.
+/**
+ * Interrupt enabled flag.
+ */
 #define EFLAGS_INT_ENABLED (1 << 9)
 
-// The only flags that are modifiable by user processes.
+/**
+ * The only flags that are modifiable by user processes.
+ */
 #define EFLAGS_USER_MASK   0x8CFF
 
 static inline uint32_t
