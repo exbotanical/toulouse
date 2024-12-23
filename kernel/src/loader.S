@@ -5,7 +5,7 @@
 #include "mem/segments.h"
 #include "init/multiboot.h"
 
-.extern tmp_paging_init
+.extern mem_init_temporary
 .extern bss_init
 .extern gdt_init
 .extern get_last_boot_addr
@@ -111,7 +111,7 @@ start_kernel:
   // Enable paging. From this point onward, addresses are translated by the MMU.
   pushl   %ebx                    // Persist multiboot info
   pushl   %eax                    // Persist multiboot magic value
-  call    tmp_paging_init         // Setup a temporary pagedir
+  call    mem_init_temporary         // Setup a temporary pagedir
   movl    %eax, %cr3
 
   movl    %cr0, %eax

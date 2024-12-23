@@ -31,15 +31,19 @@ gdt_init (void) {
 
   gdt_set_entry(0, 0, 0, 0, 0);
 
+#define SEG_ARGS 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB
+
   low_flags = SD_CODE | SD_CD | SD_DPL0 | SD_PRESENT;
-  gdt_set_entry(KERNEL_CS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(KERNEL_CS, SEG_ARGS);
   low_flags = SD_DATA | SD_CD | SD_DPL0 | SD_PRESENT;
-  gdt_set_entry(KERNEL_DS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(KERNEL_DS, SEG_ARGS);
 
   low_flags = SD_CODE | SD_CD | SD_DPL3 | SD_PRESENT;
-  gdt_set_entry(USER_CS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(USER_CS, SEG_ARGS);
   low_flags = SD_DATA | SD_CD | SD_DPL3 | SD_PRESENT;
-  gdt_set_entry(USER_DS, 0, FOUR_GB, low_flags, SD_OPSIZE32 | SD_PAGE4KB);
+  gdt_set_entry(USER_DS, SEG_ARGS);
+
+#undef SEG_ARGS
 
   low_flags = SD_TSS_PRESENT;
   gdt_set_entry(TSS, 0, sizeof(i386tss_t), low_flags, SD_OPSIZE32);

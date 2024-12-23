@@ -1,6 +1,7 @@
 #include "interrupt/irq.h"
 
 #include "arch/x86.h"
+#include "drivers/console/vga.h"
 #include "interrupt/pic.h"
 #include "lib/string.h"
 

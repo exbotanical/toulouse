@@ -95,8 +95,8 @@ struct page {
   page_t *next_free;
 };
 
-extern unsigned int page_table_bytes;
-extern unsigned int page_hash_table_bytes;
+extern unsigned int page_pool_size;
+extern unsigned int page_hash_table_size;
 
 extern unsigned int *page_dir;
 
@@ -112,7 +112,7 @@ static const unsigned int blocksizes[] = {32, 64, 128, 256, 512, 1024, 2048, 409
  * @param mbi_ptr A pointer to the multiboot info structure, if extant.
  * @return unsigned int The address of the page directory.
  */
-unsigned int tmp_paging_init(unsigned int magic, unsigned int mbi_ptr);
+unsigned int mem_init_temporary(unsigned int magic, unsigned int mbi_ptr);
 
 /**
  * Initializes the memory manager and permanent page directory. Also allocates kernel resources
