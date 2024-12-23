@@ -2,6 +2,7 @@
 #define KERNEL_H
 
 #include "common/compiler.h"
+#include "fs/elf.h"
 #include "kstat.h"
 
 /**
@@ -13,6 +14,9 @@ extern kstat_t kstat;
  * A global store for the last static kernel page boundary.
  */
 extern unsigned int real_last_addr;
+
+extern elf32_shdr *symtab;
+extern elf32_shdr *strtab;
 
 /**
  * Stop the kernel, release any dynamic kernel resources, and idle the CPU.

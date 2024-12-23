@@ -5,21 +5,21 @@
 #include "../tests.h"
 
 void
-k_strlen_test (void) {
+kstrlen_test (void) {
   char* s = "katenv binasu\0";
-  ok(k_strlen(s) == 13, "returns the number of bytes in the string pointed to by s");
+  ok(kstrlen(s) == 13, "returns the number of bytes in the string pointed to by s");
 }
 
 void
-k_strlen_test_empty (void) {
+kstrlen_test_empty (void) {
   char* s = "\0";
-  ok(k_strlen(s) == 0, "returns zero for empty string (and ignores terminating null byte)");
+  ok(kstrlen(s) == 0, "returns zero for empty string (and ignores terminating null byte)");
 }
 
 void
-k_strchr_test (void) {
+kstrchr_test (void) {
   char* og  = "helelo";
-  char* ret = k_strchr(og, 'e');
+  char* ret = kstrchr(og, 'e');
 
   is(ret, "elelo", "returns a char pointer starting at the first instance of the specified char");
   is(og, "helelo", "does not modify the original char pointer");
@@ -28,184 +28,181 @@ k_strchr_test (void) {
 }
 
 void
-k_strchr_test_null_byte (void) {
-  char* ret = k_strchr("postmodernism sux", '\0');
+kstrchr_test_null_byte (void) {
+  char* ret = kstrchr("postmodernism sux", '\0');
   is(ret, "", "returns a pointer to the null byte terminator i.e. empty string");
 }
 
 void
-k_strchr_test_no_match (void) {
-  char* ret = k_strchr("derridadumb", 'x');
+kstrchr_test_no_match (void) {
+  char* ret = kstrchr("derridadumb", 'x');
   is(ret, NULL, "returns an empty string when no match");
 }
 
 void
-k_strcmp_test (void) {
-  ok(k_strcmp("thomassowell", "thomassowell") == 0, "returns 0 if s1 and s2 are equal");
+kstrcmp_test (void) {
+  ok(kstrcmp("thomassowell", "thomassowell") == 0, "returns 0 if s1 and s2 are equal");
 
   ok(
-    k_strcmp("thomassowell", "thomasowel") == 4,
+    kstrcmp("thomassowell", "thomasowel") == 4,
     "returns a positive value if s1 is greater than s2"
   );
-  ok(
-    k_strcmp("thomasowel", "thomassowell") == -4,
-    "returns a negative value if s1 is less than s2"
-  );
+  ok(kstrcmp("thomasowel", "thomassowell") == -4, "returns a negative value if s1 is less than s2");
 }
 
 void
-k_strcmp_test_empty (void) {
-  ok(k_strcmp("", "") == 0, "returns 0 (eq) when comparing two empty strings");
+kstrcmp_test_empty (void) {
+  ok(kstrcmp("", "") == 0, "returns 0 (eq) when comparing two empty strings");
 }
 
 void
-k_strcpy_test (void) {
+kstrcpy_test (void) {
   char  dest[32];
   char* src = "lucrecia_dalt";
-  char* ret = k_strcpy(dest, src);
+  char* ret = kstrcpy(dest, src);
 
   is(src, dest, "copies the entire string to dest");
   is(ret, dest, "also returns dest");
 }
 
 void
-k_strcpy_test_empty (void) {
+kstrcpy_test_empty (void) {
   char  dest[32];
   char* src = "";
-  char* ret = k_strcpy(dest, src);
+  char* ret = kstrcpy(dest, src);
 
   is(src, dest, "copies the empty string to dest");
   is(ret, dest, "also returns dest");
 }
 
 void
-k_memcpy_test (void) {
+kmemcpy_test (void) {
   char  dest[64];
   char* src = "a2FtYWxhX2hhcnJpc19lc3RhYmxpc2htZW50X2ZyYXVkX2xvbAo=";
 
-  char* ret = (char*)k_memcpy(dest, src, 52);
+  char* ret = (char*)kmemcpy(dest, src, 52);
   ret[52]   = '\0';
 
   is(ret, src, "copies all bytes");
 
   char dest2[64];
 
-  k_memcpy(dest2, src, 16);
+  kmemcpy(dest2, src, 16);
   dest2[16] = '\0';
   is("a2FtYWxhX2hhcnJp", dest2, "copies n bytes");
 }
 
 void
-k_memset_test (void) {
+kmemset_test (void) {
   char  dest[16];
   char* src = "kocani_orkestar";
 
-  char* ptr = (char*)k_memcpy(dest, src, 16);
+  char* ptr = (char*)kmemcpy(dest, src, 16);
   ptr[16]   = '\0';
 
-  char* ret = (char*)k_memset(ptr, 'x', 6);
+  char* ret = (char*)kmemset(ptr, 'x', 6);
   is(ret, "xxxxxx_orkestar", "sets n bytes");
 }
 
 void
-k_memmove_test (void) {
+kmemmove_test (void) {
   char src[3]  = {'y', 'y', 'y'};
   char dest[8] = {'p', 'o', 'p', 'x', 'x', 'x'};
 
-  char* ret    = (char*)k_memmove(dest, src, 3);
+  char* ret    = (char*)kmemmove(dest, src, 3);
   is(ret, "yyyxxx", "sets n bytes");
 }
 
 int
-k_memcmp_test (void) {
+kmemcmp_test (void) {
   char a1[3] = {'y', 'y', 'y'};
   char b1[3] = {'x', 'x', 'x'};
-  int  r1    = k_memcmp(a1, b1, 3);
+  int  r1    = kmemcmp(a1, b1, 3);
   ok(r1 == 1, "compares");
 
   char a2[3] = {'x', 'x', 'x'};
   char b2[3] = {'x', 'x', 'x'};
-  int  r2    = k_memcmp(a2, b2, 6);
+  int  r2    = kmemcmp(a2, b2, 6);
   ok(r2 == -1, "compares");
 
   char a3[5] = {'x', 'x', 'x', 'x', 'x'};
   char b3[3] = {'x', 'x', 'x'};
-  int  r3    = k_memcmp(a3, b3, 3);
+  int  r3    = kmemcmp(a3, b3, 3);
   ok(r3 == 0, "compares");
 }
 
 void
-k_memchr_test (void) {
+kmemchr_test (void) {
   char  p[4] = {'1', '2', '3', '\0'};
-  char* r    = k_memchr(p, '2', 4);
+  char* r    = kmemchr(p, '2', 4);
   ok(p[0] == '1', "does not modify the original pointer");
   ok(r[0] == '2', "returns a pointer starting at the identified byte");
 }
 
 void
-k_memchr_test_null_byte (void) {
+kmemchr_test_null_byte (void) {
   char  p[4] = {'1', '2', '3', '\0'};
-  char* r    = k_memchr(p, '\0', 4);
+  char* r    = kmemchr(p, '\0', 4);
   is(r, "", "returns a pointer to the null byte terminator i.e. empty string");
 }
 
 void
-k_memchr_test_no_match (void) {
+kmemchr_test_no_match (void) {
   char  p[4] = {'1', '2', '3', '\0'};
-  char* r    = k_memchr(p, '4', 4);
+  char* r    = kmemchr(p, '4', 4);
   is(r, NULL, "returns empty when no match");
 }
 
 void
-k_atoi_test (void) {
-  int i = k_atoi("123567");
+katoi_test (void) {
+  int i = katoi("123567");
   ok(i == 123567, "converts an unsigned integer");
 
-  i = k_atoi("-5893");
+  i = katoi("-5893");
   ok(i == -5893, "converts a signed integer");
 }
 
 void
-k_itoa_test (void) {
+kitoa_test (void) {
   char s[64];
 
-  k_itoa(123567, s, 10);
+  kitoa(123567, s, 10);
   is(s, "123567", "converts an unsigned integer");
 
-  k_itoa(-5893, s, 10);
+  kitoa(-5893, s, 10);
   is(s, "-5893", "converts a signed integer");
 
-  k_itoa(4096, s, 16);
+  kitoa(4096, s, 16);
   is(s, "1000", "converts a base 16 integer");
 }
 
 void
 run_string_tests (void) {
-  k_strlen_test();
-  k_strlen_test_empty();
+  kstrlen_test();
+  kstrlen_test_empty();
 
-  k_strchr_test();
-  k_strchr_test_null_byte();
-  k_strchr_test_no_match();
+  kstrchr_test();
+  kstrchr_test_null_byte();
+  kstrchr_test_no_match();
 
-  k_strcmp_test();
-  k_strcmp_test_empty();
+  kstrcmp_test();
+  kstrcmp_test_empty();
 
-  k_strcpy_test();
-  k_strcpy_test_empty();
+  kstrcpy_test();
+  kstrcpy_test_empty();
 
-  k_memcpy_test();
+  kmemcpy_test();
 
-  k_memset_test();
+  kmemset_test();
 
-  k_memmove_test();
+  kmemmove_test();
 
-  k_memcmp_test();
+  kmemcmp_test();
 
-  k_memchr_test();
-  k_memchr_test_null_byte();
-  k_memchr_test_no_match();
+  kmemchr_test();
+  kmemchr_test_null_byte();
+  kmemchr_test_no_match();
 
-  k_atoi_test();
-  k_itoa_test();
+  katoi_test();
+  kitoa_test();
 }

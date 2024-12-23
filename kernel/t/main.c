@@ -7,7 +7,7 @@ u_int32_t data_end    = 0;
 
 int
 main () {
-  plan(77);
+  plan(100);
 
   run_string_tests();
   run_flist_tests();

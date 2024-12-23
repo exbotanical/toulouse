@@ -3,9 +3,16 @@
 #include "debug/panic.h"
 #include "drivers/console/vga.h"
 #include "fs/elf.h"
+#include "interrupt/pit.h"
+#include "kernel.h"
 #include "mem/base.h"
 #include "mem/paging.h"
 #include "mem/segments.h"
+
+#define DUMP_REG_OR_FAIL(trap_num, sc)        \
+  if (!dump_trap_registers(trap_num, sc)) {   \
+    kpanic("%s", "Failed to dump registers"); \
+  }
 
 trap_t traps_table[NUM_EXCEPTIONS] = {
   {"Division By Zero",                      trap_divide_error,                0},
@@ -44,52 +51,48 @@ trap_t traps_table[NUM_EXCEPTIONS] = {
 
 static const char*
 elf_lookup_symbol (unsigned int addr) {
-  // elf32_shdr * vsymtab, *vstrtab;
-  // elf32_sym*   sym;
-  // unsigned int n;
+  elf32_shdr* vsymtab = (elf32_shdr*)P2V((unsigned int)symtab);
+  elf32_shdr* vstrtab = (elf32_shdr*)P2V((unsigned int)strtab);
+  elf32_sym*  sym     = (elf32_sym*)P2V(vsymtab->sh_addr);
 
-  // vsymtab = (elf32_shdr*)P2V((unsigned int)symtab);
-  // vstrtab = (elf32_shdr*)P2V((unsigned int)strtab);
-  // sym     = (elf32_sym*)P2V(vsymtab->sh_addr);
-  // for (n = 0; n < vsymtab->sh_size / sizeof(elf32_sym); n++, sym++) {
-  //   if (ELF32_ST_TYPE(sym->st_info) != STT_FUNC) {
-  //     continue;
-  //   }
-  //   if (addr >= sym->st_value && addr < (sym->st_value + sym->st_size)) {
-  //     return (const char*)P2V(vstrtab->sh_addr) + sym->st_name;
-  //   }
-  // }
+  for (unsigned int n = 0; n < vsymtab->sh_size / sizeof(elf32_sym); n++, sym++) {
+    if (ELF32_ST_TYPE(sym->st_info) != STT_FUNC) {
+      continue;
+    }
+    if (addr >= sym->st_value && addr < (sym->st_value + sym->st_size)) {
+      return (const char*)P2V(vstrtab->sh_addr) + sym->st_name;
+    }
+  }
+
   return NULL;
 }
 
 static void
 print_trap_stacktrace (void) {
   kprintf("%s\n", "stacktrace:");
-  int           n;
-  unsigned int* esp;
-  unsigned int  addr;
 
+  unsigned int* esp;
   asm volatile("movl %%esp, %0" : "=r"(esp));
 
   esp += (sizeof(sig_context_t) / sizeof(unsigned int)) - 5;
   esp  = (unsigned int*)P2V((unsigned int)esp);
-  for (n = 1; n <= 32; n++) {
+  for (unsigned int n = 1; n <= 32; n++) {
     kprintf(" %08x", *esp);
     esp++;
     if (!(n % 8)) {
       kprintf("%s", "\n");
     }
   }
+
   kprintf("%s", "Kernel stacktrace:\n");
   asm volatile("movl %%esp, %0" : "=r"(esp));
 
   esp += (sizeof(sig_context_t) / sizeof(unsigned int)) - 5;
   esp  = (unsigned int*)P2V((unsigned int)esp);
 
-  const char* str;
-  for (n = 0; n < 256; n++) {
-    addr = *esp;
-    str  = elf_lookup_symbol(addr);
+  for (unsigned int n = 0; n < 256; n++) {
+    unsigned int addr = *esp;
+    const char*  str  = elf_lookup_symbol(addr);
     if (str) {
       kprintf("<0x%08x> %s()\n", addr, str);
     }
@@ -166,64 +169,106 @@ trap_handle (unsigned int trap_num, sig_context_t sc) {
 
 void
 trap_divide_error (unsigned int trap_num, sig_context_t* sc) {
-  if (!dump_trap_registers(trap_num, sc)) {
-    kpanic("%s", "Failed to dump registers in trap_divide_error");
-  }
+  DUMP_REG_OR_FAIL(trap_num, sc);
 }
 
 void
-trap_debug (unsigned int trap_num, sig_context_t* sc) {}
+trap_debug (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_nmi_interrupt (unsigned int trap_num, sig_context_t* sc) {}
+trap_nmi_interrupt (unsigned int trap_num, sig_context_t* sc) {
+  unsigned int error = inb(PS2_SYSCTRL_B);
+
+  kprintf("NMI received: %d\n", error);
+  switch (error) {
+    case 0x80: kprintf("%s\n", "Parity check occurred.") break;
+    default: kprintf("Unknown error: 0x%X\n", error); break;
+  }
+
+  DUMP_REG_OR_FAIL(trap_num, sc)
+}
 
 void
-trap_breakpoint (unsigned int trap_num, sig_context_t* sc) {}
+trap_breakpoint (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_overflow (unsigned int trap_num, sig_context_t* sc) {}
+trap_overflow (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_bound (unsigned int trap_num, sig_context_t* sc) {}
+trap_bound (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_invalid_opcode (unsigned int trap_num, sig_context_t* sc) {}
+trap_invalid_opcode (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_no_math_coprocessor (unsigned int trap_num, sig_context_t* sc) {}
+trap_no_math_coprocessor (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_double_fault (unsigned int trap_num, sig_context_t* sc) {}
+trap_double_fault (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_coprocessor_segment_overrun (unsigned int trap_num, sig_context_t* sc) {}
+trap_coprocessor_segment_overrun (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_invalid_tss (unsigned int trap_num, sig_context_t* sc) {}
+trap_invalid_tss (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_segment_not_present (unsigned int trap_num, sig_context_t* sc) {}
+trap_segment_not_present (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_stack_segment_fault (unsigned int trap_num, sig_context_t* sc) {}
+trap_stack_segment_fault (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_general_protection (unsigned int trap_num, sig_context_t* sc) {}
+trap_general_protection (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
 trap_page_fault (unsigned int trap_num, sig_context_t* sc) {}
 
 void
-trap_reserved (unsigned int trap_num, sig_context_t* sc) {}
+trap_reserved (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_floating_point_error (unsigned int trap_num, sig_context_t* sc) {}
+trap_floating_point_error (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_alignment_check (unsigned int trap_num, sig_context_t* sc) {}
+trap_alignment_check (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_machine_check (unsigned int trap_num, sig_context_t* sc) {}
+trap_machine_check (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
 
 void
-trap_simd_fault (unsigned int trap_num, sig_context_t* sc) {}
+trap_simd_fault (unsigned int trap_num, sig_context_t* sc) {
+  DUMP_REG_OR_FAIL(trap_num, sc);
+}
