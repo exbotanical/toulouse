@@ -10,7 +10,7 @@
  * @param s
  * @return size_t the number of bytes in the string pointed to by s
  */
-size_t k_strlen(const char* s);
+size_t kstrlen(const char* s);
 
 /**
  * Returns a pointer to the first occurrence of the character c in the string s.
@@ -19,9 +19,9 @@ size_t k_strlen(const char* s);
  * @param c
  * @return char* a pointer to the matched character or NULL if the character is not found.
  * The terminating null byte is considered part of the string,
- * so that if c is specified as '\0', k_strchr will return a pointer to the terminator.
+ * so that if c is specified as '\0', kstrchr will return a pointer to the terminator.
  */
-char* k_strchr(const char* s, char c);
+char* kstrchr(const char* s, char c);
 
 /**
  * Compares the two strings s1 and s2. The locale is not taken into account.
@@ -33,7 +33,7 @@ char* k_strchr(const char* s, char c);
  * • a negative value if s1 is less than s2;
  * • a positive value if s1 is greater than s2.
  */
-int k_strcmp(const char* s1, const char* s2);
+int kstrcmp(const char* s1, const char* s2);
 
 /**
  * Copies the string pointed to by src into a string at the buffer pointed to by dest.
@@ -42,7 +42,7 @@ int k_strcmp(const char* s1, const char* s2);
  * @param src
  * @return char* a pointer to dest
  */
-char* k_strcpy(char* dest, const char* src);
+char* kstrcpy(char* dest, const char* src);
 
 /**
  * Copies n bytes from memory area src to memory area dest.  The memory areas must not over‐lap.
@@ -52,7 +52,7 @@ char* k_strcpy(char* dest, const char* src);
  * @param bytes
  * @return void* a pointer to dest
  */
-void* k_memcpy(void* dest, const void* source, size_t bytes);
+void* kmemcpy(void* dest, const void* source, size_t bytes);
 
 /**
  * Fills the first n bytes of the memory area pointed to by s with the constant byte c.
@@ -62,7 +62,7 @@ void* k_memcpy(void* dest, const void* source, size_t bytes);
  * @param bytes
  * @return void* a pointer to the memory area s
  */
-void* k_memset(void* s, int c, size_t bytes);
+void* kmemset(void* s, int c, size_t bytes);
 
 /**
  * Copies n bytes from memory area src to memory area dest. The memory areas may overlap:
@@ -74,7 +74,7 @@ void* k_memset(void* s, int c, size_t bytes);
  * @param bytes
  * @return void* a pointer to dest
  */
-void* k_memmove(void* dest, const void* src, size_t bytes);
+void* kmemmove(void* dest, const void* src, size_t bytes);
 
 /**
  * Compares the first n bytes (each interpreted as unsigned char) of the memory areas s1 and s2.
@@ -85,7 +85,7 @@ void* k_memmove(void* dest, const void* src, size_t bytes);
  * @return int an integer less than, equal to, or greater than zero if the first n bytes of s1 is
  * found, respectively, to be less than, to match, or be greater than the first n bytes of s2.
  */
-int k_memcmp(const void* s1, const void* s2, size_t bytes);
+int kmemcmp(const void* s1, const void* s2, size_t bytes);
 
 /**
  * Scans the initial n bytes of the memory area pointed to by s for the first instance of c.
@@ -97,7 +97,7 @@ int k_memcmp(const void* s1, const void* s2, size_t bytes);
  * @return void* a pointer to the matching byte or NULL if the character does not occur in the given
  * memory area.
  */
-void* k_memchr(void* s, int value, size_t bytes);
+void* kmemchr(void* s, int value, size_t bytes);
 
 /**
  * Converts a string to an integer.
@@ -105,7 +105,7 @@ void* k_memchr(void* s, int value, size_t bytes);
  * @param str
  * @return int
  */
-int k_atoi(char* str);
+int katoi(char* str);
 
 /**
  * Converts an integer to a string.
@@ -116,6 +116,6 @@ int k_atoi(char* str);
  * @param radix
  * @return char*
  */
-char* k_itoa(int value, char* buf, int radix);
+char* kitoa(int value, char* buf, int radix);
 
 #endif /* KLIB_STRING_H */

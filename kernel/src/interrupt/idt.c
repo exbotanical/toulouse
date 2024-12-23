@@ -52,7 +52,7 @@ void
 idt_init (void) {
   int n;
 
-  k_memset(idt, 0, sizeof(idt));
+  kmemset(idt, 0, sizeof(idt));
 
   for (n = 0; n < IDT_NUM_ENTRIES; n++) {
     if (n < 0x20) {

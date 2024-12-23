@@ -36,7 +36,7 @@ multiboot_set_video_props_from_info (multiboot_info_t *mbi) {
   video.rowsize     = video.pitch * video.char_height;
   video.size        = vbe_mode->x_resolution * vbe_mode->y_resolution * video.pixelwidth;
   video.vsize       = video.rows * video.pitch * video.char_height;
-  k_strcpy((char *)video.signature, (char *)vbe_ctrl->signature);
+  kstrcpy((char *)video.signature, (char *)vbe_ctrl->signature);
 }
 
 static void
@@ -50,12 +50,12 @@ multiboot_set_video_props_default (void) {
 void
 multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   multiboot_info_t mbi;
-  k_memset(&video, 0, sizeof(video_props_t));
+  kmemset(&video, 0, sizeof(video_props_t));
 
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-    vgaprintf("[WARN]: invalid multiboot magic number: 0x%x. Assuming 4MB of RAM.\n", magic);
+    kprintf("[WARN]: invalid multiboot magic number: 0x%x. Assuming 4MB of RAM.\n", magic);
 
-    k_memset(&mbi, 0, sizeof(multiboot_info_t));
+    kmemset(&mbi, 0, sizeof(multiboot_info_t));
     kstat.param.memsize    = 640;
     kstat.param.extmemsize = 3072;
     bios_mmap_init(NULL, 0);
@@ -63,20 +63,20 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
     return;
   }
 
-  k_memcpy(&mbi, (void *)mbi_ptr, sizeof(multiboot_info_t));
+  kmemcpy(&mbi, (void *)mbi_ptr, sizeof(multiboot_info_t));
 
   if (mbi.flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
-    vgaprintf("bootloader: %s\n", mbi.boot_loader_name);
+    kprintf("bootloader: %s\n", mbi.boot_loader_name);
   }
 
   if (!(mbi.flags & MULTIBOOT_INFO_MEMORY)) {
-    vgaprintf("%s\n", "[WARN]: invalid mem_lower, mem_upper values");
+    kprintf("%s\n", "[WARN]: invalid mem_lower, mem_upper values");
   }
   kstat.param.memsize    = (unsigned int)mbi.mem_lower;
   kstat.param.extmemsize = (unsigned int)mbi.mem_upper;
 
   if (!(mbi.flags & MULTIBOOT_INFO_ELF_SHDR)) {
-    vgaprintf("%s\n", "[WARN]: invalid ELF section header table");
+    kprintf("%s\n", "[WARN]: invalid ELF section header table");
   }
 
   if (mbi.flags & MULTIBOOT_INFO_MEM_MAP) {

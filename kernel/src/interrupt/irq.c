@@ -10,7 +10,7 @@ static interrupt_bh_t *bh_table = NULL;
 
 void
 irq_init (void) {
-  k_memset(irq_table, 0, sizeof(irq_table));
+  kmemset(irq_table, 0, sizeof(irq_table));
 }
 
 void
@@ -69,7 +69,7 @@ done:
 void
 irq_unknown_handler (void) {
   // TODO:
-  vgaprintf(">>>> %s\n", "OH NO");
+  kprintf(">>>> %s\n", "OH NO");
 }
 
 void

@@ -7,7 +7,7 @@
 /**
  * A global pointer to kernel stats and state.
  */
-extern k_stat kstat;
+extern kstat_t kstat;
 
 /**
  * A global store for the last static kernel page boundary.

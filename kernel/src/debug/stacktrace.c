@@ -11,7 +11,7 @@ get_address (uint32_t vaddr, uint32_t off) {
 
 void
 dump_stack_trace (void) {
-  vgaprintf("%s\n", "Stack trace:");
+  kprintf("%s\n", "Stack trace:");
 
   uint32_t last_ebp = 0, ebp, eip;
   asm("mov %%ebp, %0" : "=r"(ebp));
@@ -20,13 +20,13 @@ dump_stack_trace (void) {
 
   for (uint32_t frame = 0; eip && ebp && ebp > last_ebp && frame < MAX_STACK_FRAMES; frame++) {
     char s[64];
-    k_itoa(eip - 1, s, 16);
-    vgaprintf("\t0x%X\n", s);
+    kitoa(eip - 1, s, 16);
+    kprintf("\t0x%X\n", s);
 
     last_ebp = ebp;
     ebp      = get_address(ebp, 0);
     eip      = get_address(ebp, 1);
   }
 
-  vgaprintf("%s\n", "Stack trace end");
+  kprintf("%s\n", "Stack trace end");
 }

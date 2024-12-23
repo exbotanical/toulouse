@@ -16,12 +16,12 @@ die (void) {
   cpu_idle();
 }
 
-void noreturn __k_panic(void);
+void noreturn __kpanic(void);
 
 // TODO: dyn buffer
-#define k_panic(fmt, ...)                           \
-  vgaprintf("[PANIC] Exception in %s\n", __func__); \
-  vgaprintf(fmt, __VA_ARGS__);                      \
-  __k_panic();
+#define kpanic(fmt, ...)                          \
+  kprintf("[PANIC] Exception in %s\n", __func__); \
+  kprintf(fmt, __VA_ARGS__);                      \
+  __kpanic();
 
 #endif /* PANIC_H */

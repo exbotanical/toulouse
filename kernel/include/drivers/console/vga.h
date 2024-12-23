@@ -48,11 +48,11 @@ void vga_console_putchar(vga_console_t* cons, char c);
 void vga_console_write(vga_console_t* cons, const char* data, uint32_t size);
 void vga_printf(const char* fmt, ...);
 
-#define vgaprintf(fmt, ...)                                \
-  {                                                        \
-    char buf[1024];                                        \
-    sprintf(buf, fmt, __VA_ARGS__);                        \
-    vga_console_write(global_vga_con, buf, k_strlen(buf)); \
+#define kprintf(fmt, ...)                                \
+  {                                                       \
+    char buf[1024];                                       \
+    sprintf(buf, fmt, __VA_ARGS__);                       \
+    vga_console_write(global_vga_con, buf, kstrlen(buf)); \
   }
 
 #endif /* VGA_H */

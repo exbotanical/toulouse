@@ -64,7 +64,7 @@ elf_lookup_symbol (unsigned int addr) {
 
 static void
 print_trap_stacktrace (void) {
-  vgaprintf("%s\n", "stacktrace:");
+  kprintf("%s\n", "stacktrace:");
   int           n;
   unsigned int* esp;
   unsigned int  addr;
@@ -74,13 +74,13 @@ print_trap_stacktrace (void) {
   esp += (sizeof(sig_context_t) / sizeof(unsigned int)) - 5;
   esp  = (unsigned int*)P2V((unsigned int)esp);
   for (n = 1; n <= 32; n++) {
-    vgaprintf(" %08x", *esp);
+    kprintf(" %08x", *esp);
     esp++;
     if (!(n % 8)) {
-      vgaprintf("%s", "\n");
+      kprintf("%s", "\n");
     }
   }
-  vgaprintf("%s", "Kernel stacktrace:\n");
+  kprintf("%s", "Kernel stacktrace:\n");
   asm volatile("movl %%esp, %0" : "=r"(esp));
 
   esp += (sizeof(sig_context_t) / sizeof(unsigned int)) - 5;
@@ -91,7 +91,7 @@ print_trap_stacktrace (void) {
     addr = *esp;
     str  = elf_lookup_symbol(addr);
     if (str) {
-      vgaprintf("<0x%08x> %s()\n", addr, str);
+      kprintf("<0x%08x> %s()\n", addr, str);
     }
     esp++;
   }
@@ -104,7 +104,7 @@ dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
   if (is_page_fault) {
     unsigned int cr2;
     asm volatile("movl %%cr2, %0" : "=r"(cr2));
-    vgaprintf(
+    kprintf(
       "%s at 0x%08x (%s) with errcode 0x%02x%s",
       traps_table[trap_num].name,
       cr2,
@@ -113,14 +113,14 @@ dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
       sc->err & PAGE_FAULT_USRMOD ? "\n" : " in kernel mode.\n"
     );
   } else {
-    vgaprintf("[ERROR]: %s", traps_table[trap_num].name);
+    kprintf("[ERROR]: %s", traps_table[trap_num].name);
     if (traps_table[trap_num].errcode) {
-      vgaprintf(": error code 0x%08x (0b%b)", sc->err, sc->err);
+      kprintf(": error code 0x%08x (0b%b)", sc->err, sc->err);
     }
-    vgaprintf("%s", "\n");
+    kprintf("%s", "\n");
   }
 
-  vgaprintf(
+  kprintf(
     " cs: 0x%04x\teip: 0x%08x\tefl: 0x%08x\t ss: 0x%08x\tesp: 0x%08x\n",
     sc->cs,
     sc->eip,
@@ -128,21 +128,21 @@ dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
     sc->og_ss,
     sc->og_esp
   );
-  vgaprintf(
+  kprintf(
     "eax: 0x%08x\tebx: 0x%08x\tecx: 0x%08x\tedx: 0x%08x\n",
     sc->eax,
     sc->ebx,
     sc->ecx,
     sc->edx
   );
-  vgaprintf(
+  kprintf(
     "esi: 0x%08x\tedi: 0x%08x\tesp: 0x%08x\tebp: 0x%08x\n",
     sc->esi,
     sc->edi,
     sc->esp,
     sc->ebp
   );
-  vgaprintf(" ds: 0x%04x\t es: 0x%04x\t fs: 0x%04x\t gs: 0x%04x\n", sc->ds, sc->es, sc->fs, sc->gs);
+  kprintf(" ds: 0x%04x\t es: 0x%04x\t fs: 0x%04x\t gs: 0x%04x\n", sc->ds, sc->es, sc->fs, sc->gs);
 
   if (sc->cs == KERNEL_CS) {
     print_trap_stacktrace();
@@ -167,7 +167,7 @@ trap_handle (unsigned int trap_num, sig_context_t sc) {
 void
 trap_divide_error (unsigned int trap_num, sig_context_t* sc) {
   if (!dump_trap_registers(trap_num, sc)) {
-    k_panic("%s", "Failed to dump registers in trap_divide_error");
+    kpanic("%s", "Failed to dump registers in trap_divide_error");
   }
 }
 

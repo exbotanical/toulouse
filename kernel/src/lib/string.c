@@ -3,7 +3,7 @@
 static char* CHARSET = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 size_t
-k_strlen (const char* s) {
+kstrlen (const char* s) {
   size_t l = 0;
   while (*s++) {
     l++;
@@ -12,7 +12,7 @@ k_strlen (const char* s) {
 }
 
 char*
-k_strchr (const char* s, char c) {
+kstrchr (const char* s, char c) {
   do {
     if (*s == c) {
       return (char*)s;
@@ -23,7 +23,7 @@ k_strchr (const char* s, char c) {
 }
 
 int
-k_strcmp (const char* s1, const char* s2) {
+kstrcmp (const char* s1, const char* s2) {
   while (*s1 && *s1 == *s2) {
     *s1++;
     *s2++;
@@ -33,14 +33,14 @@ k_strcmp (const char* s1, const char* s2) {
 }
 
 char*
-k_strcpy (char* dest, const char* src) {
+kstrcpy (char* dest, const char* src) {
   char* ret = dest;
   while ((*dest++ = *src++) != '\0');
   return ret;
 }
 
 void*
-k_memcpy (void* dest, const void* source, size_t bytes) {
+kmemcpy (void* dest, const void* source, size_t bytes) {
   char* ret = dest;
   for (unsigned int i = 0; i < bytes; i++) {
     ((char*)dest)[i] = ((const char*)source)[i];
@@ -50,7 +50,7 @@ k_memcpy (void* dest, const void* source, size_t bytes) {
 }
 
 void*
-k_memset (void* s, int c, size_t bytes) {
+kmemset (void* s, int c, size_t bytes) {
   void* ret = s;
   for (unsigned int i = 0; i < bytes; i++) {
     ((char*)s)[i] = c;
@@ -60,7 +60,7 @@ k_memset (void* s, int c, size_t bytes) {
 }
 
 void*
-k_memmove (void* dest, const void* src, size_t bytes) {
+kmemmove (void* dest, const void* src, size_t bytes) {
   char tmp[bytes];
 
   // 2 loops - must be able to overlap
@@ -76,7 +76,7 @@ k_memmove (void* dest, const void* src, size_t bytes) {
 }
 
 int
-k_memcmp (const void* s1, const void* s2, size_t bytes) {
+kmemcmp (const void* s1, const void* s2, size_t bytes) {
   const char* ca = (const char*)s1;
   const char* cb = (const char*)s2;
 
@@ -90,7 +90,7 @@ k_memcmp (const void* s1, const void* s2, size_t bytes) {
 }
 
 void*
-k_memchr (void* s, int value, size_t bytes) {
+kmemchr (void* s, int value, size_t bytes) {
   unsigned char* p = (unsigned char*)s;
   unsigned char  v = (unsigned char)value;
 
@@ -105,7 +105,7 @@ k_memchr (void* s, int value, size_t bytes) {
 }
 
 char*
-k_itoa (int value, char* buf, int radix) {
+kitoa (int value, char* buf, int radix) {
   char* ret = buf;
   char  tmp[64];
   int   idx = 0;
@@ -134,7 +134,7 @@ k_itoa (int value, char* buf, int radix) {
 }
 
 int
-k_atoi (char* str) {
+katoi (char* str) {
   int      i      = 0;
   uint32_t factor = 1;
 

@@ -12,7 +12,7 @@ dispatch_proc_interrupts (void) {
 }
 
 void noreturn
-__k_panic (void) {
+__kpanic (void) {
   if (access_once(is_in_panic)) {
     kernel_stop();
   }

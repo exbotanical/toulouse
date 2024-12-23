@@ -9,5 +9,5 @@ static kbuddy_head_t *freelist[BUDDY_MAX_LEVEL + 1];
 
 void
 kbuddy_init (void) {
-  k_memset(freelist, 0, sizeof(freelist));
+  kmemset(freelist, 0, sizeof(freelist));
 }

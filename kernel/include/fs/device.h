@@ -16,7 +16,7 @@ struct device {
   /**
    * default minor blocksizes, in kb
    */
-  unsigned int *block_sz;
+  unsigned int *block_size;
   /**
    * mostly used for minor sizes, in kb
    */

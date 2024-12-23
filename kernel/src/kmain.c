@@ -15,7 +15,7 @@
 #include "mem/paging.h"
 
 unsigned int real_last_addr;
-k_stat       kstat;
+kstat_t      kstat;
 
 void
 kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
@@ -23,26 +23,26 @@ kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
   vga_global_console_init();
 
   multiboot_init(magic, mbi);
-  vgaprintf("[INIT] %s\n", "Multiboot data processed (if extant)");
+  kprintf("[INIT] %s\n", "Multiboot data processed (if extant)");
 
   // Remap the PIC and mask all interrupts
   pic_init();
-  vgaprintf("[INIT] %s\n", "PIC remapped");
+  kprintf("[INIT] %s\n", "PIC remapped");
 
   // Allocate the IRQ table
   irq_init();
-  vgaprintf("[INIT] %s\n", "IRQ table allocated");
+  kprintf("[INIT] %s\n", "IRQ table allocated");
 
   // Register interrupts and exception handlers
   idt_init();
-  vgaprintf("[INIT] %s\n", "IDT initialized");
+  kprintf("[INIT] %s\n", "IDT initialized");
 
   // Allocate devices tables
   devices_init();
-  vgaprintf("[INIT] %s\n", "Devices table allocated");
+  kprintf("[INIT] %s\n", "Devices table allocated");
 
   mem_init();
-  vgaprintf("[INIT] %s\n", "Permanent page tables installed");
+  kprintf("[INIT] %s\n", "Permanent page tables installed");
 
   int_enable();
   cpu_idle();

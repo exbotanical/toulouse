@@ -69,11 +69,11 @@ mem_init_temporary (unsigned int magic, unsigned int mbi_ptr) {
 
   unsigned int addr = PAGE_ALIGN(KERNEL_PAGE_OFFSET + (num_pages * 1024) - num_pages);
   page_dir          = (unsigned int *)addr;
-  k_memset(page_dir, 0, PAGE_SIZE);
+  kmemset(page_dir, 0, PAGE_SIZE);
 
   addr                     += PAGE_SIZE;
   unsigned int *page_table  = (unsigned int *)addr;
-  k_memset(page_table, 0, num_pages);
+  kmemset(page_table, 0, num_pages);
 
   for (unsigned int idx = 0; idx < num_pages / sizeof(unsigned int); idx++) {
     page_table[idx] = (idx << PAGE_SHIFT) | PAGE_PRESENT | PAGE_RW;
@@ -100,11 +100,11 @@ mem_init (void) {
   real_last_addr = PAGE_ALIGN(real_last_addr);
 
   page_dir       = (unsigned int *)real_last_addr;
-  k_memset(page_dir, 0, PAGE_SIZE);
+  kmemset(page_dir, 0, PAGE_SIZE);
   real_last_addr           += PAGE_SIZE;
 
   unsigned int *page_table  = (unsigned int *)real_last_addr;
-  k_memset((void *)page_table, 0, physical_page_tables * PAGE_SIZE);
+  kmemset((void *)page_table, 0, physical_page_tables * PAGE_SIZE);
   real_last_addr += physical_page_tables * PAGE_SIZE;
 
   for (unsigned int n = 0; n < kstat.physical_pages; n++) {
@@ -132,14 +132,14 @@ mem_init (void) {
 
   page_hash_table_size   = n * PAGE_SIZE;
   if (!bios_mmap_has_addr(V2P(real_last_addr) + page_hash_table_size)) {
-    k_panic("%s\n", "Not enough memory for page_hash_table");
+    kpanic("%s\n", "Not enough memory for page_hash_table");
   }
   page_hash_table  = (page_t **)real_last_addr;
   real_last_addr  += page_hash_table_size;
 
   page_pool_size   = PAGE_ALIGN(kstat.physical_pages * sizeof(page_t));
   if (!bios_mmap_has_addr(V2P(real_last_addr) + page_pool_size)) {
-    k_panic("%s\n", "Not enough memory for page_table");
+    kpanic("%s\n", "Not enough memory for page_table");
   }
   page_pool       = (page_t *)real_last_addr;
   real_last_addr += page_pool_size;
@@ -150,8 +150,8 @@ mem_init (void) {
 
 void
 pages_init (unsigned int num_pages) {
-  k_memset(page_pool, 0, page_pool_size);
-  k_memset(page_hash_table, 0, page_hash_table_size);
+  kmemset(page_pool, 0, page_pool_size);
+  kmemset(page_hash_table, 0, page_hash_table_size);
 
   for (unsigned int n = 0; n < num_pages; n++) {
     page_t *page      = &page_pool[n];

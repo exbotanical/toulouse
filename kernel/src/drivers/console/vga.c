@@ -4,7 +4,7 @@
 
 #include "lib/string.h"
 
-#define WRITE_BUFFER_SZ 2048
+#define WRITE_BUFFER_SIZE 2048
 
 static const uint32_t VGA_WIDTH     = 80;
 static const uint32_t VGA_HEIGHT    = 25;
@@ -101,11 +101,11 @@ void
 vga_printf (const char* fmt, ...) {
   va_list va;
   // TODO: global?
-  char    buf[WRITE_BUFFER_SZ];
+  char    buf[WRITE_BUFFER_SIZE];
 
   va_start(va, fmt);
   sprintf_(buf, fmt, va);
   va_end(va);
 
-  vga_console_write(global_vga_con, buf, k_strlen(buf));
+  vga_console_write(global_vga_con, buf, kstrlen(buf));
 }
