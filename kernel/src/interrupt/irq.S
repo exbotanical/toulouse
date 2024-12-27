@@ -41,7 +41,7 @@
 
 #define EXEC_IRQ_BOTTOM_HALF                                    \
   sti                                                          ;\
-  call   irq_exec_bottom_half                                  ;\
+  call   irq_bottom_half_exec                                  ;\
 
 #define EXEC_EXCEPTION_HANDLER(exception)                       \
   pushl  $exception                                            ;\

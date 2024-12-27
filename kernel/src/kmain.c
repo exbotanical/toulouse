@@ -9,6 +9,7 @@
 #include "interrupt/idt.h"
 #include "interrupt/irq.h"
 #include "interrupt/pic.h"
+#include "interrupt/timer.h"
 #include "kernel.h"
 #include "kstat.h"
 #include "mem/base.h"
@@ -23,26 +24,29 @@ kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
   vga_global_console_init();
 
   multiboot_init(magic, mbi);
-  kprintf("[INIT] %s\n", "Multiboot data processed (if extant)");
+  klog_info("Multiboot data processed (if extant)");
 
   // Remap the PIC and mask all interrupts
   pic_init();
-  kprintf("[INIT] %s\n", "PIC remapped");
+  klog_info("PIC remapped");
 
   // Allocate the IRQ table
   irq_init();
-  kprintf("[INIT] %s\n", "IRQ table allocated");
+  klog_info("IRQ table allocated");
 
   // Register interrupts and exception handlers
   idt_init();
-  kprintf("[INIT] %s\n", "IDT initialized");
+  klog_info("IDT initialized");
 
   // Allocate devices tables
   devices_init();
-  kprintf("[INIT] %s\n", "Devices table allocated");
+  klog_info("Devices table allocated");
 
   mem_init();
-  kprintf("[INIT] %s\n", "Permanent page tables installed");
+  klog_info("Permanent page tables installed");
+
+  timer_init();
+  klog_info("Timer initialized");
 
   int_enable();
   cpu_idle();

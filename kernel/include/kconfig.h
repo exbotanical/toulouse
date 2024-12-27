@@ -16,4 +16,14 @@
  */
 #define MAX_PAGES_HASH    16
 
+/**
+ * Maximum number of concurrent processes.
+ */
+#define NUM_PROCESSES     64
+
+/**
+ * Maximum number of active timer tasks.
+ */
+#define NUM_TIMER_TASKS   NUM_PROCESSES
+
 #endif /* CONFIG_H */

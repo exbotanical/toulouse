@@ -71,13 +71,13 @@ bios_mmap_init (multiboot_mmap_entry_t *mmap, unsigned int mmap_len) {
     }
     kstat.physical_pages += (1024 >> 2);  // add the first MB as a whole
     if (kstat.physical_pages > (GDT_BASE >> PAGE_SHIFT)) {
-      kprintf(
-        "[WARN]: detected a total of %dMB of available memory below 4GB.\n",
+      klogf_warn(
+        "detected a total of %dMB of available memory below 4GB.\n",
         (kstat.physical_pages << 2) / 1024
       );
     }
   } else {
-    kprintf("%s\n", "[WARN]: your BIOS has not provided a memory map.");
+    klog_warn("your BIOS has not provided a memory map.");
     bios_mmap[0].from      = 0;
     bios_mmap[0].to        = kstat.param.memsize * 1024;
     bios_mmap[0].from_high = 0;
@@ -97,7 +97,7 @@ bios_mmap_init (multiboot_mmap_entry_t *mmap, unsigned int mmap_len) {
    */
   if (kstat.physical_pages > (GDT_BASE >> PAGE_SHIFT)) {
     kstat.physical_pages = (GDT_BASE >> PAGE_SHIFT);
-    kprintf("[WARN]: only up to %dGB of physical memory will be used.\n", GDT_BASE >> 30);
+    klogf_warn("only up to %dGB of physical memory will be used.\n", GDT_BASE >> 30);
   }
 
   kmemcpy(kernel_mmap, bios_mmap, NUM_BIOS_MMAP_ENTRIES * sizeof(bios_mmap_t));

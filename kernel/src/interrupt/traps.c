@@ -92,9 +92,9 @@ print_trap_stacktrace (void) {
 
   for (unsigned int n = 0; n < 256; n++) {
     unsigned int addr = *esp;
-    const char*  str  = elf_lookup_symbol(addr);
-    if (str) {
-      kprintf("<0x%08x> %s()\n", addr, str);
+    const char*  s    = elf_lookup_symbol(addr);
+    if (s) {
+      kprintf("<0x%08x> %s()\n", addr, s);
     }
     esp++;
   }
@@ -116,15 +116,14 @@ dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
       sc->err & PAGE_FAULT_USRMOD ? "\n" : " in kernel mode.\n"
     );
   } else {
-    kprintf("[ERROR]: %s", traps_table[trap_num].name);
+    klogf_error("%s\n", traps_table[trap_num].name);
     if (traps_table[trap_num].errcode) {
       kprintf(": error code 0x%08x (0b%b)", sc->err, sc->err);
     }
     kprintf("%s", "\n");
   }
-
   kprintf(
-    " cs: 0x%04x\teip: 0x%08x\tefl: 0x%08x\t ss: 0x%08x\tesp: 0x%08x\n",
+    " cs: 0x%04x    eip: 0x%08x    efl: 0x%08x     ss: 0x%08x    esp: 0x%08x\n",
     sc->cs,
     sc->eip,
     sc->eflags,
@@ -132,20 +131,26 @@ dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
     sc->og_esp
   );
   kprintf(
-    "eax: 0x%08x\tebx: 0x%08x\tecx: 0x%08x\tedx: 0x%08x\n",
+    "eax: 0x%08x    ebx: 0x%08x    ecx: 0x%08x    edx: 0x%08x\n",
     sc->eax,
     sc->ebx,
     sc->ecx,
     sc->edx
   );
   kprintf(
-    "esi: 0x%08x\tedi: 0x%08x\tesp: 0x%08x\tebp: 0x%08x\n",
+    "esi: 0x%08x    edi: 0x%08x    esp: 0x%08x    ebp: 0x%08x\n",
     sc->esi,
     sc->edi,
     sc->esp,
     sc->ebp
   );
-  kprintf(" ds: 0x%04x\t es: 0x%04x\t fs: 0x%04x\t gs: 0x%04x\n", sc->ds, sc->es, sc->fs, sc->gs);
+  kprintf(
+    " ds: 0x%04x     es: 0x%04x     fs: 0x%04x     gs: 0x%04x\n",
+    sc->ds,
+    sc->es,
+    sc->fs,
+    sc->gs
+  );
 
   if (sc->cs == KERNEL_CS) {
     print_trap_stacktrace();

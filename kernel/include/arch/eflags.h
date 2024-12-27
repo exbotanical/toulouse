@@ -16,23 +16,17 @@
 static inline uint32_t
 eflags_get (void) {
   unsigned int eflags;
-  asm volatile("pushf\n\t"
-               "pop %0"
-               : "=r"(eflags));
+  asm volatile("pushfl\n\t"
+               "popl %0"
+               : "=r"(eflags)
+               :
+               : "memory");
   return eflags;
 }
 
 static inline void
 eflags_set (uint32_t eflags) {
-  asm volatile("pop %%ecx\n\t"
-               "popf\n\t"
-               // Restore the stack frame
-               "sub $4, %%esp\n\t"
-               // Return to the caller's stack frame
-               "jmp *%%ecx"
-               :
-               : "g"(eflags)
-               : "ecx", "memory");
+  asm volatile("pushl %0; popfl\n\t" : : "r"(eflags) : "memory");
 }
 
 #endif /* EFLAGS_H */

@@ -1,0 +1,7 @@
+#ifndef INTERRUPT_CONST_H
+#define INTERRUPT_CONST_H
+
+#define LOCK_BH 0x00000001
+#define LOCK_TT 0x00000002
+
+#endif /* INTERRUPT_CONST_H */

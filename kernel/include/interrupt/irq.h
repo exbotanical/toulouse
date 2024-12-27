@@ -1,6 +1,7 @@
 #ifndef INTERRUPT_IRQ_H
 #define INTERRUPT_IRQ_H
 
+#include "common/types.h"
 #include "interrupt/signal.h"
 
 #define NUM_IRQS      16
@@ -80,9 +81,11 @@ extern void irq_unknown(void);
  * Sets up the IRQ table.
  */
 void irq_init(void);
-void irq_exec_bottom_half(sig_context_t *sc);
-void irq_disable(int irq_num);
+void irq_bottom_half_register(interrupt_bh_t *new);
+void irq_bottom_half_exec(sig_context_t *sc);
 void irq_enable(int irq_num);
+void irq_disable(int irq_num);
+bool irq_register(int irq_num, interrupt_t *interrupt);
 void irq_handler(int irq_num, sig_context_t sc);
 void irq_unknown_handler(void);
 void irq_spurious_interrupt_handler(int irq_num);

@@ -1,12 +1,12 @@
 #include "mem/paging.h"
 
 #include "common/constants.h"
-#include "config.h"
 #include "debug/panic.h"
 #include "drivers/console/vga.h"
 #include "drivers/dev/char/console.h"
 #include "init/bios.h"
 #include "init/multiboot.h"
+#include "kconfig.h"
 #include "kernel.h"
 #include "kstat.h"
 #include "lib/math.h"
@@ -16,12 +16,17 @@
 #include "mem/paging.h"
 #include "mem/segments.h"
 
+#define INIT_MEM(ptr, size)             \
+  ptr = (unsigned int *)real_last_addr; \
+  kmemset(ptr, 0, size);                \
+  real_last_addr += size
+
 unsigned int page_pool_size       = 0;
 unsigned int page_hash_table_size = 0;
 
 unsigned int *page_dir;
-page_t       *page_pool;      /* page pool */
-page_t       *page_pool_head; /* page pool head */
+page_t       *page_pool;
+page_t       *page_pool_head;
 page_t      **page_hash_table;
 
 static inline void
@@ -99,13 +104,9 @@ mem_init (void) {
 
   real_last_addr = PAGE_ALIGN(real_last_addr);
 
-  page_dir       = (unsigned int *)real_last_addr;
-  kmemset(page_dir, 0, PAGE_SIZE);
-  real_last_addr           += PAGE_SIZE;
-
-  unsigned int *page_table  = (unsigned int *)real_last_addr;
-  kmemset((void *)page_table, 0, physical_page_tables * PAGE_SIZE);
-  real_last_addr += physical_page_tables * PAGE_SIZE;
+  INIT_MEM(page_dir, PAGE_SIZE);
+  unsigned int *page_table = (unsigned int *)real_last_addr;
+  INIT_MEM(page_table, physical_page_tables * PAGE_SIZE);
 
   for (unsigned int n = 0; n < kstat.physical_pages; n++) {
     page_table[n] = (n << PAGE_SHIFT) | PAGE_PRESENT | PAGE_RW;

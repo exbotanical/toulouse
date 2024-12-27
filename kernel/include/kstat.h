@@ -20,6 +20,10 @@ typedef struct {
   unsigned int free_pages;
   unsigned int min_free_pages;
   unsigned int total_mem_pages;
+
+  unsigned int ticks;       /* ticks (1/HZths of sec) since boot */
+  unsigned int system_time; /* current system time (since the Epoch) */
+  unsigned int uptime;      /* seconds since boot */
 } kstat_t;
 
-#endif /* KSTAT_H */
+#endif                      /* KSTAT_H */

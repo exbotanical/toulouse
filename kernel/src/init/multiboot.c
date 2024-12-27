@@ -53,7 +53,7 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   kmemset(&video, 0, sizeof(video_props_t));
 
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-    kprintf("[WARN]: invalid multiboot magic number: 0x%x. Assuming 4MB of RAM.\n", magic);
+    klogf_warn("invalid multiboot magic number: 0x%x. Assuming 4MB of RAM.\n", magic);
 
     kmemset(&mbi, 0, sizeof(multiboot_info_t));
     kstat.param.memsize    = 640;
@@ -66,17 +66,17 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   kmemcpy(&mbi, (void *)mbi_ptr, sizeof(multiboot_info_t));
 
   if (mbi.flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
-    kprintf("bootloader: %s\n", mbi.boot_loader_name);
+    klogf_info("bootloader: %s\n", mbi.boot_loader_name);
   }
 
   if (!(mbi.flags & MULTIBOOT_INFO_MEMORY)) {
-    kprintf("%s\n", "[WARN]: invalid mem_lower, mem_upper values");
+    klog_warn("invalid mem_lower, mem_upper values");
   }
   kstat.param.memsize    = (unsigned int)mbi.mem_lower;
   kstat.param.extmemsize = (unsigned int)mbi.mem_upper;
 
   if (!(mbi.flags & MULTIBOOT_INFO_ELF_SHDR)) {
-    kprintf("%s\n", "[WARN]: invalid ELF section header table");
+    klog_warn("invalid ELF section header table");
   }
 
   if (mbi.flags & MULTIBOOT_INFO_MEM_MAP) {
