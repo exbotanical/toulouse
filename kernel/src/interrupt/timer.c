@@ -24,6 +24,39 @@ static interrupt_bh_t tt_bh            = {0, &timer_task_bh, NULL};
 static interrupt_t    timer_irq_config = {0, "timer", &timer_irq, NULL};
 
 static void
+timer_irq (int num, sig_context_t* sc) {
+  if ((++kstat.ticks % HZ) == 0) {
+    kstat.system_time++;
+    kstat.uptime++;
+  }
+
+  timer_bh.flags |= IRQ_BH_ACTIVE;
+}
+
+static void
+timer_irq_bh (sig_context_t* sc) {
+  if (tt_head) {
+    if (tt_head->expires_at > 0) {
+      tt_head->expires_at--;
+      if (!tt_head->expires_at) {
+        tt_bh.flags |= IRQ_BH_ACTIVE;
+      }
+    } else {
+      kprintf("%s(): callout losing ticks.\n", __func__);
+      tt_bh.flags |= IRQ_BH_ACTIVE;
+    }
+  }
+}
+
+static void
+timer_task_init (timer_task_t* tt, timer_task_request_t* req, unsigned int ticks) {
+  kmemset(tt, 0, sizeof(timer_task_t));
+  tt->fn         = req->fn;
+  tt->arg        = req->arg;
+  tt->expires_at = ticks;
+}
+
+static void
 timer_task_free (timer_task_t* old) {
   old->next    = tt_pool_head;
   tt_pool_head = old;
@@ -38,14 +71,6 @@ timer_task_get_free (void) {
     next_free->next = NULL;
   }
   return next_free;
-}
-
-static void
-timer_task_init (timer_task_t* tt, timer_task_request_t* req, unsigned int ticks) {
-  kmemset(tt, 0, sizeof(timer_task_t));
-  tt->fn         = req->fn;
-  tt->arg        = req->arg;
-  tt->expires_at = ticks;
 }
 
 static void
@@ -69,31 +94,6 @@ timer_task_insert (timer_task_t* tt) {
     }
     *tmp = tt;
   }
-}
-
-static void
-timer_irq_bh (sig_context_t* sc) {
-  if (tt_head) {
-    if (tt_head->expires_at > 0) {
-      tt_head->expires_at--;
-      if (!tt_head->expires_at) {
-        tt_bh.flags |= IRQ_BH_ACTIVE;
-      }
-    } else {
-      kprintf("%s(): callout losing ticks.\n", __func__);
-      tt_bh.flags |= IRQ_BH_ACTIVE;
-    }
-  }
-}
-
-static void
-timer_irq (int num, sig_context_t* sc) {
-  if ((++kstat.ticks % HZ) == 0) {
-    // CURRENT_TIME++;
-    kstat.uptime++;
-  }
-
-  timer_bh.flags |= IRQ_BH_ACTIVE;
 }
 
 static void

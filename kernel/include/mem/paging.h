@@ -95,13 +95,13 @@ struct page {
   page_t *next_free;
 };
 
-extern unsigned int page_pool_size;
-extern unsigned int page_hash_table_size;
-
 extern unsigned int *page_dir;
 
-extern page_t  *page_pool;
-extern page_t **page_hash_table;
+extern unsigned int page_pool_size;
+extern page_t      *page_pool;
+
+extern unsigned int page_hash_table_size;
+extern page_t     **page_hash_table;
 
 static const unsigned int blocksizes[] = {32, 64, 128, 256, 512, 1024, 2048, 4096};
 

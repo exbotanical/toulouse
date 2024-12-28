@@ -14,6 +14,7 @@
 #include "kstat.h"
 #include "mem/base.h"
 #include "mem/paging.h"
+#include "proc/process.h"
 
 unsigned int real_last_addr;
 kstat_t      kstat;
@@ -47,6 +48,9 @@ kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
 
   timer_init();
   klog_info("Timer initialized");
+
+  proc_init();
+  klog_info("Process table initialized");
 
   int_enable();
   cpu_idle();
