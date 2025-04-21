@@ -14,6 +14,11 @@
 #define VIDEO_CONS_DEFAULT_COLS 80
 #define VIDEO_CONS_DEFAULT_ROWS 25
 
+/**
+ * Video device properties. Many of these are typically derived from multiboot info passed by the
+ * bootloader. Otherwise, the kernel may need to make BIOS calls (for things like whether VGA is
+ * supported), and the BIOS may not be available anymore.
+ */
 typedef struct {
   pci_device_t *pci_dev;
   int           flags;

@@ -5,12 +5,6 @@ set pagination off
 set logging file gdb.log
 set logging enabled on
 
-# break function_name
-#     command 1
-#     backtrace
-#     continue
-# end
-
 define hook-quit
   set logging off
   set confirm off

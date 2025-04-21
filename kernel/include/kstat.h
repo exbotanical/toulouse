@@ -5,7 +5,15 @@
  * Represents configurable kernel parameters.
  */
 typedef struct {
+  /**
+   * Base memory in KB, conventionally the first 640 KB of RAM. That is, this is the amount of lower
+   * memory in KB. Size of usable RAM below 1 MB
+   */
   int memsize;
+  /**
+   * Extended memory in KB, above 1 MB and up to the system limit. That is, this is the amount of
+   * memory above 1 MB. Size of usable RAM above 1 MB
+   */
   int extmemsize;
 } kparam_t;
 

@@ -39,6 +39,10 @@ multiboot_set_video_props_from_info (multiboot_info_t *mbi) {
   kstrcpy((char *)video.signature, (char *)vbe_ctrl->signature);
 }
 
+/**
+ * Sets default video properties, typically in cases where multiboot was not used by the bootloader.
+ * For default, we just use 80x25 VGA.
+ */
 static void
 multiboot_set_video_props_default (void) {
   video.columns = VIDEO_CONS_DEFAULT_COLS;
@@ -52,13 +56,26 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   multiboot_info_t mbi;
   kmemset(&video, 0, sizeof(video_props_t));
 
+  // If the bootloader isn't using multiboot, or for some reason the multiboot info was invalid...
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
     klogf_warn("invalid multiboot magic number: 0x%x. Assuming 4MB of RAM.\n", magic);
 
     kmemset(&mbi, 0, sizeof(multiboot_info_t));
+    // We default to 640 KB, the legacy x86 convention for max memory:
+    // 0 - 640 KB for usable RAM
+    // 640 - 1 MB for memory-mapped hardware, BIOS ROMs, video memory, etc
+    // See: https://en.wikipedia.org/wiki/Conventional_memory
     kstat.param.memsize    = 640;
+    // ~3 MB. Total memory becomes 640 KB (base) + 3072 KB (extended) = ~3.7 MB total
+    // This way, the system has at least enough RAM to boot and run basic services, even if exact
+    // detection failed.
+
+    // Reminder: Extended memory is typically 1 MB onward aka where the kernel is mapped. That is, 1
+    // MB is virtualized as address zero.
     kstat.param.extmemsize = 3072;
+    // Initialize default memory map
     bios_mmap_init(NULL, 0);
+
     multiboot_set_video_props_default();
     return;
   }
@@ -72,6 +89,7 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
   if (!(mbi.flags & MULTIBOOT_INFO_MEMORY)) {
     klog_warn("invalid mem_lower, mem_upper values");
   }
+  // Set the available RAM size
   kstat.param.memsize    = (unsigned int)mbi.mem_lower;
   kstat.param.extmemsize = (unsigned int)mbi.mem_upper;
 
@@ -79,12 +97,15 @@ multiboot_init (unsigned int magic, unsigned int mbi_ptr) {
     klog_warn("invalid ELF section header table");
   }
 
+  // Setup memory map info
   if (mbi.flags & MULTIBOOT_INFO_MEM_MAP) {
     bios_mmap_init((multiboot_mmap_entry_t *)mbi.mmap, mbi.mmap_length);
   } else {
+    klog_warn("using multiboot but no mmap; we'll use the default");
     bios_mmap_init(NULL, 0);
   }
 
+  // Setup video device info
   if (mbi.flags & MULTIBOOT_INFO_VIDEO_INFO) {
     multiboot_set_video_props_from_info(&mbi);
   }

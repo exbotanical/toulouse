@@ -55,14 +55,17 @@
 void pic_init(void);
 
 /**
- * Acknowledges the IRQ on the appropriate PIC (master or slave).
- *
+ * Acknowledges the IRQ on the appropriate PIC (master or slave) by sending an End-of-Interrupt
+ * (EOI) to the PIC to let it know we're done with this interrupt, and it can start accepting new
+ * ones.
  * @param irq_num
  */
 void pic_irq_ack(int irq_num);
 
 /**
- * Sends the OCW3 command to retrieve the register values.
+ * Sends the OCW3 command to retrieve the register values;
+ * reads the current IRQ status from both the master and slave PICs. Combines the results from both
+ * PICs into a single 16-bit value that indicates which IRQs are active.
  */
 unsigned short int pic_get_irq_register(int ocw3);
 
