@@ -1,7 +1,7 @@
 #include "init/bios.h"
 
 #include "common/constants.h"
-#include "drivers/console/vga.h"
+#include "drivers/console/tmpcon.h"
 #include "kernel.h"
 #include "kstat.h"
 #include "mem/paging.h"

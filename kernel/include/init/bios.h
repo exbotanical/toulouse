@@ -5,7 +5,21 @@
 #include "init/multiboot.h"
 
 // TODO: Why 50?
-#define NUM_BIOS_MMAP_ENTRIES 50
+#define NUM_BIOS_MMAP_ENTRIES      50
+
+// Contains data such as:
+// * Display type (mono/color)
+// * Installed coprocessor
+// * Number of floppy drives
+#define BIOS_DATA_AREA             0x410
+
+// | Bits 5:4 | Meaning              |
+// |----------|----------------------|
+// | `00`     | EGA/VGA color        |
+// | `01`     | 40x25 color          |
+// | `10`     | 80x25 color          |
+// | `11`     | Monochrome display   |
+#define BIOS_DATA_AREA_MONODISPLAY 0x30
 
 typedef struct {
   unsigned int from;

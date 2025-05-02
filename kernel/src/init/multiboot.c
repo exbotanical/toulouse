@@ -1,7 +1,7 @@
 #include "init/multiboot.h"
 
-#include "drivers/console/vga.h"
-#include "drivers/dev/char/console.h"
+#include "drivers/console/tmpcon.h"
+#include "drivers/video/video.h"
 #include "fs/elf.h"
 #include "init/bios.h"
 #include "kernel.h"

@@ -2,8 +2,8 @@
 
 #include "common/constants.h"
 #include "debug/panic.h"
-#include "drivers/console/vga.h"
-#include "drivers/dev/char/console.h"
+#include "drivers/console/tmpcon.h"
+#include "drivers/video/video.h"
 #include "init/bios.h"
 #include "init/multiboot.h"
 #include "kconfig.h"
@@ -143,6 +143,10 @@ mem_init (void) {
 
   proc_table_size
     = mem_assign(sizeof(process_t) * NUM_PROCESSES, (void **)&proc_table, "proc_table");
+
+  video_scrollback_history_buffer = (short int *)real_last_addr;
+  real_last_addr
+    += (video.columns * video.lines * VIDEO_MAX_SCROLLBACK_SCREENS * 2 * sizeof(short int));
 
   // The last thing must be the page table structure itself...
   unsigned int n       = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;

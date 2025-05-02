@@ -7,7 +7,7 @@
 #include "arch/x86.h"
 #include "common/compiler.h"
 #include "common/types.h"
-#include "drivers/console/vga.h"
+#include "drivers/console/tmpcon.h"
 
 extern volatile bool is_in_panic;
 

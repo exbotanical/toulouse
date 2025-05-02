@@ -1,7 +1,7 @@
 #include "interrupt/traps.h"
 
 #include "debug/panic.h"
-#include "drivers/console/vga.h"
+#include "drivers/console/tmpcon.h"
 #include "fs/elf.h"
 #include "interrupt/pit.h"
 #include "kernel.h"

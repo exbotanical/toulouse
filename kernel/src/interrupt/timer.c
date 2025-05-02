@@ -1,7 +1,7 @@
 #include "interrupt/timer.h"
 
 #include "arch/eflags.h"
-#include "drivers/console/vga.h"
+#include "drivers/console/tmpcon.h"
 #include "interrupt/const.h"
 #include "interrupt/irq.h"
 #include "interrupt/pit.h"

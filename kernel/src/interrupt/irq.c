@@ -3,7 +3,7 @@
 #include "arch/eflags.h"
 #include "arch/interrupt.h"  // TODO: Move
 #include "arch/x86.h"
-#include "drivers/console/vga.h"
+#include "drivers/console/tmpcon.h"
 #include "interrupt/pic.h"
 #include "lib/string.h"
 

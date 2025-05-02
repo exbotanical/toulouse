@@ -1,7 +1,7 @@
 #include "debug/stacktrace.h"
 
 #include "common/types.h"
-#include "drivers/console/vga.h"
+#include "drivers/console/tmpcon.h"
 #include "lib/string.h"
 
 static inline uint32_t

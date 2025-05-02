@@ -1,5 +1,5 @@
-#ifndef TTY_H
-#define TTY_H
+#ifndef DEV_TTY_H
+#define DEV_TTY_H
 
 #define NUM_TTYS 16
 
@@ -9,4 +9,6 @@ typedef struct {
 
 extern tty_t tty_table[];
 
-#endif /* TTY_H */
+void tty_init(void);
+
+#endif /* DEV_TTY_H */

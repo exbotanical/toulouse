@@ -2,7 +2,9 @@
 #define INTERRUPT_TIMER_H
 
 #define TIMER_IRQ 0
-#define HZ        100 /* kernel's Hertz rate (100 = 10ms) */
+/* kernel's Hertz rate (100 = 10ms) */
+#define HZ        100
+#define TICK      (1000000 / HZ)
 
 typedef struct timer_task timer_task_t;
 

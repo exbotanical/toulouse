@@ -1,4 +1,4 @@
-#include "fs/device.h"
+#include "drivers/dev/device.h"
 
 #include "lib/string.h"
 
