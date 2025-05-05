@@ -1,6 +1,6 @@
 #include "interrupt/idt.h"
 
-#include "drivers/console/tmpcon.h"
+#include "drivers/dev/char/tmpcon.h"
 #include "interrupt/irq.h"
 #include "lib/string.h"
 #include "syscall/syscall.h"

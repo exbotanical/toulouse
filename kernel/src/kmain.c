@@ -3,7 +3,7 @@
 #include "arch/cpu.h"
 #include "arch/interrupt.h"
 #include "arch/x86.h"
-#include "drivers/console/tmpcon.h"
+#include "drivers/dev/char/tmpcon.h"
 #include "drivers/dev/char/tty.h"
 #include "drivers/dev/device.h"
 #include "drivers/dev/video.h"

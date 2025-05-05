@@ -1,6 +1,6 @@
 #include "init/multiboot.h"
 
-#include "drivers/console/tmpcon.h"
+#include "drivers/dev/char/tmpcon.h"
 #include "drivers/dev/video.h"
 #include "fs/elf.h"
 #include "init/bios.h"

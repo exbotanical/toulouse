@@ -2,7 +2,7 @@
 
 #include "arch/cpu.h"
 #include "arch/interrupt.h"
-#include "drivers/dev/keyboard.h"
+#include "drivers/dev/char/keyboard.h"
 #include "interrupt/irq.h"
 
 void noreturn

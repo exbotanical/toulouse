@@ -1,7 +1,7 @@
 #ifndef DRIVER_DEV_CHAR_VIDEO_H
 #define DRIVER_DEV_CHAR_VIDEO_H
 
-#include "drivers/dev/console.h"
+#include "drivers/dev/char/console.h"
 
 /**
  * VGA text mode

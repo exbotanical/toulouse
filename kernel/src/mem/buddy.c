@@ -1,6 +1,6 @@
 #include "mem/buddy.h"
 
-#include "drivers/console/tmpcon.h"
+#include "drivers/dev/char/tmpcon.h"
 #include "lib/string.h"
 #include "mem/base.h"
 #include "mem/paging.h"

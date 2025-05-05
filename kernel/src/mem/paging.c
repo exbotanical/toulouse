@@ -2,7 +2,7 @@
 
 #include "common/constants.h"
 #include "debug/panic.h"
-#include "drivers/console/tmpcon.h"
+#include "drivers/dev/char/tmpcon.h"
 #include "drivers/dev/video.h"
 #include "init/bios.h"
 #include "init/multiboot.h"
