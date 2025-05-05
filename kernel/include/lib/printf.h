@@ -29,8 +29,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _PRINTF_H_
-#define _PRINTF_H_
+#ifndef KLIB_PRINTF_H
+#define KLIB_PRINTF_H
 
 #include <stdarg.h>
 
@@ -105,4 +105,4 @@ int vprintf_(const char* format, va_list va);
  */
 int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
 
-#endif  // _PRINTF_H_
+#endif  // KLIB_PRINTF_H

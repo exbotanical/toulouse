@@ -1,7 +1,7 @@
-#ifndef VIDEO_DEV_H
-#define VIDEO_DEV_H
+#ifndef DRIVER_DEV_CHAR_VIDEO_H
+#define DRIVER_DEV_CHAR_VIDEO_H
 
-#include "drivers/video/console.h"
+#include "drivers/dev/console.h"
 
 /**
  * VGA text mode
@@ -76,4 +76,4 @@ extern short int    *video_scrollback_history_buffer;
 
 void video_init(void);
 
-#endif /* VIDEO_DEV_H */
+#endif /* DRIVER_DEV_CHAR_VIDEO_H */

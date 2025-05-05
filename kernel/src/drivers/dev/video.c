@@ -1,7 +1,7 @@
-#include "drivers/video/video.h"
+#include "drivers/dev/video.h"
 
 #include "drivers/dev/char/framebuf.h"
-#include "drivers/video/vga.h"
+#include "drivers/dev/char/vga.h"
 #include "lib/string.h"
 
 video_props_t video;

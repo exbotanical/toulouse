@@ -1,5 +1,5 @@
-#ifndef PANIC_H
-#define PANIC_H
+#ifndef DEBUG_PANIC_H
+#define DEBUG_PANIC_H
 
 #include <stdarg.h>
 
@@ -24,4 +24,4 @@ void noreturn __kpanic(void);
   kprintf(fmt, __VA_ARGS__);                      \
   __kpanic();
 
-#endif /* PANIC_H */
+#endif /* DEBUG_PANIC_H */

@@ -23,8 +23,8 @@
  *  This file has been modified by Matthew Zito <exbotanical@protonmail.com>.
  */
 
-#ifndef MULTIBOOT_HEADER
-#define MULTIBOOT_HEADER
+#ifndef INIT_MULTIBOOT_HEADER
+#define INIT_MULTIBOOT_HEADER
 
 #include "common/compiler.h"
 
@@ -293,4 +293,4 @@ unsigned int get_last_boot_addr(unsigned int magic, unsigned int mbr_init);
 
 #endif /* ASM_SOURCE */
 
-#endif /* MULTIBOOT_HEADER */
+#endif /* INIT_MULTIBOOT_HEADER */

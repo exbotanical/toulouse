@@ -1,5 +1,5 @@
-#ifndef DEV_PCI_H
-#define DEV_PCI_H
+#ifndef DRIVER_DEV_CHAR_PCI_H
+#define DRIVER_DEV_CHAR_PCI_H
 
 typedef struct pci_device pci_device_t;
 
@@ -23,4 +23,4 @@ struct pci_device {
   pci_device_t *next;
 };
 
-#endif /* DEV_PCI_H */
+#endif /* DRIVER_DEV_CHAR_PCI_H */

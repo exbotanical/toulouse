@@ -1,5 +1,5 @@
-#ifndef VIDEO_DEV_CONSOLE_H
-#define VIDEO_DEV_CONSOLE_H
+#ifndef DRIVER_DEV_CHAR_CONSOLE_H
+#define DRIVER_DEV_CHAR_CONSOLE_H
 
 #define CONSOLE_HAS_FOCUS 0x0001
 #define CONSOLE_CLEARED   0x0002
@@ -67,4 +67,4 @@ typedef struct {
 
 } vconsole_t;
 
-#endif /* VIDEO_DEV_CONSOLE_H */
+#endif /* DRIVER_DEV_CHAR_CONSOLE_H */

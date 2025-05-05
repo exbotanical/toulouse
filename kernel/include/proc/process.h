@@ -1,5 +1,5 @@
-#ifndef PROCESS_H
-#define PROCESS_H
+#ifndef PROC_PROCESS_H
+#define PROC_PROCESS_H
 
 #include "interrupt/signal.h"
 
@@ -110,4 +110,4 @@ extern unsigned int proc_table_size;
 
 void proc_init(void);
 
-#endif /* PROCESS_H */
+#endif /* PROC_PROCESS_H */

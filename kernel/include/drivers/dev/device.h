@@ -1,5 +1,5 @@
-#ifndef FS_DEVICE_H
-#define FS_DEVICE_H
+#ifndef DRIVER_DEV_CHAR_DEVICE_H
+#define DRIVER_DEV_CHAR_DEVICE_H
 
 #define NUM_CHAR_DEVICES                32
 #define NUM_BLOCK_DEVICES               32
@@ -41,4 +41,4 @@ extern device_t *block_devices_table[NUM_BLOCK_DEVICES];
  */
 void devices_init(void);
 
-#endif /* FS_DEVICE_H */
+#endif /* DRIVER_DEV_CHAR_DEVICE_H */

@@ -1,10 +1,10 @@
-#include "drivers/video/vga.h"
+#include "drivers/dev/char/vga.h"
 
 #include "arch/eflags.h"
 #include "arch/interrupt.h"
 #include "arch/x86.h"
-#include "drivers/video/console.h"
-#include "drivers/video/video.h"
+#include "drivers/dev/console.h"
+#include "drivers/dev/video.h"
 #include "init/bios.h"
 #include "lib/string.h"
 #include "mem/base.h"

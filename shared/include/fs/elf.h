@@ -1,5 +1,5 @@
-#ifndef ELF_H
-#define ELF_H
+#ifndef FS_ELF_H
+#define FS_ELF_H
 // See: https://refspecs.linuxfoundation.org/elf/elf.pdf
 
 #include "common/compiler.h"
@@ -211,4 +211,4 @@ elf_is_valid_executable (elf32_hdr* elf) {
          && elf_has_phdr(elf);
 }
 
-#endif /* ELF_H */
+#endif /* FS_ELF_H */

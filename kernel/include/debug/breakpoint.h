@@ -1,5 +1,5 @@
-#ifndef BREAKPOINT_H
-#define BREAKPOINT_H
+#ifndef DEBUG_BREAKPOINT_H
+#define DEBUG_BREAKPOINT_H
 
 #ifdef DEBUG
 
@@ -13,4 +13,4 @@ pseudo_breakpoint () {
 
 #endif
 
-#endif /* BREAKPOINT_H */
+#endif /* DEBUG_BREAKPOINT_H */

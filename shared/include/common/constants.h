@@ -1,6 +1,6 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef COMMON_CONSTANTS_H
+#define COMMON_CONSTANTS_H
 
 #define FOUR_GB 0xFFFFFFFF
 
-#endif /* CONSTANTS_H */
+#endif /* COMMON_CONSTANTS_H */

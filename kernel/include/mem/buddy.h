@@ -1,5 +1,5 @@
-#ifndef BUDDY_H
-#define BUDDY_H
+#ifndef MEM_BUDDY_H
+#define MEM_BUDDY_H
 
 #include "common/types.h"
 #include "lib/list.h"
@@ -22,4 +22,4 @@ struct kbuddy_head {
  */
 void kbuddy_init(void);
 
-#endif /* BUDDY_H */
+#endif /* MEM_BUDDY_H */

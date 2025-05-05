@@ -1,5 +1,5 @@
-#ifndef SIMPLELOCK_H
-#define SIMPLELOCK_H
+#ifndef SYNC_SIMPLELOCK_H
+#define SYNC_SIMPLELOCK_H
 
 #include "arch/eflags.h"
 #include "arch/interrupt.h"
@@ -32,4 +32,4 @@ simplelock_unlock (unsigned int type) {
   return ret;
 }
 
-#endif /* SIMPLELOCK_H */
+#endif /* SYNC_SIMPLELOCK_H */

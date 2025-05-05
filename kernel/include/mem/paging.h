@@ -1,5 +1,5 @@
-#ifndef PAGING_H
-#define PAGING_H
+#ifndef MEM_PAGING_H
+#define MEM_PAGING_H
 
 #define PAGE_SIZE           4096
 #define PAGE_SHIFT          0x0C
@@ -126,4 +126,4 @@ void mem_init(void);
  */
 void pages_init(unsigned int num_pages);
 
-#endif /* PAGING_H */
+#endif /* MEM_PAGING_H */

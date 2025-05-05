@@ -1,5 +1,5 @@
-#ifndef X86_H
-#define X86_H
+#ifndef ARCH_X86_H
+#define ARCH_X86_H
 
 #include "common/types.h"
 
@@ -187,4 +187,4 @@ idle (void) {
   asm volatile("rep; nop" ::: "memory");
 }
 
-#endif /* X86_H */
+#endif /* ARCH_X86_H */

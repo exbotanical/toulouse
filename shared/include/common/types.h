@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef COMMON_TYPES_H
+#define COMMON_TYPES_H
 
 typedef _Bool bool;
 #define true  1
@@ -21,4 +21,4 @@ typedef unsigned int       uintptr_t;
 
 typedef uint32_t size_t;
 
-#endif /* TYPES_H */
+#endif /* COMMON_TYPES_H */

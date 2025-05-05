@@ -1,5 +1,5 @@
-#ifndef DISK_H
-#define DISK_H
+#ifndef DRIVERS_DISK_H
+#define DRIVERS_DISK_H
 
 #include "common/types.h"
 
@@ -71,4 +71,4 @@ void ata_read_sector(void *dest, uint32_t offset);
  */
 void ata_read_segment(uint8_t *dest, uint32_t c, uint32_t offset);
 
-#endif /* DISK_H */
+#endif /* DRIVERS_DISK_H */

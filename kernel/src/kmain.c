@@ -6,7 +6,7 @@
 #include "drivers/console/tmpcon.h"
 #include "drivers/dev/char/tty.h"
 #include "drivers/dev/device.h"
-#include "drivers/video/video.h"
+#include "drivers/dev/video.h"
 #include "init/multiboot.h"
 #include "interrupt/idt.h"
 #include "interrupt/irq.h"
@@ -87,11 +87,11 @@ kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
   mem_init();
   klog_info("Permanent page tables installed");
 
-  timer_init();
-  klog_info("Timer initialized");
-
   video_init();
   klog_info("Video initialized");
+
+  timer_init();
+  klog_info("Timer initialized");
 
   proc_init();
   klog_info("Process table initialized");

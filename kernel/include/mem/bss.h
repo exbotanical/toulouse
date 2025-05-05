@@ -1,9 +1,9 @@
-#ifndef BSS_H
-#define BSS_H
+#ifndef MEM_BSS_H
+#define MEM_BSS_H
 
 /**
  * Clears out the BSS segment.
  */
 void bss_init(void);
 
-#endif /* BSS_H */
+#endif /* MEM_BSS_H */

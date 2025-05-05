@@ -1,5 +1,5 @@
-#ifndef EFLAGS_H
-#define EFLAGS_H
+#ifndef ARCH_EFLAGS_H
+#define ARCH_EFLAGS_H
 
 #include "common/types.h"
 
@@ -29,4 +29,4 @@ eflags_set (uint32_t eflags) {
   asm volatile("pushl %0; popfl\n\t" : : "r"(eflags) : "memory");
 }
 
-#endif /* EFLAGS_H */
+#endif /* ARCH_EFLAGS_H */

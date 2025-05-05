@@ -1,5 +1,5 @@
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
+#ifndef ARCH_INTERRUPT_H
+#define ARCH_INTERRUPT_H
 
 #include "arch/eflags.h"
 #include "common/types.h"
@@ -28,4 +28,4 @@ int_enabled (void) {
   return eflags_get() & EFLAGS_INT_ENABLED;
 }
 
-#endif /* INTERRUPT_H */
+#endif /* ARCH_INTERRUPT_H */

@@ -1,5 +1,5 @@
-#ifndef ATOMIC_H
-#define ATOMIC_H
+#ifndef ARCH_ATOMIC_H
+#define ARCH_ATOMIC_H
 
 #define __X86_CASE_B 1
 #define __X86_CASE_W 2
@@ -48,4 +48,4 @@
     __add_ret__;                                                                          \
   })
 
-#endif /* ATOMIC_H */
+#endif /* ARCH_ATOMIC_H */

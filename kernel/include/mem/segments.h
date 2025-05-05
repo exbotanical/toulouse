@@ -1,5 +1,5 @@
-#ifndef SEGMENTS_H
-#define SEGMENTS_H
+#ifndef MEM_SEGMENTS_H
+#define MEM_SEGMENTS_H
 // Much of this code is copied from Jordi Sanfeliu's Fiwix - see licences.
 
 #include "common/constants.h"
@@ -142,4 +142,4 @@ void gdt_init(void);
 
 #endif  // ASM_SOURCE
 
-#endif  // SEGMENTS_H
+#endif  // MEM_SEGMENTS_H

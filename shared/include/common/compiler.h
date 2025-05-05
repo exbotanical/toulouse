@@ -1,5 +1,5 @@
-#ifndef COMPILER_H
-#define COMPILER_H
+#ifndef COMMON_COMPILER_H
+#define COMMON_COMPILER_H
 
 /**
  * Optimizations which tell the compiler whether a branch is likely, effectively arranging the code
@@ -45,4 +45,4 @@
 
 #define noreturn       __attribute__((noreturn))
 
-#endif /* COMPILER_H */
+#endif /* COMMON_COMPILER_H */

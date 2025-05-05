@@ -1,5 +1,5 @@
-#ifndef SPINLOCK_H
-#define SPINLOCK_H
+#ifndef SYNC_SPINLOCK_H
+#define SYNC_SPINLOCK_H
 
 #include "common/compiler.h"
 #include "common/types.h"
@@ -73,4 +73,4 @@ void spinlock_lock(volatile spinlock_t *lock);
  */
 void spinlock_unlock(volatile spinlock_t *lock);
 
-#endif /* SPINLOCK_H */
+#endif /* SYNC_SPINLOCK_H */
