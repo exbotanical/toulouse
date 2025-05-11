@@ -1,8 +1,14 @@
 #ifndef DRIVER_DEV_CHAR_DEVICE_H
 #define DRIVER_DEV_CHAR_DEVICE_H
 
+#include "common/types.h"
+
 #define NUM_CHAR_DEVICES                32
 #define NUM_BLOCK_DEVICES               32
+
+#define DEVICE_MAJOR(dev)               (((deviceno_t)(dev)) >> 8)
+#define DEVICE_MINOR(dev)               (((deviceno_t)(dev)) & 0xFF)
+#define DEVICE_MKDEV(major, minor)      (((major) << 8) | (minor))
 
 #define DEVICE_SET_MINOR(minors, bit)   ((minors[(bit) / 32]) |= (1 << ((bit) % 32)))
 #define DEVICE_CLEAR_MINOR(minors, bit) ((minors[(bit) / 32]) &= ~(1 << ((bit) % 32)))

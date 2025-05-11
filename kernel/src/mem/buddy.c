@@ -3,7 +3,7 @@
 #include "drivers/dev/char/tmpcon.h"
 #include "lib/string.h"
 #include "mem/base.h"
-#include "mem/paging.h"
+#include "mem/page.h"
 
 static kbuddy_head_t *freelist[BUDDY_MAX_LEVEL + 1];
 

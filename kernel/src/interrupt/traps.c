@@ -6,12 +6,12 @@
 #include "interrupt/pit.h"
 #include "kernel.h"
 #include "mem/base.h"
-#include "mem/paging.h"
+#include "mem/page.h"
 #include "mem/segments.h"
 
-#define DUMP_REG_OR_FAIL(trap_num, sc)        \
-  if (!dump_trap_registers(trap_num, sc)) {   \
-    kpanic("%s", "Failed to dump registers"); \
+#define DUMP_REG_OR_FAIL(trap_num, sc)                 \
+  if (dump_trap_registers(trap_num, sc) == RET_FAIL) { \
+    kpanic("%s", "Failed to dump registers");          \
   }
 
 trap_t traps_table[NUM_EXCEPTIONS] = {
@@ -100,7 +100,7 @@ print_trap_stacktrace (void) {
   }
 }
 
-static bool
+static retval_t
 dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
   bool is_page_fault = trap_num == 14;
 
@@ -159,10 +159,10 @@ dump_trap_registers (unsigned int trap_num, sig_context_t* sc) {
   bool was_in_kernel_mode = sc->cs == KERNEL_CS;
   if (was_in_kernel_mode) {
     print_trap_stacktrace();
-    return false;
+    return RET_FAIL;
   }
 
-  return true;
+  return RET_OK;
 }
 
 void

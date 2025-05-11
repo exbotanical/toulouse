@@ -1,6 +1,7 @@
 #ifndef DRIVER_DEV_CHAR_VIDEO_H
 #define DRIVER_DEV_CHAR_VIDEO_H
 
+#include "common/types.h"
 #include "drivers/dev/char/console.h"
 
 /**
@@ -74,6 +75,8 @@ typedef struct {
 extern video_props_t video;
 extern short int    *video_scrollback_history_buffer;
 
+bool video_using_vga(void);
+bool video_using_vesa_framebuffer(void);
 void video_init(void);
 
 #endif /* DRIVER_DEV_CHAR_VIDEO_H */

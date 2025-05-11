@@ -4,7 +4,7 @@
 #include "drivers/dev/char/tmpcon.h"
 #include "kernel.h"
 #include "kstat.h"
-#include "mem/paging.h"
+#include "mem/page.h"
 #include "mem/segments.h"
 
 bios_mmap_t bios_mmap[NUM_BIOS_MMAP_ENTRIES];

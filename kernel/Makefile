@@ -68,7 +68,7 @@ dirs:
 
 linker:
 	cpp -P linker.ld $(INC) >| $(LD_TARGET)
-
+# TODO: NEXT: We gotta break up into modules for testing
 unit_test: $(TEST_ASM_OBJS) $(OBJS)
 	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $(TEST_ASM_OBJS) $(OBJS) -I$(DEPS_DIR) -I$(INC_DIR) -I../shared/include -o $(UNIT_TARGET)
 	./$(UNIT_TARGET)

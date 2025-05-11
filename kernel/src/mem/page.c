@@ -1,4 +1,4 @@
-#include "mem/paging.h"
+#include "mem/page.h"
 
 #include "common/constants.h"
 #include "debug/panic.h"
@@ -13,7 +13,7 @@
 #include "lib/string.h"
 #include "mem/base.h"
 #include "mem/buddy.h"
-#include "mem/paging.h"
+#include "mem/page.h"
 #include "mem/segments.h"
 #include "proc/process.h"
 

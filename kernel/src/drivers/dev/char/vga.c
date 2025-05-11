@@ -4,7 +4,7 @@
 #include "arch/interrupt.h"
 #include "arch/x86.h"
 #include "drivers/dev/char/console.h"
-#include "drivers/dev/video.h"
+#include "drivers/dev/char/video.h"
 #include "init/bios.h"
 #include "lib/string.h"
 #include "mem/base.h"

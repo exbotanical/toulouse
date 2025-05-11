@@ -100,8 +100,8 @@ typedef struct {
   void (*sa_restorer)(void);
 } sig_action_t;
 
-bool sig_send(void);
-bool sig_test(void);
-void sig_handle(void);
+retval_t sig_send(void);
+retval_t sig_test(void);
+void     sig_handle(void);
 
 #endif /* INTERRUPT_SIGNAL_H */

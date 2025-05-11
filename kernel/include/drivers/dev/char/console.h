@@ -1,6 +1,11 @@
 #ifndef DRIVER_DEV_CHAR_CONSOLE_H
 #define DRIVER_DEV_CHAR_CONSOLE_H
 
+#include "common/types.h"
+
+#define NUM_CONSOLES      12
+#define CONSOLES_MAJOR    4
+
 #define CONSOLE_HAS_FOCUS 0x0001
 #define CONSOLE_CLEARED   0x0002
 
@@ -65,6 +70,9 @@ typedef struct {
 
   unsigned short int color_attr;
 
+  bool screen_locked;
 } vconsole_t;
+
+void console_init(void);
 
 #endif /* DRIVER_DEV_CHAR_CONSOLE_H */

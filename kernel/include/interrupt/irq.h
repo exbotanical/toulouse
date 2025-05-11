@@ -149,11 +149,11 @@ void irq_disable(int irq_num);
  *
  * @param irq_num The number of the IRQ
  * @param interrupt A pointer to the interrupt handler config
- * @return true if registering the IRQ was successful
- * @return false if registering the IRQ was not successful, usually because the irq_num was invalid,
- * or the IRQ is already registered
+ * @return RET_OK if registering the IRQ was successful
+ * @return RET_FAIL if registering the IRQ was not successful, usually because the irq_num was
+ * invalid, or the IRQ is already registered
  */
-bool irq_register(int irq_num, interrupt_t *interrupt);
+retval_t irq_register(int irq_num, interrupt_t *interrupt);
 
 /**
  * Wrapper for all interrupt handlers. Performs spurious interrupt checks and sends an EOI to the

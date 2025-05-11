@@ -97,18 +97,18 @@ irq_disable (int irq_num) {
   outb(addr, inb(addr) | (1 << irq_num));
 }
 
-bool
+retval_t
 irq_register (int irq_num, interrupt_t *new_irq) {
   if (irq_num < 0 || irq_num >= NUM_IRQS) {
     klogf_warn("%s(): interrupt %d is greater than NUM_IRQS (%d)\n", __func__, irq_num, NUM_IRQS);
-    return false;
+    return RET_FAIL;
   }
 
   interrupt_t **irq = &irq_table[irq_num];
   while (*irq) {
     if (*irq == new_irq) {
       klogf_warn("%s(): interrupt %d already registered\n", __func__, irq_num);
-      return false;
+      return RET_FAIL;
     }
     irq = &(*irq)->next;
   }
@@ -116,7 +116,7 @@ irq_register (int irq_num, interrupt_t *new_irq) {
 
   new_irq->ticks = 0;
 
-  return true;
+  return RET_OK;
 }
 
 void

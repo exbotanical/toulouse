@@ -4,6 +4,12 @@
 #include "arch/eflags.h"
 #include "common/types.h"
 
+#define INTERRUPTS_OFF()             \
+  unsigned int flags = eflags_get(); \
+  int_disable()
+
+#define INTERRUPTS_ON() eflags_set(flags);
+
 /**
  * Disables interrupts.
  */

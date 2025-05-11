@@ -1,7 +1,7 @@
 #include "init/multiboot.h"
 
 #include "drivers/dev/char/tmpcon.h"
-#include "drivers/dev/video.h"
+#include "drivers/dev/char/video.h"
 #include "fs/elf.h"
 #include "init/bios.h"
 #include "kernel.h"
@@ -9,7 +9,7 @@
 #include "lib/math.h"
 #include "lib/string.h"
 #include "mem/base.h"
-#include "mem/paging.h"
+#include "mem/page.h"
 
 elf32_shdr *symtab;
 elf32_shdr *strtab;

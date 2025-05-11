@@ -5,8 +5,8 @@
 #include "arch/x86.h"
 #include "drivers/dev/char/tmpcon.h"
 #include "drivers/dev/char/tty.h"
+#include "drivers/dev/char/video.h"
 #include "drivers/dev/device.h"
-#include "drivers/dev/video.h"
 #include "init/multiboot.h"
 #include "interrupt/idt.h"
 #include "interrupt/irq.h"
@@ -15,7 +15,7 @@
 #include "kernel.h"
 #include "kstat.h"
 #include "mem/base.h"
-#include "mem/paging.h"
+#include "mem/page.h"
 #include "proc/process.h"
 
 unsigned int real_last_addr;

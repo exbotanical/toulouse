@@ -1,15 +1,15 @@
 #include "interrupt/signal.h"
 
-bool
+retval_t
 sig_send (void) {
   // TODO:
-  return true;
+  return RET_OK;
 }
 
-bool
+retval_t
 sig_test (void) {
   // TODO:
-  return true;
+  return RET_OK;
 }
 
 void
