@@ -10,3 +10,4 @@ qemu_log.txt
 *.iso
 *.sym
 *.log
+*unit_test

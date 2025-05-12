@@ -1,6 +1,6 @@
 #include "arch/x86.h"
 #include "boot.h"
-#include "drivers/disk/ata.h"
+#include "drivers/dev/block/ata.h"
 #include "fs/elf.h"
 
 #define TMP_ELF_LOCATION 0x10000

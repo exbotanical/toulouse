@@ -1,5 +1,5 @@
 #include "arch/x86.h"
-#include "common/constants.h"
+#include "lib/constants.h"
 #include "mem/segments.h"
 
 seg_desc_t gdt[NUM_GDT_ENTRIES];

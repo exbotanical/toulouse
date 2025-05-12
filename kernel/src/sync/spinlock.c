@@ -3,7 +3,7 @@
 #include "arch/atomic.h"
 #include "arch/interrupt.h"
 #include "arch/x86.h"
-#include "common/compiler.h"
+#include "lib/compiler.h"
 
 void
 spinlock_lock (volatile spinlock_t *lock) {

@@ -1,9 +1,9 @@
 #include "init/bios.h"
 
-#include "common/constants.h"
 #include "drivers/dev/char/tmpcon.h"
 #include "kernel.h"
 #include "kstat.h"
+#include "lib/constants.h"
 #include "mem/page.h"
 #include "mem/segments.h"
 

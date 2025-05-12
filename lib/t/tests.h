@@ -8,6 +8,5 @@ void run_flist_tests(void);
 void run_list_tests(void);
 void run_spinlock_tests(void);
 void run_device_tests(void);
-void run_buddy_tests(void);  //  TODO: test fn sig format
 
-#endif                       /* TESTS_H */
+#endif /* TESTS_H */

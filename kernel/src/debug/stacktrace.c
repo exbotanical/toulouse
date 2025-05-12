@@ -1,8 +1,8 @@
 #include "debug/stacktrace.h"
 
-#include "common/types.h"
 #include "drivers/dev/char/tmpcon.h"
 #include "lib/string.h"
+#include "lib/types.h"
 
 static inline uint32_t
 get_address (uint32_t vaddr, uint32_t off) {

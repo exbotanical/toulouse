@@ -1,14 +1,14 @@
 #include "mem/page.h"
 
-#include "common/constants.h"
 #include "debug/panic.h"
 #include "drivers/dev/char/tmpcon.h"
-#include "drivers/dev/video.h"
+#include "drivers/dev/char/video.h"
 #include "init/bios.h"
 #include "init/multiboot.h"
 #include "kconfig.h"
 #include "kernel.h"
 #include "kstat.h"
+#include "lib/constants.h"
 #include "lib/math.h"
 #include "lib/string.h"
 #include "mem/base.h"
@@ -160,7 +160,7 @@ mem_init (void) {
     = mem_assign(kstat.physical_pages * sizeof(page_t), (void **)&page_pool, "page_pool");
 
   pages_init(kstat.physical_pages);
-  kbuddy_init();
+  buddy_init();
 }
 
 void

@@ -29,11 +29,11 @@ GNU_FTP_URL='https://ftp.gnu.org'
 TARGET='i686-elf'
 
 # Build deps - gitignore this
-DEPS_DIR="$(pwd)/cross"
+COMPILER_DIR="$(pwd)/cross"
 # Where we'll store the deps we need - primarily gcc and binutils
-TOOLS_DIR="$DEPS_DIR/src"
+TOOLS_DIR="$COMPILER_DIR/src"
 # Where we'll install the cross-compiler
-BUILD_DIR="$DEPS_DIR/opt/cross"
+BUILD_DIR="$COMPILER_DIR/opt/cross"
 
 BINUTILS_BUILD_DIR="$TOOLS_DIR/build-binutils"
 BINUTILS_OUT_DIR="binutils-$BINUTILS_VERSION"
