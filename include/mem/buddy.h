@@ -14,9 +14,12 @@ struct buddy_head {
    * (i.e. the exponent of 2 that we're on e.g. 32, 64, ..., 512)
    */
   unsigned char level;
-  buddy_head_t  next;
-  buddy_head_t  prev;
+  buddy_head_t* next;
+  buddy_head_t* prev;
 };
+
+// TODO: size_t
+static const unsigned int blocksizes[] = {32, 64, 128, 256, 512, 1024, 2048, 4096};
 
 /**
  * Initialize the buddy allocator for kernel memory. The buddy allocator is used for resources

@@ -34,8 +34,9 @@ buddy_remove_from_freelist (buddy_head_t *block) {
     block->prev->next = block->next;
   }
 
-  if (block = freelist[level]) {
-    freelist[level] = block->next;
+  // TODO: ensure level
+  if (block == freelist[block->level]) {
+    freelist[block->level] = block->next;
   }
 }
 
@@ -78,7 +79,7 @@ buddy_dealloc (buddy_head_t *block) {
     // If we're the highest supported level, we actually free the page
     if (level == BUDDY_MAX_LEVEL - 1) {
       unsigned int addr       = (unsigned int)block;
-      unsigned int phys_addr  = V2P(block);
+      unsigned int phys_addr  = V2P(addr);
       page_t      *page       = &page_pool[phys_addr >> PAGE_SHIFT];
       // Mark page as no longer belonging to a buddy
       page->flags            &= ~PAGE_BUDDY;
@@ -114,12 +115,12 @@ buddy_alloc (size_t size) {
   // If we're dealing with the max level, we need to allocate another page
   if (level == BUDDY_MAX_LEVEL) {
     unsigned int addr;
-    if ((addr = kmalloc(PAGE_SIZE))) {
+    if ((addr = (unsigned int)kmalloc(PAGE_SIZE))) {
       unsigned int phys_addr  = V2P(addr);
       page_t      *page       = &page_pool[phys_addr >> PAGE_SHIFT];
       // Mark page as belonging to a buddy
       page->flags            |= PAGE_BUDDY;
-      block                   = (buddy_head_t *)*addr;
+      block                   = (buddy_head_t *)addr;
     } else {
       // TODO: log err
       return NULL;

@@ -103,8 +103,6 @@ extern page_t      *page_pool;
 extern unsigned int page_hash_table_size;
 extern page_t     **page_hash_table;
 
-static const unsigned int blocksizes[] = {32, 64, 128, 256, 512, 1024, 2048, 4096};
-
 /**
  * Initializes a temporary page directory so we can setup the higher-half kernel.
  *

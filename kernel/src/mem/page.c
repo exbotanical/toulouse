@@ -34,7 +34,7 @@ mem_assign (unsigned int size, void **ptr, char *id) {
   if (!bios_mmap_has_addr(V2P(real_last_addr) + aligned_size)) {
     kpanic("Not enough memory for %s\n", id);
   }
-  *ptr            = (process_t *)real_last_addr;
+  *ptr            = real_last_addr;
   real_last_addr += aligned_size;
 
   return aligned_size;
@@ -141,8 +141,7 @@ mem_init (void) {
   page_dir               = (unsigned int *)P2V((unsigned int)page_dir);
   real_last_addr         = P2V(real_last_addr);
 
-  proc_table_size
-    = mem_assign(sizeof(process_t) * NUM_PROCESSES, (void **)&proc_table, "proc_table");
+  proc_table_size = mem_assign(sizeof(proc_t) * NUM_PROCESSES, (void **)&proc_table, "proc_table");
 
   video_scrollback_history_buffer = (short int *)real_last_addr;
   real_last_addr
@@ -199,3 +198,6 @@ pages_init (unsigned int num_pages) {
   kstat.total_mem_pages = kstat.free_pages;
   kstat.min_free_pages  = (kstat.total_mem_pages * FREE_PAGES_RATIO) / 100;
 }
+
+page_t *
+page_get_free (void) {}

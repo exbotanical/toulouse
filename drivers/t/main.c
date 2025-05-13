@@ -4,13 +4,13 @@
 
 #include "tests.h"
 
-void*
+unsigned int
 kmalloc (size_t size) {
   return malloc(size);
 }
 
 void
-kfree (void* ptr) {
+kfree (unsigned int ptr) {
   free(ptr);
 }
 
