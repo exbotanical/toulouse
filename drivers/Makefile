@@ -16,6 +16,10 @@ CFLAGS           := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestandin
 CFLAGS           += $(C_STRICTMODE_FLAGS)
 CFLAGS           += -I../$(INC_DIRNAME)
 
+ifeq ($(MAKECMDGOALS),unit_test)
+	CFLAGS += -DUNIT_TEST
+endif
+
 LDFLAGS          := -nostdlib -O3
 LDFLAGS          += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
 

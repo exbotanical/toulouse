@@ -6,14 +6,15 @@
 
 unsigned int
 kmalloc (size_t size) {
-  return malloc(size);
+  return (unsigned int)malloc(size);
 }
 
 void
 kfree (unsigned int ptr) {
-  free(ptr);
+  free((void*)ptr);
 }
 
+// TODO: implement memset_b/w/d for perf
 void*
 kmemset (void* ptr, int val, size_t len) {
   return memset(ptr, val, len);
