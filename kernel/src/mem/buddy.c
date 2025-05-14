@@ -2,6 +2,7 @@
 
 #include "drivers/dev/char/tmpcon.h"
 #include "lib/string.h"
+#include "mem/alloc.h"
 #include "mem/base.h"
 #include "mem/page.h"
 

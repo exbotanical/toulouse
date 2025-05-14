@@ -3,9 +3,9 @@
 
 #include "proc/proc.h"
 // TODO: Use these consistently
-#include "types.h"
+#include "lib/types.h"
 
-int  sleep(void *addr, proc_state state);
+int  sleep(void *addr, proc_inttype state);
 void wakeup(void *addr);
 void sleep_init(void);
 

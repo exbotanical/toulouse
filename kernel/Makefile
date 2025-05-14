@@ -39,18 +39,6 @@ else
 	LDFLAGS += -O3
 endif
 
-$(EXT_OBJS):
-	$(MAKE) -C ../lib all
-	$(MAKE) -C ../drivers all
-
-$(OBJS): $(BUILD_DIRNAME)/%.o : $(SRC_DIRNAME)/%.c
-	@mkdir -p $(shell dirname $@)
-	$(CC) $(CFLAGS) -o $@ $<
-
-$(ASM_OBJS): $(BUILD_DIRNAME)/%.asm.o : $(SRC_DIRNAME)/%.S
-	@mkdir -p $(shell dirname $@)
-	$(CC) $(CFLAGS) -o $@ $<
-
 all: dirs linker $(OBJS) $(EXT_OBJS) $(ASM_OBJS)
 	$(LD) $(LDFLAGS) -T $(LD_TARGET) $(ASM_OBJS) $(OBJS) $(EXT_OBJS) -o bin/kernel
 
@@ -62,7 +50,7 @@ dirs:
 	@mkdir -p $(BUILD_DIRNAME) $(BIN_DIRNAME)
 
 linker:
-	cpp -P linker.ld $(INC) >| $(LD_TARGET)
+	cpp -P linker.ld -I../$(INC_DIRNAME) >| $(LD_TARGET)
 
 unit_test: $(OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
 	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} -o $(UT_TARGET)
@@ -71,3 +59,15 @@ unit_test: $(OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
 
 unit_test_dev:
 	ls $(TEST_WATCH_FILES) | entr -s 'make -s unit_test'
+
+$(EXT_OBJS):
+	$(MAKE) -C ../lib all
+	$(MAKE) -C ../drivers all
+
+$(OBJS): $(BUILD_DIRNAME)/%.o : $(SRC_DIRNAME)/%.c
+	@mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS) -o $@ $<
+
+$(ASM_OBJS): $(BUILD_DIRNAME)/%.asm.o : $(SRC_DIRNAME)/%.S
+	@mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS) -o $@ $<

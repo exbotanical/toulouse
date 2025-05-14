@@ -3,7 +3,6 @@
 #include "arch/interrupt.h"
 #include "mem/segments.h"
 #include "proc/proc.h"
-#include "types.h"
 
 bool needs_resched = false;
 
@@ -14,9 +13,9 @@ static void
 do_context_switch (proc_t* next) {
   INTERRUPTS_OFF();
 
-  proc_t* prev = current;
+  proc_t* prev = proc_current;
   sched_set_tss(next);
-  current = next;
+  proc_current = next;
   do_switch(&prev->tss.esp, &prev->tss.eip, next->tss.esp, next->tss.eip, next->tss.cr3, TSS);
 
   INTERRUPTS_ON();

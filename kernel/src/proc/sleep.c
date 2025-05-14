@@ -10,12 +10,12 @@
  * The number of buckets in the sleep hash table.
  * Approx ~10% of processes
  */
-#define NUM_SLEEP_HASH_TABLE_BUCKETS      ((NUM_PROCS * 10) / 100))
+#define NUM_SLEEP_HASH_TABLE_BUCKETS ((NUM_PROCS * 10) / 100)
 
 /**
  * Computes a hash key for the sleep hash table
  */
-#define TO_SLEEP_TABLE_HASH(addr) ((addr) % (NUM_SLEEP_HASH_TABLE_BUCKETS))
+#define TO_SLEEP_TABLE_HASH(addr)    ((addr) % (NUM_SLEEP_HASH_TABLE_BUCKETS))
 
 /**
  * A hash table for storing sleeping processes. Keys are the address of a resource being slept on,
@@ -87,7 +87,7 @@ wakeup (void *addr) {
   INTERRUPTS_OFF();
 
   // Grab the bucket from the hash table
-  int      key  = TO_SLEEP_TABLE_HASH(addr);
+  int      key  = TO_SLEEP_TABLE_HASH((unsigned int)addr);
   proc_t **head = &sleep_hash_table[key];
 
   // Find the processes sleeping on addr
@@ -100,7 +100,7 @@ wakeup (void *addr) {
       (*head)->flags              &= ~PROC_FLAG_NOTINTERRUPT;
 
       // Make it runnable again and indicate we need to reschedule
-      runnable(*head);
+      proc_runnable(*head);
       needs_resched = true;
 
       // Remove from the sleeping list
@@ -112,7 +112,7 @@ wakeup (void *addr) {
       }
 
       // If it was the list head, we need to update the head pointer itself
-      if (head == &sleep_hash_table[i]) {
+      if (head == &sleep_hash_table[key]) {
         *head = (*head)->next_sleeping;
         continue;
       }

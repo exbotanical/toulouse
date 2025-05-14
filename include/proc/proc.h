@@ -2,7 +2,7 @@
 #define PROC_PROCESS_H
 
 #include "interrupt/signal.h"
-#include "types.h"
+#include "lib/types.h"
 
 #define IO_BITMAP_SIZE         8192 /* 8192*8bit = all I/O address space */
 
@@ -123,9 +123,9 @@ struct proc {
    */
   int children;
 
-  pid_t       pid;
-  proc_state  state;
-  i386_tss_t *tss;
+  pid_t      pid;
+  proc_state state;
+  i386_tss_t tss;
 
   /**
    * Resident Set Size

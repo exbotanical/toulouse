@@ -1,5 +1,9 @@
 #include "proc/lock.h"
 
+#include "arch/eflags.h"
+#include "arch/interrupt.h"
+#include "proc/sleep.h"
+
 /**
  * A critical section lock
  */
@@ -7,8 +11,12 @@ static unsigned int area = 0;
 
 void
 lock_resource (resource_t *resource) {
+  unsigned int flags;
+
   while (true) {
-    INTERRUPTS_OFF();
+    flags = eflags_get();
+    int_disable();
+
     if (resource->locked) {
       resource->wanted = 1;
       INTERRUPTS_ON();

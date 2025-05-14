@@ -34,7 +34,7 @@ mem_assign (unsigned int size, void **ptr, char *id) {
   if (!bios_mmap_has_addr(V2P(real_last_addr) + aligned_size)) {
     kpanic("Not enough memory for %s\n", id);
   }
-  *ptr            = real_last_addr;
+  *ptr            = (void *)real_last_addr;
   real_last_addr += aligned_size;
 
   return aligned_size;
@@ -198,6 +198,3 @@ pages_init (unsigned int num_pages) {
   kstat.total_mem_pages = kstat.free_pages;
   kstat.min_free_pages  = (kstat.total_mem_pages * FREE_PAGES_RATIO) / 100;
 }
-
-page_t *
-page_get_free (void) {}

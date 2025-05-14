@@ -1,6 +1,6 @@
 include Makefile.config
 
-.PHONY: shared bootblock kernel dist grub dev debug test clean
+.PHONY: lib drivers bootblock kernel dist grub dev debug test clean
 .DELETE_ON_ERROR:
 
 DEBUG_SYM_FILE  := kernel.sym
@@ -8,16 +8,20 @@ QEMU_LOG_FILE   := qemu_log.txt
 QEMU_ARGS       := -d int -no-reboot -D $(QEMU_LOG_FILE)
 QEMU_DRIVE_CONF := file=$(DISTPATH)/$(TARGET),index=0,media=disk,format=raw
 
-# Builds the shared library
-shared:
-	$(MAKE) -C shared all
+# Builds the library
+lib:
+	$(MAKE) -C lib all
+
+# Builds the drivers
+drivers: lib
+	$(MAKE) -C drivers all
 
 # Builds the bootblock (2-stage bootloader)
-bootblock: shared
+bootblock: drivers lib
 	$(MAKE) -C boot all
 
 # Builds the kernel core.
-kernel: shared
+kernel: drivers lib
 	$(MAKE) -C kernel all
 
 # Packages the kernel and bootloader into a bootable image.
@@ -51,7 +55,8 @@ test:
 
 # Removes all build artifacts.
 clean:
-	$(MAKE) -C shared clean
+	$(MAKE) -C lib clean
+	$(MAKE) -C drivers clean
 	$(MAKE) -C boot clean
 	$(MAKE) -C kernel clean
 	$(MAKE) -C dist clean

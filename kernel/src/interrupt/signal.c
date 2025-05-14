@@ -21,7 +21,9 @@ sig_get (void) {
   }
 
   // Note: mask is updated each iteration to match the corresponding bit in signal_pending
-  for (sig_set_t signum = 1, unsigned int mask = 1; signum < NUM_SIGNALS; signum++, mask <<= 1) {
+  sig_set_t    signum = 1;
+  unsigned int mask   = 1;
+  for (; signum < NUM_SIGNALS; signum++, mask <<= 1) {
     // If this signal is pending for the current process...
     if (proc_current->signal_pending & mask) {
       sig_handler_t handler = proc_current->sigaction_table[signum - 1].sa_handler;

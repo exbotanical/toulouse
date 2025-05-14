@@ -1,6 +1,8 @@
 #ifndef PROC_LOCK_H
 #define PROC_LOCK_H
 
+#include "lib/types.h"
+
 typedef struct {
   bool locked;
   bool wanted;

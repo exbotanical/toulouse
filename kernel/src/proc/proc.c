@@ -1,7 +1,10 @@
 #include "proc/proc.h"
 
+#include "arch/interrupt.h"
 #include "lib/string.h"
 #include "mem/alloc.h"
+#include "mem/base.h"
+#include "proc/lock.h"
 #include "proc/sleep.h"
 
 proc_t *proc_current;

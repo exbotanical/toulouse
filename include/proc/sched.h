@@ -1,6 +1,11 @@
 #ifndef SCHED_H
 #define SCHED_H
 
+#include "lib/types.h"
+#include "proc/proc.h"
+
+extern bool needs_resched;
+
 /**
  * Performs a TSS task switch
  */
