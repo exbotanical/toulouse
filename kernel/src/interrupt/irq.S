@@ -11,7 +11,7 @@
   je     2f                                                    ;\
 
 #define CHECK_SIGNALS                                          ;\
-  call   sig_test                                              ;\
+  call   sig_get                                              ;\
   testl  $0xFFFFFFFF, %eax                                     ;\
   jz     1f                                                    ;\
   movl   %esp, %eax                                            ;\

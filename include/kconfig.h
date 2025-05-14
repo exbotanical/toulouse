@@ -19,11 +19,11 @@
 /**
  * Maximum number of concurrent processes.
  */
-#define NUM_PROCESSES     64
+#define NUM_PROCS         64
 
 /**
  * Maximum number of active timer tasks.
  */
-#define NUM_TIMER_TASKS   NUM_PROCESSES
+#define NUM_TIMER_TASKS   NUM_PROCS
 
 #endif /* CONFIG_H */

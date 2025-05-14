@@ -15,7 +15,7 @@
 #include "mem/buddy.h"
 #include "mem/page.h"
 #include "mem/segments.h"
-#include "proc/process.h"
+#include "proc/proc.h"
 
 unsigned int *page_dir;
 
@@ -26,7 +26,7 @@ page_t      *page_pool_head;
 unsigned int page_hash_table_size = 0;
 page_t     **page_hash_table;
 
-unsigned int proc_table_size = 0;
+unsigned int proc_list_size = 0;
 
 static inline unsigned int
 mem_assign (unsigned int size, void **ptr, char *id) {
@@ -141,7 +141,7 @@ mem_init (void) {
   page_dir               = (unsigned int *)P2V((unsigned int)page_dir);
   real_last_addr         = P2V(real_last_addr);
 
-  proc_table_size = mem_assign(sizeof(proc_t) * NUM_PROCESSES, (void **)&proc_table, "proc_table");
+  proc_list_size         = mem_assign(sizeof(proc_t) * NUM_PROCS, (void **)&proc_list, "proc_list");
 
   video_scrollback_history_buffer = (short int *)real_last_addr;
   real_last_addr

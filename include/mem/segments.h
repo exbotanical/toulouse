@@ -5,24 +5,35 @@
 #include "lib/constants.h"
 #include "mem/base.h"
 
+/*
+Note about TSS
+
+In x86 protected mode, a Task State Segment (TSS) is a special data structure that holds information
+about a task — stack pointers, segment selectors, and more. But critically:
+
+* You don’t load the TSS by giving its address. You give the CPU a selector — an index into the GDT.
+* That selector points to a descriptor entry in the GDT which, in turn, points to the physical
+memory location of the TSS.
+*/
+
 /**
- * kernel code segment
+ * kernel code segment selector
  */
 #define KERNEL_CS       0x08
 /**
- * kernel data segment
+ * kernel data segment selector
  */
 #define KERNEL_DS       0x10
 /**
- * user code segment
+ * user code segment selector
  */
 #define USER_CS         0x18
 /**
- * user data segment
+ * user data segment selector
  */
 #define USER_DS         0x20
 /**
- * tss segment
+ * tss segment selector
  */
 #define TSS             0x28
 
@@ -134,6 +145,8 @@ typedef struct {
   uint16_t limit;
   uint32_t base_addr;
 } packed descr_t;
+
+extern seg_desc_t gdt[NUM_GDT_ENTRIES];
 
 /**
  * Initializes the GDT for 32-bit protected mode.
