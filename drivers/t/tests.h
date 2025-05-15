@@ -3,10 +3,6 @@
 
 #include "libtap/libtap.h"
 
-void run_string_tests(void);
-void run_flist_tests(void);
-void run_list_tests(void);
-void run_spinlock_tests(void);
 void run_device_tests(void);
 void run_charq_tests(void);
 

@@ -6,8 +6,7 @@ include $(ROOTPATH)/Makefile.config
 
 CSRCS            := $(shell find -L $(SRC_DIRNAME) -type f -name "*.c")
 OBJS             := $(patsubst $(SRC_DIRNAME)/%.c,$(BUILD_DIRNAME)/%.o,$(CSRCS))
-EXT_SRCS         := $(shell find -L ../lib/src -type f -name "*.c")
-EXT_OBJS         := $(patsubst %.c,../lib/build/%.o,$(notdir $(EXT_SRCS)))
+EXT_OBJS         := $(patsubst ../lib/src/%.c,../lib/build/%.o,$(shell find -L ../lib/src -type f -name "*.c"))
 TEST_SRCS        := $(shell find -L $(TEST_DIRNAME) -type f -name "*.c")
 TEST_DEPS        := $(wildcard ../$(DEPS_DIRNAME)/libtap/*.c)
 TEST_WATCH_FILES := $(shell find ../$(INC_DIRNAME) $(SRC_DIRNAME) $(TEST_DIRNAME) -type f \( -name "*.c" -o -name "*.h" \))
@@ -15,10 +14,6 @@ TEST_WATCH_FILES := $(shell find ../$(INC_DIRNAME) $(SRC_DIRNAME) $(TEST_DIRNAME
 CFLAGS           := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding -c -O3
 CFLAGS           += $(C_STRICTMODE_FLAGS)
 CFLAGS           += -I../$(INC_DIRNAME)
-
-ifeq ($(MAKECMDGOALS),unit_test)
-	CFLAGS += -DUNIT_TEST
-endif
 
 LDFLAGS          := -nostdlib -O3
 LDFLAGS          += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
@@ -33,7 +28,7 @@ dirs:
 	@mkdir -p $(BUILD_DIRNAME)
 
 unit_test: $(OBJS) $(EXT_OBJS)
-	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $(OBJS) -I../$(DEPS_DIRNAME) -I../$(INC_DIRNAME) -I./$(TEST_DIRNAME) -o $(UT_TARGET)
+	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $(OBJS) $(EXT_OBJS) -I../$(DEPS_DIRNAME) -I../$(INC_DIRNAME) -I./$(TEST_DIRNAME) -o $(UT_TARGET)
 	./$(UT_TARGET)
 	$(MAKE) clean
 

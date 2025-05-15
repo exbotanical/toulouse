@@ -45,4 +45,11 @@
 
 #define noreturn       __attribute__((noreturn))
 
+
+/**
+ * Flag the function as overridable such that we can implement our own version later in the linking process.
+ * Used for unit test stubs and mocks.
+ */
+#define overridable __attribute__((weak))
+
 #endif /* COMMON_COMPILER_H */

@@ -2,6 +2,7 @@
 
 #include "arch/interrupt.h"
 #include "kconfig.h"
+#include "lib/compiler.h"
 #include "lib/string.h"
 #include "proc/proc.h"
 #include "proc/sched.h"
@@ -26,7 +27,7 @@ static proc_t *sleep_hash_table[NUM_SLEEP_HASH_TABLE_BUCKETS];
 /**
  * Put the current process to sleep on addr
  */
-int
+overridable int
 sleep (void *addr, proc_inttype state) {
   INTERRUPTS_OFF();
 
@@ -82,7 +83,7 @@ done:
 /**
  * Wakeup any processes sleeping on addr
  */
-void
+overridable void
 wakeup (void *addr) {
   INTERRUPTS_OFF();
 

@@ -41,7 +41,7 @@ else
 endif
 
 ifeq ($(MAKECMDGOALS),unit_test)
-	CFLAGS += -DUNIT_TEST -Wno-unused-but-set-variable -Wno-unused-variable
+	CFLAGS += -DUNIT_TEST -Wno-unused-but-set-variable -Wno-unused-variable -Wno-uninitialized
 endif
 
 all: dirs linker $(OBJS) $(EXT_OBJS) $(ASM_OBJS)

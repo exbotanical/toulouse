@@ -17,7 +17,7 @@ kfree (unsigned int ptr) {
 
 int
 main () {
-  plan(8 + 15);
+  plan(37);
 
   run_spinlock_tests();
   run_proc_lock_tests();

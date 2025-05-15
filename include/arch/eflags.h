@@ -13,20 +13,8 @@
  */
 #define EFLAGS_USER_MASK   0x8CFF
 
-static inline uint32_t
-eflags_get (void) {
-  unsigned int eflags;
-  asm volatile("pushfl\n\t"
-               "popl %0"
-               : "=r"(eflags)
-               :
-               : "memory");
-  return eflags;
-}
+uint32_t eflags_get(void);
 
-static inline void
-eflags_set (uint32_t eflags) {
-  asm volatile("pushl %0; popfl\n\t" : : "r"(eflags) : "memory");
-}
+void eflags_set(uint32_t eflags);
 
 #endif /* ARCH_EFLAGS_H */

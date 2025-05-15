@@ -1,11 +1,12 @@
 #include "mem/alloc.h"
 
+#include "lib/compiler.h"
 #include "lib/string.h"
 #include "lib/types.h"
 #include "mem/buddy.h"
 #include "mem/page.h"
 
-unsigned int
+overridable unsigned int
 kmalloc (size_t size) {
   // If the requested size can be accommodated by a buddy allocator block, use that
   size_t max_size = blocksizes[BUDDY_MAX_LEVEL - 1];
@@ -28,5 +29,5 @@ kmalloc (size_t size) {
   return 0;
 }
 
-void
+overridable void
 kfree (unsigned int addr) {}

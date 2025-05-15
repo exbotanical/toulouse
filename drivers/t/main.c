@@ -1,44 +1,6 @@
-#include <printf.h>
-#include <stdio.h>
-#include <string.h>
-
+#include "mocks.h"
+#include "stubs.h"
 #include "tests.h"
-
-unsigned int
-kmalloc (size_t size) {
-  return (unsigned int)malloc(size);
-}
-
-void
-kfree (unsigned int ptr) {
-  free((void*)ptr);
-}
-
-// TODO: implement memset_b/w/d for perf
-void*
-kmemset (void* ptr, int val, size_t len) {
-  return memset(ptr, val, len);
-}
-
-size_t
-kstrlen (const char* s) {
-  return strlen(s);
-}
-
-char*
-kstrcpy (char* dest, const char* src) {
-  return strcpy(dest, src);
-}
-
-void*
-kmemcpy (void* dest, const void* src, size_t bytes) {
-  return memcpy(dest, src, bytes);
-}
-
-int
-sprintf_ (char* buffer, const char* format, ...) {
-  return sprintf(buffer, format);
-}
 
 int
 main () {

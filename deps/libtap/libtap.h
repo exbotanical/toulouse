@@ -8,7 +8,9 @@
 #include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/wait.h>
-#include <unistd.h>
+
+// #include <unistd.h>
+#undef sa_handler
 
 #ifdef __cplusplus
 extern "C" {

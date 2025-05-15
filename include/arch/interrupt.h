@@ -4,44 +4,25 @@
 #include "arch/eflags.h"
 #include "lib/types.h"
 
-#ifndef UNIT_TEST
-#  define INTERRUPTS_OFF()             \
-    unsigned int flags = eflags_get(); \
-    int_disable()
-#else
-#  define INTERRUPTS_OFF() \
-    {}
-#endif
+#define INTERRUPTS_OFF()             \
+  unsigned int flags = eflags_get(); \
+  int_disable()
 
-#ifndef UNIT_TEST
-#  define INTERRUPTS_ON() eflags_set(flags);
-#else
-#  define INTERRUPTS_ON() \
-    {}
-#endif
+#define INTERRUPTS_ON() eflags_set(flags);
 
 /**
  * Disables interrupts.
  */
-static inline void
-int_disable (void) {
-  asm volatile("cli");
-}
+void int_disable(void);
 
 /**
  * Enables interrupts.
  */
-static inline void
-int_enable (void) {
-  asm volatile("sti");
-}
+void int_enable(void);
 
 /**
  * Are interrupts enabled?
  */
-static bool
-int_enabled (void) {
-  return eflags_get() & EFLAGS_INT_ENABLED;
-}
+bool int_enabled(void);
 
 #endif /* ARCH_INTERRUPT_H */
