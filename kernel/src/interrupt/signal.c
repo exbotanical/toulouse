@@ -2,12 +2,6 @@
 
 #include "proc/proc.h"
 
-retval_t
-sig_send (void) {
-  // TODO:
-  return RET_OK;
-}
-
 void
 sig_handle (void) {
   // TODO:

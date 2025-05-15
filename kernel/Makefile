@@ -18,6 +18,7 @@ EXT_OBJS         += $(patsubst ../lib/src/%.c,../lib/build/%.o,$(shell find -L .
 TEST_DEPS        := $(wildcard ../$(DEPS_DIRNAME)/libtap/*.c)
 TEST_SRCS        := $(shell find -L $(TEST_DIRNAME) -type f -name "*.c")
 TEST_ASM_OBJS    := $(filter-out $(BUILD_DIRNAME)/loader.asm.o, $(ASM_OBJS))
+TEST_OBJS        := $(filter-out $(BUILD_DIRNAME)/mem/alloc.o, $(OBJS))
 TEST_WATCH_FILES := $(shell find ../$(INC_DIRNAME) $(SRC_DIRNAME) $(TEST_DIRNAME) -type f \( -name "*.c" -o -name "*.h" \))
 
 CFLAGS           := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding \
@@ -39,6 +40,10 @@ else
 	LDFLAGS += -O3
 endif
 
+ifeq ($(MAKECMDGOALS),unit_test)
+	CFLAGS += -DUNIT_TEST -Wno-unused-but-set-variable -Wno-unused-variable
+endif
+
 all: dirs linker $(OBJS) $(EXT_OBJS) $(ASM_OBJS)
 	$(LD) $(LDFLAGS) -T $(LD_TARGET) $(ASM_OBJS) $(OBJS) $(EXT_OBJS) -o bin/kernel
 
@@ -52,7 +57,7 @@ dirs:
 linker:
 	cpp -P linker.ld -I../$(INC_DIRNAME) >| $(LD_TARGET)
 
-unit_test: $(OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
+unit_test: $(TEST_OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
 	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} -o $(UT_TARGET)
 	./$(UT_TARGET)
 	$(MAKE) clean

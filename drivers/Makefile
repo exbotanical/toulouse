@@ -38,7 +38,7 @@ unit_test: $(OBJS) $(EXT_OBJS)
 	$(MAKE) clean
 
 unit_test_dev:
-	$(shell ls $(TEST_WATCH_FILES) | entr -s 'make -s unit_test')
+	ls $(TEST_WATCH_FILES) | entr -s 'make -s unit_test'
 
 $(EXT_OBJS):
 	$(MAKE) -C ../lib all

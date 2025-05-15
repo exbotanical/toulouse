@@ -7,16 +7,17 @@
 /**
  * A critical section lock
  */
-static unsigned int area = 0;
+unsigned int area = 0;
 
 void
 lock_resource (resource_t *resource) {
   unsigned int flags;
 
   while (true) {
+#ifndef UNIT_TEST
     flags = eflags_get();
     int_disable();
-
+#endif
     if (resource->locked) {
       resource->wanted = 1;
       INTERRUPTS_ON();

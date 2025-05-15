@@ -113,8 +113,7 @@ typedef struct {
   void (*sa_restorer)(void);
 } sig_action_t;
 
-retval_t sig_send(void);
-void     sig_handle(void);
+void sig_handle(void);
 
 /**
  * Checks whether the current process has any pending, unblocked signals, and if

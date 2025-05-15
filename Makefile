@@ -51,7 +51,9 @@ debug:
 
 # Runs all tests across all packages.
 test:
+	$(MAKE) -C drivers unit_test
 	$(MAKE) -C kernel unit_test
+	$(MAKE) -C lib unit_test
 
 # Removes all build artifacts.
 clean:
