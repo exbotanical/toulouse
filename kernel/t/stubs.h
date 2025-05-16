@@ -1,4 +1,7 @@
-#include "tests.h"
+#ifndef STUBS_H
+#define STUBS_H
+
+#include <stdlib.h>
 
 u_int32_t image_start = 0;
 u_int32_t image_end   = 0;
@@ -15,12 +18,4 @@ kfree (unsigned int ptr) {
   free((void*)ptr);
 }
 
-int
-main () {
-  plan(37);
-
-  run_spinlock_tests();
-  run_proc_lock_tests();
-
-  done_testing();
-}
+#endif /* STUBS_H */

@@ -1,6 +1,7 @@
 #include "sync/spinlock.h"
 
-#include "../tests.h"
+#include "../stubs.h"
+#include "libtap/libtap.h"
 
 void
 spinlock_lock_test (void) {
@@ -26,7 +27,10 @@ spinlock_lock_test (void) {
   ok(lock.tickets.next == 2, "unlock does not increment the next ticket");
 }
 
-void
-run_spinlock_tests (void) {
+int
+main () {
+  plan(8);
   spinlock_lock_test();
+
+  done_testing();
 }

@@ -1,6 +1,7 @@
 #include "proc/proc.h"
 
 #include "arch/interrupt.h"
+#include "lib/compiler.h"
 #include "lib/string.h"
 #include "mem/alloc.h"
 #include "mem/base.h"
@@ -87,7 +88,7 @@ proc_release (proc_t *p) {
   unlock_resource(&lock);
 }
 
-void
+overridable void
 proc_runnable (proc_t *p) {
   if (p->state == PROC_RUNNING) {
     // TODO: log - process with pid already running
@@ -108,7 +109,7 @@ proc_runnable (proc_t *p) {
   INTERRUPTS_ON();
 }
 
-void
+overridable void
 proc_not_runnable (proc_t *p, proc_state state) {
   INTERRUPTS_OFF();
 

@@ -1,6 +1,7 @@
 #include "proc/sched.h"
 
 #include "arch/interrupt.h"
+#include "lib/compiler.h"
 #include "mem/segments.h"
 #include "proc/proc.h"
 
@@ -33,7 +34,7 @@ sched_set_tss (proc_t* p) {
   g->hi_base    = (char)(((unsigned int)&p->tss) >> 24);
 }
 
-void
+overridable void
 sched_run (void) {
   // Allow the current running process to consume its CPU time slice
   if (!needs_resched && proc_current_is_running()

@@ -1,5 +1,6 @@
 #include "interrupt/signal.h"
 
+#include "lib/compiler.h"
 #include "proc/proc.h"
 
 void
@@ -7,7 +8,7 @@ sig_handle (void) {
   // TODO:
 }
 
-int
+overridable int
 sig_get (void) {
   // Check whether there are any pending signals that are not blocked
   if (!(proc_current->signal_pending & ~proc_current->signal_blocked)) {

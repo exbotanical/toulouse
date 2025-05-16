@@ -24,7 +24,7 @@ void plan(unsigned int num_tests);
 ---
 
 write unit tests for the following code. assume kmalloc and kmemset are basically malloc and memset and that the interrupt macros will be overidden so we dont have to worry about them in the test environment.
-You can set up any test resources necessary to test these functions in as much isolation as possible.
+You can set up any test resources necessary to test these functions in as much isolation as possible. you may also assume we can re-implement any function in the test file via the weak attribute.
 
 model your tests like
 
@@ -35,5 +35,4 @@ Use c and programming best practices and make sure tests exist for every edge ca
 
 ```
 {code}
-
 ```

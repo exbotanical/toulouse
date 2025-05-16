@@ -57,10 +57,25 @@ dirs:
 linker:
 	cpp -P linker.ld -I../$(INC_DIRNAME) >| $(LD_TARGET)
 
+# unit_test: $(TEST_OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
+# 	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} -o $(UT_TARGET)
+# 	./$(UT_TARGET)
+# 	$(MAKE) clean
+
+TEST_FILES := $(wildcard $(TEST_DIRNAME)/**/*.test.c)
+TEST_TARGETS := $(patsubst %.c,%,$(TEST_FILES))
+
 unit_test: $(TEST_OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
-	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} -o $(UT_TARGET)
-	./$(UT_TARGET)
-	$(MAKE) clean
+	@for file in $(TEST_FILES); do \
+		bin=$${file%.c}; \
+		echo "Compiling $$file -> $$bin"; \
+		gcc -m32  $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} $$file -o $$bin || exit $$?; \
+	done
+	@for bin in $(TEST_TARGETS); do \
+		echo "Running $$bin..."; \
+		./$$bin || exit $$?; \
+	done
+	@$(MAKE) clean
 
 unit_test_dev:
 	ls $(TEST_WATCH_FILES) | entr -s 'make -s unit_test'

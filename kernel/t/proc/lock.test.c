@@ -1,7 +1,60 @@
+#define __pid_t_defined  // To avoid typedef collision with pid_t in proc.h
 #include "proc/lock.h"
 
-#include "../mocks.h"
-#include "../tests.h"
+#include <stdio.h>
+
+#include "../stubs.h"
+#include "libtap/libtap.h"
+#include "proc/proc.h"
+// Must come last
+#include <pthread.h>
+
+#define FAKE_EFLAGS_VAL 0xDEADBEEF
+
+static bool         interrupts_enabled = true;
+static bool         slept              = false;
+static void        *slept_on           = NULL;
+static void        *woken_up           = NULL;
+static unsigned int mock_eflags        = FAKE_EFLAGS_VAL;
+extern unsigned int area;
+
+unsigned int
+eflags_get (void) {
+  return mock_eflags;
+}
+
+void
+int_disable (void) {
+  interrupts_enabled = false;
+  mock_eflags        = 0x1;
+}
+
+void
+eflags_set (uint32_t eflags) {
+  interrupts_enabled = true;
+  mock_eflags        = FAKE_EFLAGS_VAL;
+}
+
+int
+sleep (void *addr, proc_inttype state) {
+  slept    = true;
+  slept_on = addr;
+}
+
+void
+wakeup (void *addr) {
+  woken_up = addr;
+}
+
+// Reset all mocks between tests
+static void
+reset_mocks (void) {
+  interrupts_enabled = true;
+  slept              = false;
+  slept_on           = NULL;
+  woken_up           = NULL;
+  mock_eflags        = FAKE_EFLAGS_VAL;
+}
 
 static resource_t contentious_res = {};
 
@@ -115,22 +168,33 @@ unlock_area_not_held_test (void) {
   eq_num(interrupts_enabled, true, "Interrupts re-enabled");
 }
 
-void
-run_proc_lock_tests (void) {
+int
+main () {
+  plan(29);
+
+  reset_mocks();
   lock_resource_uncontended_test();
-  reset_mocks();
 
+  reset_mocks();
   lock_resource_contended_test();
-  reset_mocks();
 
+  reset_mocks();
   unlock_resource_no_waiters_test();
-  reset_mocks();
 
+  reset_mocks();
   unlock_resource_with_waiters_test();
-  reset_mocks();
 
+  reset_mocks();
   lock_area_basic_test();
+
+  reset_mocks();
   lock_area_existing_test();
+
+  reset_mocks();
   unlock_area_basic_test();
+
+  reset_mocks();
   unlock_area_not_held_test();
+
+  done_testing();
 }
