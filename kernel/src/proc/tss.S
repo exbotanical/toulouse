@@ -2,7 +2,7 @@
 # Performs a manual task switch.
 # Saves the current task's context (esp, eip), switches to another task's context (its esp, eip, cr3), and resumes it.
 # The original task is paused, and will resume later at label 1:, continuing right after the do_switch() call.
-.global do_switch; do_switch:
+.global do_switch; .weak do_switch; do_switch:
   pusha                      # Push all general-purpose registers onto the stack to preserve CPU state
   pushfl                     # Push EFLAGS to preserve flags
 

@@ -22,7 +22,7 @@ do_context_switch (proc_t* next) {
   INTERRUPTS_ON();
 }
 
-void
+overridable void
 sched_set_tss (proc_t* p) {
   //  Get GDT entry for TSS so we can modify it
   seg_desc_t* g = &gdt[TSS / sizeof(seg_desc_t)];

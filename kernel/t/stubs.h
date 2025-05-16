@@ -3,10 +3,10 @@
 
 #include <stdlib.h>
 
-u_int32_t image_start = 0;
-u_int32_t image_end   = 0;
-u_int32_t text_end    = 0;
-u_int32_t data_end    = 0;
+volatile char image_start[] = {0};
+volatile char image_end[]   = {0};
+volatile char text_end[]    = {0};
+volatile char data_end[]    = {0};
 
 unsigned int
 kmalloc (size_t size) {
