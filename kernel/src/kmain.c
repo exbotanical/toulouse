@@ -15,7 +15,7 @@
 #include "kernel.h"
 #include "kstat.h"
 #include "mem/base.h"
-#include "mem/page.h"
+#include "mem/layout.h"
 #include "proc/proc.h"
 
 unsigned int real_last_addr;

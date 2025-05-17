@@ -1,5 +1,5 @@
-#ifndef MEM_PAGING_H
-#define MEM_PAGING_H
+#ifndef MEM_PAGE_H
+#define MEM_PAGE_H
 
 #define PAGE_SIZE           4096
 #define PAGE_SHIFT          0x0C
@@ -95,7 +95,7 @@ struct page {
   page_t *next_free;
 };
 
-extern unsigned int *page_dir;
+extern unsigned int *kpage_dir;
 
 extern unsigned int page_pool_size;
 extern page_t      *page_pool;
@@ -103,25 +103,15 @@ extern page_t      *page_pool;
 extern unsigned int page_hash_table_size;
 extern page_t     **page_hash_table;
 
-/**
- * Initializes a temporary page directory so we can setup the higher-half kernel.
- *
- * @param magic The multiboot magic number, if extant.
- * @param mbi_ptr A pointer to the multiboot info structure, if extant.
- * @return unsigned int The address of the page directory.
- */
-unsigned int mem_init_temporary(unsigned int magic, unsigned int mbi_ptr);
-
-/**
- * Initializes the memory manager and permanent page directory. Also allocates kernel resources
- * beyond the higher-half static kernel memory boundary.
- */
-void mem_init(void);
+static inline void
+page_activate_kpage_dir (void) {
+  asm volatile("mov %0, %%cr3" ::"a"(kpage_dir));
+}
 
 /**
  * Initializes the pages and populates the free-list.
  * @param num_pages
  */
-void pages_init(unsigned int num_pages);
+void page_init(unsigned int num_pages);
 
-#endif /* MEM_PAGING_H */
+#endif /* MEM_PAGE_H */
