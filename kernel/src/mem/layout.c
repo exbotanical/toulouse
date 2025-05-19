@@ -15,11 +15,11 @@
 
 unsigned int *kpage_dir;
 
-unsigned int page_pool_size = 0;
-page_t      *page_pool;
+unsigned int free_page_list_size = 0;
+page_t      *free_page_list;
 
-unsigned int page_hash_table_size = 0;
-page_t     **page_hash_table;
+unsigned int page_cache_size = 0;
+page_t     **page_cache;
 
 unsigned int proc_list_size = 0;
 
@@ -111,15 +111,15 @@ mem_init (void) {
     += (video.columns * video.lines * VIDEO_MAX_SCROLLBACK_SCREENS * 2 * sizeof(short int));
 
   // The last thing must be the page table structure itself...
-  unsigned int n       = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
+  unsigned int n  = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
   // 1 page for the hash table as minimum
-  n                    = max(n, 1);
-  n                    = min(n, MAX_PAGES_HASH);
+  n               = max(n, 1);
+  n               = min(n, MAX_PAGES_HASH);
 
-  page_hash_table_size = mem_assign(n * PAGE_SIZE, (void **)&page_hash_table, "page_hash_table");
+  page_cache_size = mem_assign(n * PAGE_SIZE, (void **)&page_cache, "page_cache");
 
-  page_pool_size
-    = mem_assign(kstat.physical_pages * sizeof(page_t), (void **)&page_pool, "page_pool");
+  free_page_list_size
+    = mem_assign(kstat.physical_pages * sizeof(page_t), (void **)&free_page_list, "free_page_list");
 
   page_init(kstat.physical_pages);
   buddy_init();

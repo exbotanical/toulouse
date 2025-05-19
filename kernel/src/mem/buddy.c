@@ -81,7 +81,7 @@ buddy_dealloc (buddy_head_t *block) {
     if (level == BUDDY_MAX_LEVEL - 1) {
       unsigned int addr       = (unsigned int)block;
       unsigned int phys_addr  = V2P(addr);
-      page_t      *page       = &page_pool[phys_addr >> PAGE_SHIFT];
+      page_t      *page       = &free_page_list[phys_addr >> PAGE_SHIFT];
       // Mark page as no longer belonging to a buddy
       page->flags            &= ~PAGE_BUDDY;
       kfree(addr);
@@ -118,7 +118,7 @@ buddy_alloc (size_t size) {
     unsigned int addr;
     if ((addr = (unsigned int)kmalloc(PAGE_SIZE))) {
       unsigned int phys_addr  = V2P(addr);
-      page_t      *page       = &page_pool[phys_addr >> PAGE_SHIFT];
+      page_t      *page       = &free_page_list[phys_addr >> PAGE_SHIFT];
       // Mark page as belonging to a buddy
       page->flags            |= PAGE_BUDDY;
       block                   = (buddy_head_t *)addr;

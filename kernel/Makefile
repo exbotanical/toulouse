@@ -18,7 +18,7 @@ EXT_OBJS         += $(patsubst ../lib/src/%.c,../lib/build/%.o,$(shell find -L .
 TEST_DEPS        := $(wildcard ../$(DEPS_DIRNAME)/libtap/*.c)
 TEST_SRCS        := $(shell find -L $(TEST_DIRNAME) -type f -name "*.c")
 TEST_ASM_OBJS    := $(filter-out $(BUILD_DIRNAME)/loader.asm.o, $(ASM_OBJS))
-TEST_OBJS        := $(filter-out $(BUILD_DIRNAME)/mem/alloc.o, $(OBJS))
+# TEST_OBJS        := $(filter-out $(BUILD_DIRNAME)/mem/alloc.o, $(OBJS))
 TEST_WATCH_FILES := $(shell find ../$(INC_DIRNAME) $(SRC_DIRNAME) $(TEST_DIRNAME) -type f \( -name "*.c" -o -name "*.h" \))
 
 CFLAGS           := -m32 -std=gnu99 -fno-strict-aliasing -nostdlib -ffreestanding \
@@ -65,7 +65,7 @@ linker:
 TEST_FILES := $(wildcard $(TEST_DIRNAME)/**/*.test.c)
 TEST_TARGETS := $(patsubst %.c,%,$(TEST_FILES))
 
-unit_test: $(TEST_OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
+unit_test: $(OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
 	@for file in $(TEST_FILES); do \
 		bin=$${file%.c}; \
 		echo "Compiling $$file -> $$bin"; \

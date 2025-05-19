@@ -3,6 +3,7 @@
 #include "lib/compiler.h"
 #include "lib/string.h"
 #include "lib/types.h"
+#include "mem/base.h"
 #include "mem/buddy.h"
 #include "mem/page.h"
 
@@ -22,12 +23,22 @@ kmalloc (size_t size) {
     return 0;
   }
 
-  // page_t* page;
-  // TODO:
-  // if ((page = page_g))
+  page_t* page;
+  if ((page = page_get_free())) {
+    unsigned int addr = page->page_num << PAGE_SHIFT;
+    return P2V(addr);
+  }
 
   return 0;
 }
 
 overridable void
-kfree (unsigned int addr) {}
+kfree (unsigned int addr) {
+  page_t* page = &free_page_list[V2P(addr) >> PAGE_SHIFT];
+
+  if (page->flags & PAGE_BUDDY) {
+    buddy_free(page);
+  } else {
+    page_release(page);
+  }
+}

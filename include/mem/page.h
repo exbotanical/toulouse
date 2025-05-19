@@ -82,30 +82,43 @@
 
 #define DEFAULT_NUM_PAGES   4096
 
+#define NUM_PAGES           (free_page_list_size / sizeof(page_t))
+
 typedef struct page page_t;
 
 struct page {
-  int     page_num;
-  int     usage_count;
-  int     flags;
-  char   *data;
-  page_t *prev_hash;
-  page_t *next_hash;
-  page_t *prev_free;
-  page_t *next_free;
+  int            page_num;
+  int            usage_count;
+  int            flags;
+  int            inode;
+  unsigned int   file_offset;
+  /**
+   * Device on which the page resides
+   */
+  unsigned short dev;
+  char          *data;
+  page_t        *prev_hash;
+  page_t        *next_hash;
+  page_t        *prev_free;
+  page_t        *next_free;
 };
 
 extern unsigned int *kpage_dir;
 
-extern unsigned int page_pool_size;
-extern page_t      *page_pool;
+extern unsigned int free_page_list_size;
+extern page_t      *free_page_list;
 
-extern unsigned int page_hash_table_size;
-extern page_t     **page_hash_table;
+extern unsigned int page_cache_size;
+extern page_t     **page_cache;
 
 static inline void
 page_activate_kpage_dir (void) {
   asm volatile("mov %0, %%cr3" ::"a"(kpage_dir));
+}
+
+static inline bool
+page_is_valid (int page_num) {
+  (page_num >= 0 && page_num < NUM_PAGES)
 }
 
 /**
@@ -113,5 +126,7 @@ page_activate_kpage_dir (void) {
  * @param num_pages
  */
 void page_init(unsigned int num_pages);
+
+void page_release(page_t *page);
 
 #endif /* MEM_PAGE_H */

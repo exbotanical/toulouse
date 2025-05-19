@@ -3,9 +3,7 @@
 #include "arch/eflags.h"
 #include "arch/interrupt.h"
 #include "lib/string.h"
-
-// TODO:
-void* kmalloc(size_t);
+#include "mem/alloc.h"
 
 static bool
 cblock_has_unread_chars (cblock_t* cb) {
@@ -61,7 +59,7 @@ delete_cblock_from_head (charq_t* q) {
   q->current_cblock_size -= tmp->next_write_index - tmp->next_read_index;
   q->size--;
 
-  // kfree(tmp); TODO:
+  kfree(tmp);
 }
 
 static void

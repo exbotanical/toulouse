@@ -21,13 +21,23 @@ typedef struct {
  * Kernel-wide stats and state.
  */
 typedef struct {
-  kparam_t     param;
-  unsigned int physical_pages;
-  unsigned int physical_reserved;
-  unsigned int kernel_reserved;
-  unsigned int free_pages;
-  unsigned int min_free_pages;
-  unsigned int total_mem_pages;
+  kparam_t param;
+  int      physical_pages;
+  int      physical_reserved;
+  int      kernel_reserved;
+  /**
+   * The number of free pages in the free page list
+   */
+  int      num_free_pages;
+  int      min_free_pages;
+  int      total_mem_pages;
+  // Pages last reclaimed from the buffer
+  int      pages_reclaimed;
+
+  /**
+   * The amount of memory used for caching file pages
+   */
+  int page_cache_consumption;
 
   unsigned int ticks;       /* ticks (1/HZths of sec) since boot */
   unsigned int system_time; /* current system time (since the Epoch) */
