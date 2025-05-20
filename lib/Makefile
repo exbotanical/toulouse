@@ -27,7 +27,7 @@ dirs:
 	@mkdir -p $(BUILD_DIRNAME)
 
 unit_test: $(OBJS)
-	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $(OBJS) -I../$(DEPS_DIRNAME) -I../$(INC_DIRNAME) -o $(UT_TARGET)
+	$(GCC) -m32 $(TEST_SRCS) $(TEST_DEPS) $(OBJS) -I../$(DEPS_DIRNAME) -I../$(INC_DIRNAME) -o $(UT_TARGET)
 	./$(UT_TARGET)
 	$(MAKE) clean
 

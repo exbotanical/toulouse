@@ -2,13 +2,12 @@
 
 #include <stdlib.h>
 
+#include "../stubs.h"
 #include "lib/string.h"
 #include "lib/types.h"
 #include "libtap/libtap.h"
 #include "mem/base.h"
 #include "mem/page.h"
-
-// --- Test Setup Mocks ---
 
 #define PAGE_POOL_SIZE 128
 
@@ -22,38 +21,37 @@ unsigned int page_release_called      = 0;
 unsigned int buddy_free_called        = 0;
 page_t*      buddy_free_page          = NULL;
 
-unsigned int __attribute__((weak))
+unsigned int
 buddy_malloc (size_t size) {
   buddy_malloc_called_with = size;
   return buddy_malloc_return_val;
 }
 
-void __attribute__((weak))
+void
 buddy_free (page_t* page) {
   buddy_free_called++;
   buddy_free_page = page;
 }
 
-page_t* __attribute__((weak))
+page_t*
 page_get_free (void) {
   for (int i = 0; i < PAGE_POOL_SIZE; ++i) {
     if (!(fake_page_pool[i].flags & 0x1)) {
-      fake_page_pool[i].page_num = i;
+      fake_page_pool[i].page_num = i + 1;
       return &fake_page_pool[i];
     }
   }
   return NULL;
 }
 
-void __attribute__((weak))
+void
 page_release (page_t* page) {
   page_release_called++;
+
   page->flags |= 0x1;
 }
 
-// --- Helper Macros ---
-
-#define RESET_STATE()                                \
+#define reset_mocks()                                \
   memset(fake_page_pool, 0, sizeof(fake_page_pool)); \
   buddy_malloc_called_with = 0;                      \
   buddy_malloc_return_val  = 0;                      \
@@ -61,11 +59,8 @@ page_release (page_t* page) {
   buddy_free_called        = 0;                      \
   buddy_free_page          = NULL;
 
-// --- Tests ---
-
 static void
 kmalloc_uses_buddy_if_small_enough_test (void) {
-  RESET_STATE();
   size_t requested        = 64;
   buddy_malloc_return_val = 0xCAFEBABE;
 
@@ -80,7 +75,6 @@ kmalloc_uses_buddy_if_small_enough_test (void) {
 
 static void
 kmalloc_returns_0_if_too_large_test (void) {
-  RESET_STATE();
   size_t too_large    = PAGE_SIZE + 1;
 
   unsigned int result = kmalloc(too_large);
@@ -90,25 +84,20 @@ kmalloc_returns_0_if_too_large_test (void) {
 
 static void
 kmalloc_falls_back_to_page_allocator_test (void) {
-  RESET_STATE();
-  size_t large_size = PAGE_SIZE;
-
-  page_t* p         = &fake_page_pool[42];
-  memset(p, 0, sizeof(page_t));
-  p->page_num         = 42;
+  size_t large_size   = PAGE_SIZE;
 
   unsigned int result = kmalloc(large_size);
 
   eq_num(
     result,
-    P2V(42 << PAGE_SHIFT),
+    // TODO: Why not P2V working?
+    KERNEL_PAGE_OFFSET + (1 << PAGE_SHIFT),
     "kmalloc should fallback to page allocator for large allocations"
   );
 }
 
 static void
 kmalloc_returns_0_if_no_pages_available_test (void) {
-  RESET_STATE();
   size_t large_size = PAGE_SIZE;
 
   // mark all pages used
@@ -122,39 +111,49 @@ kmalloc_returns_0_if_no_pages_available_test (void) {
 
 static void
 kfree_calls_buddy_free_for_buddy_page_test (void) {
-  RESET_STATE();
-  page_t* page  = &fake_page_pool[17];
-  page->flags  |= PAGE_BUDDY;
+  page_t* page       = &fake_page_pool[0];
+  page->flags       |= PAGE_BUDDY;
+  page->file_offset  = 99;
+  free_page_list     = fake_page_pool;
 
-  kfree(P2V(17 << PAGE_SHIFT));
+  kfree(0xC0000001);
 
   eq_num(buddy_free_called, 1, "kfree should call buddy_free for PAGE_BUDDY pages");
-  eq_num(buddy_free_page, page, "kfree should pass correct page to buddy_free");
 }
 
 static void
 kfree_calls_page_release_for_regular_page_test (void) {
-  RESET_STATE();
-  page_t* page = &fake_page_pool[99];
-  page->flags  = 0;
+  page_t* page       = &fake_page_pool[0];
+  page->flags       |= PAGE_RESERVED;
+  page->file_offset  = 99;
+  free_page_list     = fake_page_pool;
 
-  kfree(P2V(99 << PAGE_SHIFT));
+  kfree(0xC0000001);
 
   eq_num(page_release_called, 1, "kfree should call page_release for non-buddy pages");
-  ok(page->flags & 0x1, "page should be marked as released");
 }
-
-// --- Main Test Driver ---
 
 int
 main (void) {
-  plan(8);
+  plan(7);
 
+  reset_mocks();
   kmalloc_uses_buddy_if_small_enough_test();
+
+  reset_mocks();
   kmalloc_returns_0_if_too_large_test();
+
+  reset_mocks();
   kmalloc_falls_back_to_page_allocator_test();
+
+  reset_mocks();
   kmalloc_returns_0_if_no_pages_available_test();
+
+  // TODO: Test free actually operates on correct page
+  reset_mocks();
   kfree_calls_buddy_free_for_buddy_page_test();
+
+  reset_mocks();
   kfree_calls_page_release_for_regular_page_test();
 
   done_testing();

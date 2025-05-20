@@ -22,7 +22,7 @@ insert_cblock_in_tail (charq_t* q) {
   }
 
   // TODO: calloc
-  cblock_t* cb = kmalloc(sizeof(cblock_t));
+  cblock_t* cb = (cblock_t*)kmalloc(sizeof(cblock_t));
   if (!cb) {
     return NULL;
   }
@@ -59,7 +59,7 @@ delete_cblock_from_head (charq_t* q) {
   q->current_cblock_size -= tmp->next_write_index - tmp->next_read_index;
   q->size--;
 
-  kfree(tmp);
+  kfree((unsigned int)tmp);
 }
 
 static void

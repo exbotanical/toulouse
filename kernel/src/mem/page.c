@@ -6,6 +6,7 @@
 #include "kconfig.h"
 #include "kernel.h"
 #include "kstat.h"
+#include "lib/compiler.h"
 #include "lib/string.h"
 #include "mem/base.h"
 #include "proc/sleep.h"
@@ -108,7 +109,7 @@ remove_from_cache (page_t *page) {
       }
 
       if ((*head)->prev_hash) {
-        (*head)->prev_hash - next_hash > next_hash = (*head)->next_hash;
+        (*head)->prev_hash->next_hash = (*head)->next_hash;
       }
 
       if (head == &page_cache[i]) {
@@ -123,13 +124,13 @@ remove_from_cache (page_t *page) {
   }
 }
 
-page_t *
+overridable page_t *
 page_get_free (void) {
   // If the number of pages is too low, we need to reclaim some memory from the buffer cache
   if (kstat.num_free_pages <= kstat.min_free_pages) {
     // wakeup(&kswapd); // TODO:
     if (!kstat.num_free_pages) {
-      sleep(&page_get_free, PROC_UNINTERRUPTIBLE);
+      sleep(func_as_ptr((void (*)(void))page_get_free), PROC_UNINTERRUPTIBLE);
 
       if (!kstat.num_free_pages && !kstat.pages_reclaimed) {
         // We're for sure out of memory at this point
@@ -163,7 +164,7 @@ page_get_free (void) {
 
   page->usage_count = 1;
   page->inode       = 0;
-  page->offset      = 0;
+  page->file_offset = 0;
   page->dev         = 0;
 
   INTERRUPTS_ON();
@@ -171,7 +172,7 @@ page_get_free (void) {
   return page;
 }
 
-void
+overridable void
 page_release (page_t *page) {
   if (!page_is_valid(page->page_num)) {
     kpanic("Missing page %d (0x%x).\n", page->page_num, page->page_num);
@@ -194,7 +195,6 @@ page_release (page_t *page) {
 
   // If the page isn't cached, place it at the head of the free pages list
   if (!page->inode) {
-    // TODO: rename
     free_page_list_head = page;
   }
 
@@ -203,7 +203,7 @@ page_release (page_t *page) {
   // Wait for free pages to be far greater than NUM_BUFFER_RECLAIM, else `page_get_free` could run
   // out of pages again and kill the process prematurely
   if (kstat.num_free_pages > (NUM_BUFFER_RECLAIM * 3)) {
-    wakeup(&page_get_free);
+    wakeup(func_as_ptr((void (*)(void))page_get_free));
   }
 }
 

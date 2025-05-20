@@ -1,6 +1,8 @@
 #ifndef MEM_PAGE_H
 #define MEM_PAGE_H
 
+#include "lib/types.h"
+
 #define PAGE_SIZE           4096
 #define PAGE_SHIFT          0x0C
 #define PAGE_MASK           ~(PAGE_SIZE - 1)
@@ -118,7 +120,7 @@ page_activate_kpage_dir (void) {
 
 static inline bool
 page_is_valid (int page_num) {
-  (page_num >= 0 && page_num < NUM_PAGES)
+  return (page_num >= 0 && page_num < (int)NUM_PAGES);
 }
 
 /**
@@ -127,6 +129,14 @@ page_is_valid (int page_num) {
  */
 void page_init(unsigned int num_pages);
 
+/**
+ * Grab a free page from the free list
+ */
+page_t *page_get_free(void);
+
+/**
+ * Release a page back into the free list
+ */
 void page_release(page_t *page);
 
 #endif /* MEM_PAGE_H */

@@ -121,7 +121,7 @@ bios_mmap_init (multiboot_mmap_entry_t *mmap, unsigned int mmap_len) {
   kmemcpy(kernel_mmap, bios_mmap, NUM_BIOS_MMAP_ENTRIES * sizeof(bios_mmap_t));
 }
 
-bool
+overridable bool
 bios_mmap_has_addr (unsigned int addr) {
   int          ret = false;
   bios_mmap_t *bmm = &kernel_mmap[0];

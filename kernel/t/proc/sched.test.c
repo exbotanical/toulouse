@@ -10,6 +10,17 @@
 #include "mem/segments.h"
 #include "proc/proc.h"
 
+// TODO:
+// unsigned int
+// kmalloc (size_t size) {
+//   return (unsigned int)malloc(size);
+// }
+
+// void
+// kfree (unsigned int ptr) {
+//   free((void *)ptr);
+// }
+
 static proc_t dummy_procs[3];
 
 bool did_context_switch = false;

@@ -24,9 +24,6 @@
  */
 static proc_t *sleep_hash_table[NUM_SLEEP_HASH_TABLE_BUCKETS];
 
-/**
- * Put the current process to sleep on addr
- */
 overridable int
 sleep (void *addr, proc_inttype state) {
   INTERRUPTS_OFF();
@@ -80,9 +77,6 @@ done:
   return signum;
 }
 
-/**
- * Wakeup any processes sleeping on addr
- */
 overridable void
 wakeup (void *addr) {
   INTERRUPTS_OFF();

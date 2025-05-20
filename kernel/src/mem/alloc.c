@@ -22,7 +22,6 @@ kmalloc (size_t size) {
   if (size > PAGE_SIZE) {
     return 0;
   }
-
   page_t* page;
   if ((page = page_get_free())) {
     unsigned int addr = page->page_num << PAGE_SHIFT;
@@ -37,7 +36,7 @@ kfree (unsigned int addr) {
   page_t* page = &free_page_list[V2P(addr) >> PAGE_SHIFT];
 
   if (page->flags & PAGE_BUDDY) {
-    buddy_free(page);
+    buddy_free(addr);
   } else {
     page_release(page);
   }

@@ -1,6 +1,7 @@
 #include "mem/buddy.h"
 
 #include "drivers/dev/char/tmpcon.h"
+#include "lib/compiler.h"
 #include "lib/string.h"
 #include "mem/alloc.h"
 #include "mem/base.h"
@@ -154,7 +155,7 @@ buddy_alloc (size_t size) {
   return block;
 }
 
-unsigned int
+overridable unsigned int
 buddy_malloc (size_t size) {
   buddy_head_t *block = buddy_alloc(size);
   // Increment the pointer by 1. This tells the compiler to increment the address by
@@ -164,7 +165,7 @@ buddy_malloc (size_t size) {
   return block ? (unsigned int)(block + 1) : 0;
 }
 
-void
+overridable void
 buddy_free (unsigned int addr) {
   buddy_head_t *block = (buddy_head_t *)addr;
   block--;

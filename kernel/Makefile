@@ -58,7 +58,7 @@ linker:
 	cpp -P linker.ld -I../$(INC_DIRNAME) >| $(LD_TARGET)
 
 # unit_test: $(TEST_OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
-# 	gcc -m32 $(TEST_SRCS) $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} -o $(UT_TARGET)
+# 	$(CC) -m32 $(TEST_SRCS) $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} -o $(UT_TARGET)
 # 	./$(UT_TARGET)
 # 	$(MAKE) clean
 
@@ -69,7 +69,7 @@ unit_test: $(OBJS) $(EXT_OBJS) $(TEST_ASM_OBJS)
 	@for file in $(TEST_FILES); do \
 		bin=$${file%.c}; \
 		echo "Compiling $$file -> $$bin"; \
-		gcc -m32  $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} $$file -o $$bin || exit $$?; \
+		$(GCC) -m32  $(TEST_DEPS) $^ -I../{$(DEPS_DIRNAME),$(INC_DIRNAME)} $$file -o $$bin || exit $$?; \
 	done
 	@for bin in $(TEST_TARGETS); do \
 		echo "Running $$bin..."; \
