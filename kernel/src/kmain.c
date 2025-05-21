@@ -24,6 +24,9 @@ kstat_t      kstat;
 void
 kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
   real_last_addr = last_addr - KERNEL_PAGE_OFFSET;
+
+  sysconsole_init();
+
   // Maps the VGA memory device (0xB8000) to a console abstraction.
   // This allows us to print to the console before we've mapped any memory or
   // initialized pretty much all of the operating system now that the image has been

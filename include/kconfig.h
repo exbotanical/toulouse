@@ -31,4 +31,8 @@
  */
 #define NUM_BUFFER_RECLAIM 250
 
+
+#define NUM_CONSOLES      12
+#define NUM_SYSCONSOLES   1
+
 #endif /* CONFIG_H */

@@ -100,7 +100,7 @@ vga_screen_off (vconsole_t *vc) {
  */
 static void
 vga_put_char (vconsole_t *vc, unsigned char c) {
-  short int *video_mem    = (short int *)vc->main_buffer;
+  short int *main_buffer  = (short int *)vc->main_buffer;
   short int *back_buffer  = vc->back_buffer;
 
   c                       = iso8859[c];
@@ -111,7 +111,7 @@ vga_put_char (vconsole_t *vc, unsigned char c) {
   back_buffer[next_index] = next_value;
 
   if (vga_console_has_focus(vc)) {
-    video_mem[next_index]                                                = next_value;
+    main_buffer[next_index]                                              = next_value;
     video_scrollback_history_buffer[(video.buf_y * vc->columns) + vc->x] = next_value;
   }
 }
@@ -127,7 +127,7 @@ vga_put_char (vconsole_t *vc, unsigned char c) {
  */
 static void
 vga_insert_char (vconsole_t *vc) {
-  short int *video_mem   = (short int *)vc->main_buffer;
+  short int *main_buffer = (short int *)vc->main_buffer;
   short int *back_buffer = vc->back_buffer;
 
   int n                  = vc->x;
@@ -139,8 +139,8 @@ vga_insert_char (vconsole_t *vc) {
   // Shift characters to the right until the end of the line
   while (n++ < vc->columns) {
     if (vga_console_has_focus(vc)) {
-      kmemcpy(&tmp_char, video_mem + offset, 1);
-      kmemset(video_mem + offset, last_char, 1);
+      kmemcpy(&tmp_char, main_buffer + offset, 1);
+      kmemset(main_buffer + offset, last_char, 1);
     }
 
     kmemcpy(&tmp_char, back_buffer + offset, 1);
@@ -162,15 +162,15 @@ vga_insert_char (vconsole_t *vc) {
  */
 static void
 vga_delete_char (vconsole_t *vc) {
-  short int *video_mem   = (short int *)vc->main_buffer;
+  short int *main_buffer = (short int *)vc->main_buffer;
   short int *back_buffer = vc->back_buffer;
 
   int offset             = (vc->y * vc->columns) + vc->x;
   int count              = vc->columns - vc->x;
 
   if (vga_console_has_focus(vc)) {
-    kmemcpy(video_mem + offset, video_mem + offset + 1, count);
-    kmemset(video_mem + offset + count, CLEAR_MEM, 1);
+    kmemcpy(main_buffer + offset, main_buffer + offset + 1, count);
+    kmemset(main_buffer + offset + count, CLEAR_MEM, 1);
   }
 
   kmemcpy(back_buffer + offset, back_buffer + offset + 1, count);
@@ -269,13 +269,13 @@ vga_update_cursor_pos (vconsole_t *vc) {
  */
 static void
 vga_write_screen (vconsole_t *vc, int from, int count, short int color) {
-  short int *video_mem   = (short int *)vc->main_buffer;
+  short int *main_buffer = (short int *)vc->main_buffer;
   short int *back_buffer = vc->back_buffer;
 
   kmemset(back_buffer + from, color, count);
 
   if (vga_console_has_focus(vc)) {
-    kmemset(video_mem + from, color, count);
+    kmemset(main_buffer + from, color, count);
   }
 }
 
@@ -294,9 +294,9 @@ vga_clear_screen (vconsole_t *vc) {
     return;
   }
 
-  short int *video_mem = (short int *)vc->main_buffer;
+  short int *main_buffer = (short int *)vc->main_buffer;
   if (vga_console_has_focus(vc)) {
-    kmemset(video_mem, CLEAR_MEM, CONSOLE_SIZE);
+    kmemset(main_buffer, CLEAR_MEM, CONSOLE_SIZE);
   }
 
   vc->flags |= CONSOLE_CLEARED;
@@ -314,10 +314,10 @@ vga_clear_screen (vconsole_t *vc) {
  */
 static void
 vga_restore_screen (vconsole_t *vc) {
-  short int *video_mem = (short int *)vc->main_buffer;
+  short int *main_buffer = (short int *)vc->main_buffer;
 
   if (vga_console_has_focus(vc)) {
-    kmemcpy(video_mem, vc->back_buffer, CONSOLE_SIZE);
+    kmemcpy(main_buffer, vc->back_buffer, CONSOLE_SIZE);
   }
 }
 

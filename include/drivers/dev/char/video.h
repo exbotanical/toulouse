@@ -75,8 +75,16 @@ typedef struct {
 extern video_props_t video;
 extern short int    *video_scrollback_history_buffer;
 
-bool video_using_vga(void);
-bool video_using_vesa_framebuffer(void);
+static inline bool
+video_using_vga (void) {
+  return video.flags & VPF_VGA;
+}
+
+static inline bool
+video_using_vesa_framebuffer (void) {
+  return video.flags & VPF_VESAFB;
+}
+
 void video_init(void);
 
 #endif /* DRIVER_DEV_CHAR_VIDEO_H */

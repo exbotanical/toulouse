@@ -8,16 +8,6 @@ video_props_t video;
 
 short int* video_scrollback_history_buffer;
 
-bool
-video_using_vga (void) {
-  return video.flags & VPF_VGA;
-}
-
-bool
-video_using_vesa_framebuffer (void) {
-  return video.flags & VPF_VESAFB;
-}
-
 void
 video_init (void) {
   kmemset(

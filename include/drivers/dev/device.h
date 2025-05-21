@@ -14,6 +14,11 @@
 #define DEVICE_CLEAR_MINOR(minors, bit) ((minors[(bit) / 32]) &= ~(1 << ((bit) % 32)))
 #define DEVICE_TEST_MINOR(minors, bit)  ((minors[(bit) / 32]) & (1 << ((bit) % 32)))
 
+typedef enum {
+  DEVTYPE_CHAR,
+  DEVTYPE_BLOCK,
+} devtype_t;
+
 typedef struct device device_t;
 
 struct device {
@@ -41,6 +46,16 @@ struct device {
 
 extern device_t *char_devices_table[NUM_CHAR_DEVICES];
 extern device_t *block_devices_table[NUM_BLOCK_DEVICES];
+
+/**
+ * TODO:
+ *
+ * @param type
+ * @param new_dev
+ * @return true
+ * @return false
+ */
+bool device_register(devtype_t type, device_t *new_dev);
 
 /**
  * Initializes the global tables for storing block and char devices.

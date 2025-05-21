@@ -3,8 +3,15 @@
 
 #include "lib/types.h"
 
-#define NUM_CONSOLES      12
-#define CONSOLES_MAJOR    4
+/**
+ * Virtual console major number
+ */
+#define VCONSOLE_MAJOR    4
+
+/**
+ * System console major number
+ */
+#define SYSCON_MAJOR      5
 
 #define CONSOLE_HAS_FOCUS 0x0001
 #define CONSOLE_CLEARED   0x0002
@@ -63,7 +70,13 @@ typedef struct {
   int rows;
   int columns;
 
+  /**
+   * TODO: vidmem
+   */
   unsigned char *main_buffer;
+  /**
+   * TODO: screen
+   */
   short int     *back_buffer;
 
   int flags;
@@ -71,7 +84,22 @@ typedef struct {
   unsigned short int color_attr;
 
   bool screen_locked;
+
+  /**
+   * The TTY this console is attached to
+   */
+  tty_t *tty;
 } vconsole_t;
+
+/**
+ * TODO: ???
+ */
+extern short int *vc_screen[NUM_CONSOLES + 1];
+
+/**
+ * Current console e.g. /dev/tty1 .. /dev/tty12
+ */
+extern short int current_console;
 
 void console_init(void);
 
