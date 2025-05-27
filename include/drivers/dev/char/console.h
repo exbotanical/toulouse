@@ -56,6 +56,9 @@
  */
 #define CURSOR_DISABLE    0x20
 
+#define CONS_SCROLL_UP    1
+#define CONS_SCROLL_DOWN  2
+
 typedef struct {
   /**
    * Current column
@@ -69,6 +72,15 @@ typedef struct {
   int top;
   int rows;
   int columns;
+
+  /**
+   * Indicates which led indicators are on/orr
+   */
+  unsigned char led_status;
+
+  bool scrlock_on;
+  bool numlock_on;
+  bool capslock_on;
 
   /**
    * TODO: vidmem

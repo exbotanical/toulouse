@@ -29,7 +29,7 @@ interrupt_t *irq_table[NUM_IRQS];
  * From Linux Device Drivers, Second Edition:
  *
  * "The big difference between the top-half handler and the bottom half is that all interrupts are
- * enabled during execution of the bottom half—that’s why it runs at a safer time. In the typical
+ * enabled during execution of the bottom half—that's why it runs at a safer time. In the typical
  * scenario, the top half saves device data to a device-specific buffer, schedules its bottom half,
  * and exits: this is very fast. The bottom half then performs whatever other work is required, such
  * as awakening processes, starting up another I/O operation, and so on. This setup permits the top
@@ -122,7 +122,7 @@ irq_register (int irq_num, interrupt_t *new_irq) {
 void
 irq_handler (int irq_num, sig_context_t sc) {
   interrupt_t *irq;
-  // Temporarily prevent reentrant interrupts while we’re handling this one
+  // Temporarily prevent reentrant interrupts while we're handling this one
   irq_disable(irq_num);
 
   irq = irq_table[irq_num];

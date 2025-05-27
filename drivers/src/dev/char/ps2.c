@@ -40,9 +40,19 @@ is_ready_to_write (void) {
   return false;
 }
 
-/**
- * Reads from the PS/2 controller
- */
+bool
+ps2_await_ack (void) {
+  if (is_ready_to_read()) {
+    for (unsigned int i = 0; i < 1000; i++) {
+      if (inb(PS2_DATA_PORT) == DEV_ACK) {
+        return true;
+      }
+      ps2_delay();
+    }
+  }
+  return false;
+}
+
 unsigned char
 ps2_read (const unsigned char port) {
   if (is_ready_to_read()) {
@@ -52,9 +62,6 @@ ps2_read (const unsigned char port) {
   return 0;
 }
 
-/**
- * Writes to the PS/2 controller
- */
 void
 ps2_write (const unsigned char port, const unsigned char byte) {
   ack = 0;
@@ -64,9 +71,6 @@ ps2_write (const unsigned char port, const unsigned char byte) {
   }
 }
 
-/**
- * Purges the PS/2 input buffer
- */
 void
 ps2_clear_buffer (void) {
   for (int i = 0; i < 1000; i++) {
@@ -105,11 +109,11 @@ ps2_init (void) {
   ps2_write(PS2_COMMAND_PORT, PS2_CMD_SEND_CONFIG);
   ps2_write(PS2_DATA_PORT, config & ~(0x01 | 0x02 | 0x40));
 
-  // Check the controller’s built-in self-test...
+  // Check the controller's built-in self-test...
   ps2_write(PS2_COMMAND_PORT, PS2_CMD_SELF_TEST);
   // ...then check if the result is 0x55, i.e. "OK".
   if ((errno = ps2_read(PS2_DATA_PORT)) != 0x55) {
-    // There’s no point continuing if the controller is broken
+    // There's no point continuing if the controller is broken
     // TODO: log warning
     return;
   } else {
@@ -160,7 +164,7 @@ ps2_init (void) {
   ps2_write(PS2_DATA_PORT, config | 0x40);
 
   // Now, we check if the translation bit actually stuck.
-  // Type 1 controllers support translation; type 2 don’t. This helps detect the type.
+  // Type 1 controllers support translation; type 2 don't. This helps detect the type.
   ps2_write(PS2_COMMAND_PORT, PS2_CMD_RECV_CONFIG);
   config2 = ps2_read(PS2_DATA_PORT);
   // Restore the original state

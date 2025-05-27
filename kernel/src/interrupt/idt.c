@@ -57,7 +57,7 @@ idt_set_entry (int num, uint32_t handler, unsigned int flags) {
   idt[num].low_offset = handler & 0x0000FFFF;
 
   // This sets the code segment selector that the CPU will use when jumping to the handler.
-  // KERNEL_CS refers to the kernel’s code segment in the GDT (usually 0x08).
+  // KERNEL_CS refers to the kernel's code segment in the GDT (usually 0x08).
   idt[num].selector   = KERNEL_CS;
 
   // The flags are shifted left by 8 bits because the actual IDT descriptor layout expects the flags
