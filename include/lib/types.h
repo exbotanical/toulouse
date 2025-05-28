@@ -1,7 +1,7 @@
 #ifndef COMMON_TYPES_H
 #define COMMON_TYPES_H
 
-typedef _Bool bool;
+#define bool  _Bool
 #define true  1
 #define false 0
 
