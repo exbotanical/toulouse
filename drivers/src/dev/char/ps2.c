@@ -40,6 +40,15 @@ is_ready_to_write (void) {
   return false;
 }
 
+void
+ps2_set_leds (unsigned char led_status) {
+  ps2_write(PS2_DATA_PORT, PS2_KB_SETLED);
+  ps2_await_ack();
+
+  ps2_write(PS2_DATA_PORT, led_status);
+  ps2_await_ack();
+}
+
 bool
 ps2_await_ack (void) {
   if (is_ready_to_read()) {

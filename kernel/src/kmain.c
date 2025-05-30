@@ -96,6 +96,9 @@ kmain (unsigned int magic, unsigned int mbi, unsigned int last_addr) {
   timer_init();
   klog_info("Timer initialized");
 
+  ps2_init();
+  klog_info("PS/2 drivers initialized");
+
   proc_init();
   klog_info("Process table initialized");
 

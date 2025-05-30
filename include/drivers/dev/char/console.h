@@ -1,6 +1,8 @@
 #ifndef DRIVER_DEV_CHAR_CONSOLE_H
 #define DRIVER_DEV_CHAR_CONSOLE_H
 
+#include "drivers/dev/char/tty.h"
+#include "kconfig.h"
 #include "lib/types.h"
 
 /**
@@ -44,6 +46,8 @@
 #define CURSOR_MODE_ON    1
 #define CURSOR_MODE_COND  2
 
+#define TMP_STORAGE_SIZE  16
+
 /**
  * Bitmask for the lower 5 bits of the register, which control the start scanline
  * (vertical position) of the cursor inside a character cell.
@@ -69,9 +73,34 @@ typedef struct {
    */
   int y;
 
+  /**
+   * Stores column for use later
+   */
+  int saved_x;
+  /**
+   * Stores row for use later
+   */
+  int saved_y;
+
+  /**
+   * Starting line (top of scrollback buffer)
+   */
   int top;
+
+  /**
+   * Num rows
+   */
   int rows;
+
+  /**
+   * Num cols
+   */
   int columns;
+
+  /**
+   * Indicates we need to readjust
+   */
+  bool check_x;
 
   /**
    * Indicates which led indicators are on/orr
@@ -96,6 +125,24 @@ typedef struct {
   unsigned short int color_attr;
 
   bool screen_locked;
+
+  /* Visual attributes */
+  unsigned short int color_attr;
+  unsigned char      bold;
+  unsigned char      underline;
+  unsigned char      blink;
+  unsigned char      reverse;
+
+  int tmp_storage_1;
+  int tmp_storage_2;
+
+  int tmp_storage_num_entries;
+  int tmp_storage[TMP_STORAGE_SIZE];
+
+  bool has_esc;
+  bool has_bracket;
+  bool has_semicolon;
+  bool has_question;
 
   /**
    * The TTY this console is attached to

@@ -55,6 +55,11 @@
 extern volatile unsigned char ack;
 
 /**
+ * Set the leds given the provided led status
+ */
+void ps2_set_leds(unsigned char led_status);
+
+/**
  * Waits for the device to send back an ACK.
  * Returns true if we got an ACK during the timeout period.
  *

@@ -7,8 +7,8 @@
 #include "lib/types.h"
 
 typedef struct {
-  device_t dev;
-  tty_t*   tty;
+  unsigned short int dev;
+  tty_t*             tty;
 } sysconsole_t;
 
 extern sysconsole_t sysconsole_table[NUM_SYSCONSOLES];

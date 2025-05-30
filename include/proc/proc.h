@@ -174,6 +174,8 @@ struct proc {
   proc_t *next_sleeping;
   proc_t *prev_running;
   proc_t *next_running;
+
+  tty_t *controlling_tty;
 };
 
 /**

@@ -17,7 +17,7 @@
 #define ISALNUM(ch)  ((ctype_t + 1)[ch] & (CTYPE_FUPPER | CTYPE_FLOWER | CTYPE_FNUMRL))
 #define ISSPACE(ch)  ((ctype_t + 1)[ch] & CTYPE_FSPC)
 #define ISPUNCT(ch)  ((ctype_t + 1)[ch] & CTYPE_FPUNC)
-#define ISCNTRL(ch)  ((ctype_t + 1)[ch] & CTYPE_FCTRL)
+#define ISCTRL(ch)   ((ctype_t + 1)[ch] & CTYPE_FCTRL)
 #define ISXDIGIT(ch) ((ctype_t + 1)[ch] & (CTYPE_FNUMRL | CTYPE_FHEX))
 
 #define ISASCII(ch)  ((unsigned)ch <= 0x7F)

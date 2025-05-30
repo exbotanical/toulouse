@@ -104,6 +104,7 @@ putc (tty_t* tty, unsigned char ch) {
   if (tty->count) {
     if (charq_putchar(&tty->read_q, ch) < 0) {
       if (tty->termios.c_iflag & IMAXBEL) {
+        // TODO:
         // vconsole_beep();
       }
     }
@@ -179,15 +180,6 @@ keyboard_identify (void) {
   }
 
   ps2_clear_buffer();
-}
-
-void
-set_leds (unsigned char led_status) {
-  ps2_write(PS2_DATA_PORT, PS2_KB_SETLED);
-  ps2_wait_ack();
-
-  ps2_write(PS2_DATA_PORT, led_status);
-  ps2_wait_ack();
 }
 
 void
@@ -422,14 +414,15 @@ keyboard_irq () {
         // TODO: log warn unrecognized key
         break;
       }
+
+      puts(tty, fn_seq[c]);
+      break;
     }
-      // TODO:
-      // puts(tty, fn_break;
+
     case SPEC_KEYS: {
       switch (key) {
         case CR: {
-          // TODO:
-          // putc(tty, TAG_CTRL('M'));
+          putc(tty, TAG_CTRL('M'));
           break;
         }
 
@@ -444,9 +437,9 @@ keyboard_irq () {
 
     case PAD_KEYS: {
       if (!vc->numlock_on) {
-        // puts(tty, pad_seq[c]);
+        puts(tty, pad_seq[c]);
       } else {
-        // putc(tty, pad_chars[c]);
+        putc(tty, pad_chars[c]);
       }
       break;
     }
@@ -476,14 +469,14 @@ keyboard_irq () {
 
       c               = diacr_chars[c];
       deadkey_pressed = 0;
-      // putc(tty, c);
+      putc(tty, c);
 
       break;
     }
 
     case META_KEYS: {
-      // putc(tty, '\033');
-      // putc(tty, c);
+      putc(tty, '\033');
+      putc(tty, c);
       break;
     }
 
@@ -496,7 +489,7 @@ keyboard_irq () {
         }
       }
 
-      // putc(tty, c);
+      putc(tty, c);
       break;
     }
 
@@ -522,10 +515,12 @@ keyboard_irq () {
         }
         break;
       }
+
       if (deadkey_pressed && c == ' ') {
         c = diacr_chars[deadkey - 1];
       }
-      // putc(tty, c);
+
+      putc(tty, c);
       break;
     }
   }
@@ -552,7 +547,7 @@ keyboard_bh_irq (sig_context_t* sc) {
   }
 
   if (do_setleds) {
-    set_leds(vc->led_status);
+    ps2_set_leds(vc->led_status);
     do_setleds = 0;
   }
 
@@ -574,7 +569,7 @@ keyboard_bh_irq (sig_context_t* sc) {
 
   tty = &tty_table[0];
   for (unsigned int i = 0; i < NUM_CONSOLES) {
-    if (!tty->readq.size) {
+    if (!tty->read_q.size) {
       continue;
     }
 
@@ -584,7 +579,7 @@ keyboard_bh_irq (sig_context_t* sc) {
     }
 
     if (lock_area(AREA_TTY_READ)) {
-      keset_leds set_ledsyboard_irq_callback.flags |= IRQ_BH_ACTIVE;
+      keyboard_irq_callback.flags |= IRQ_BH_ACTIVE;
       continue;
     }
 

@@ -15,11 +15,15 @@ struct cblock {
   /**
    * Represents the next index to read from.
    * This is effectively the start index of this cblock buffer.
+   *
+   * TODO: start_off
    */
   unsigned short next_read_index;
   /**
    * Represents the next index to write to.
    * This is effectively the end index of this cblock buffer.
+   *
+   * TODO: end_off
    */
   unsigned short next_write_index;
   /**
