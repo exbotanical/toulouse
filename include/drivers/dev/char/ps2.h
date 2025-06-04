@@ -1,9 +1,12 @@
 #ifndef DRIVERS_DEV_CHAR_PS2_H
 #define DRIVERS_DEV_CHAR_PS2_H
+
+#include "lib/types.h"
+
 // clang-format off
 
 // PS/2 is a legacy interface standard for connecting input devices like keyboards and mice to a PC.
-// It's handled through a PS/2 controller (often integrated into the system’s chipset) which
+// It's handled through a PS/2 controller (often integrated into the system's chipset) which
 // connects via two ports:
 // * Channel 1: Usually the keyboard.
 // * Channel 2: Usually the mouse (if present).

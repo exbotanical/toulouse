@@ -1,16 +1,16 @@
-#include "drivers/dev/char/sysconsole.h"
+#include "drivers/dev/char/console/sysconsole.h"
 
 #include "lib/string.h"
 
 sysconsole_t sysconsole_table[NUM_SYSCONSOLES];
 
 retval_t
-sysconsole_add_device (device_t d) {
-  for (unsigned int i = 0; i < NUM_SYSCONSOLES; i++) {
-    sysconsole_t curr_sysconsole = sysconsole_table[i];
+sysconsole_add_device (unsigned short dev) {
+  for (int n = 0; n < NUM_SYSCONSOLES; n++) {
+    sysconsole_t curr_sysconsole = sysconsole_table[n];
 
     if (!curr_sysconsole.dev) {
-      curr_sysconsole[n].dev = dev;
+      curr_sysconsole.dev = dev;
       return RET_OK;
     }
   }
@@ -20,8 +20,8 @@ sysconsole_add_device (device_t d) {
 
 retval_t
 sysconsole_register (tty_t* tty) {
-  for (unsigned int i = 0; i < NUM_SYSCONSOLES; i++) {
-    sysconsole_t curr_sysconsole = sysconsole_table[i];
+  for (int n = 0; n < NUM_SYSCONSOLES; n++) {
+    sysconsole_t curr_sysconsole = sysconsole_table[n];
     if (curr_sysconsole.dev == tty->devnum) {
       curr_sysconsole.tty = tty;
       return RET_OK;

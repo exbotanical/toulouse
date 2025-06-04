@@ -1,13 +1,14 @@
 #ifndef DRIVER_DEV_CHAR_VIDEO_H
 #define DRIVER_DEV_CHAR_VIDEO_H
 
-#include "drivers/dev/char/console.h"
+#include "drivers/dev/char/console/console.h"
 #include "lib/types.h"
 
 /**
  * VGA text mode
  */
 #define VIDEO_MODE_VGA_TXT           0x01
+
 /**
  * x86 framebuffer
  */
@@ -20,6 +21,7 @@
 #define VIDEO_MAX_SCROLLBACK_SCREENS 6
 
 #define VIDEO_CONS_DEFAULT_COLS      80
+
 #define VIDEO_CONS_DEFAULT_ROWS      25
 
 /**
@@ -48,14 +50,15 @@ typedef struct {
   int           pixelwidth;
   int           pitch;
   int           rowsize;
+
   /**
    * Size of screen based on resolution
    */
-  int           size;
+  int size;
   /**
    * Size of screen based on columns x rows
    */
-  int           vsize;
+  int vsize;
 
   void (*put_char)(vconsole_t *, unsigned char);
   void (*insert_char)(vconsole_t *);
@@ -77,12 +80,12 @@ extern short int    *video_scrollback_history_buffer;
 
 static inline bool
 video_using_vga (void) {
-  return video.flags & VPF_VGA;
+  return video.flags & VIDEO_MODE_VGA_TXT;
 }
 
 static inline bool
 video_using_vesa_framebuffer (void) {
-  return video.flags & VPF_VESAFB;
+  return video.flags & VIDEO_MODE_VESAFB;
 }
 
 void video_init(void);

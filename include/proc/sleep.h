@@ -5,6 +5,8 @@
 // TODO: Use these consistently
 #include "lib/types.h"
 
+#define SLEEP_FN(fn) func_as_ptr((void (*)(void))fn)
+
 static inline void *
 func_as_ptr (void (*fn)(void)) {
   union {

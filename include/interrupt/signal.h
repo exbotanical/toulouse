@@ -80,6 +80,11 @@
  */
 #define SIGHANDLER_IGN ((sig_handler_t)1)
 
+typedef enum {
+  SIGSENDER_KERNEL,
+  SIGSENDER_USER,
+} signal_sender;
+
 // See: https://www.gnu.org/software/libc/manual/html_node/Signal-Sets.html
 typedef unsigned int sig_set_t;
 

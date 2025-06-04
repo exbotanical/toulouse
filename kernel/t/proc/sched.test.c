@@ -1,4 +1,3 @@
-#define __pid_t_defined  // To avoid typedef collision with pid_t in proc.h
 #include "proc/sched.h"
 
 #include <stdlib.h>

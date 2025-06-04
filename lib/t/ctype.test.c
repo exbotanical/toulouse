@@ -71,11 +71,11 @@ ispunct_test (void) {
 
 static void
 iscntrl_test (void) {
-  ok(ISCNTRL('\0'), "ISCNTRL: NULL is control");
-  ok(ISCNTRL(0x1F), "ISCNTRL: 0x1F is control");
-  ok(ISCNTRL(0x7F), "ISCNTRL: DEL is control");
-  ok(!ISCNTRL('A'), "ISCNTRL: 'A' is not control");
-  ok(!ISCNTRL(' '), "ISCNTRL: space is not control");
+  ok(ISCTRL('\0'), "ISCTRL: NULL is control");
+  ok(ISCTRL(0x1F), "ISCTRL: 0x1F is control");
+  ok(ISCTRL(0x7F), "ISCTRL: DEL is control");
+  ok(!ISCTRL('A'), "ISCTRL: 'A' is not control");
+  ok(!ISCTRL(' '), "ISCTRL: space is not control");
 }
 
 static void

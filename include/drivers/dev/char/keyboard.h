@@ -1,6 +1,8 @@
 #ifndef DRIVER_DEV_CHAR_KEYBOARD_H
 #define DRIVER_DEV_CHAR_KEYBOARD_H
 
+#include "interrupt/signal.h"
+
 #define KEYBOARD_IRQ  1
 
 #define EXTKEY        0xE0               /* extended key (AltGr, Ctrl-Print, etc.) */
@@ -145,4 +147,19 @@
 #define TAG_META(c)   ((c) | META_KEYS)   /* Tags key as meta key e.g. alt+key */
 #define TAG_LETTER(c) ((c) | LETTER_KEYS) /* Tags key as printable letter */
 
-#endif                                    /* DRIVER_DEV_CHAR_KEYBOARD_H */
+/**
+ * Primary handler for keyboard IRQs
+ */
+void keyboard_irq(int _num, sig_context_t* _sc);
+
+/**
+ * Bottom half handler for keyboard IRQs
+ */
+void keyboard_bh_irq(sig_context_t* sc);
+
+/**
+ * Initializes keyboard driver support and keyboard-related interrupt handlers
+ */
+void keyboard_init(void);
+
+#endif /* DRIVER_DEV_CHAR_KEYBOARD_H */

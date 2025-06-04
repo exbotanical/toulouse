@@ -133,7 +133,7 @@ typedef int speed_t;
 #define VERASE   2  /* Erase previous character [ICANON] */
 #define VKILL    3  /* Kill-line character [ICANON] */
 #define VEOF     4  /* End-of-file character [ICANON] */
-#define VTIME    5  /* Time-out value (1/10 secs) [!ICANON] */
+#define VTIME    5  /* Time-out value (1/10 secs) for non-canon reads [!ICANON] */
 #define VMIN     6  /* Minimum # of bytes read at once [!ICANON] */
 #define VSWTC    7
 #define VSTART   8  /* Start (X-ON) character [IXON, IXOFF] */

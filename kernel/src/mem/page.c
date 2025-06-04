@@ -130,7 +130,7 @@ page_get_free (void) {
   if (kstat.num_free_pages <= kstat.min_free_pages) {
     // wakeup(&kswapd); // TODO:
     if (!kstat.num_free_pages) {
-      sleep(func_as_ptr((void (*)(void))page_get_free), PROC_UNINTERRUPTIBLE);
+      sleep(SLEEP_FN(&page_get_free), PROC_UNINTERRUPTIBLE);
 
       if (!kstat.num_free_pages && !kstat.pages_reclaimed) {
         // We're for sure out of memory at this point

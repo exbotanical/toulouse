@@ -1,6 +1,7 @@
 #ifndef DRIVER_DEV_CHAR_DEVICE_H
 #define DRIVER_DEV_CHAR_DEVICE_H
 
+#include "fs/ops.h"
 #include "lib/types.h"
 
 #define NUM_CHAR_DEVICES                32
@@ -42,6 +43,11 @@ struct device {
   void         *requests_queue;
   void         *xfer_data;
   device_t     *next;
+
+  /**
+   * File system operations for this device
+   */
+  fs_operations_t *fs_ops;
 };
 
 extern device_t *char_devices_table[NUM_CHAR_DEVICES];
@@ -49,13 +55,8 @@ extern device_t *block_devices_table[NUM_BLOCK_DEVICES];
 
 /**
  * TODO:
- *
- * @param type
- * @param new_dev
- * @return true
- * @return false
  */
-bool device_register(devtype_t type, device_t *new_dev);
+retval_t device_register(devtype_t type, device_t *new_dev);
 
 /**
  * Initializes the global tables for storing block and char devices.

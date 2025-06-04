@@ -1,8 +1,6 @@
 #ifndef MOCKS_H
 #define MOCKS_H
 
-#define __pid_t_defined  // To avoid typedef collision with pid_t in proc.h
-
 #include "proc/proc.h"
 
 #define FAKE_EFLAGS_VAL 0xDEADBEEF

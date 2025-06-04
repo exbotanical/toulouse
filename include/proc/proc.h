@@ -1,6 +1,7 @@
 #ifndef PROC_PROCESS_H
 #define PROC_PROCESS_H
 
+#include "drivers/dev/char/tty/tty.h"
 #include "interrupt/signal.h"
 #include "lib/types.h"
 
@@ -36,11 +37,6 @@
  */
 #define PROC_FLAG_NOTINTERRUPT 0x00000008
 
-/**
- * Process id type
- */
-typedef uint32_t pid_t;
-
 typedef enum {
   /**
    * The process is in a running state
@@ -75,6 +71,11 @@ typedef enum {
   PROC_INTERRUPTIBLE = 1,
   PROC_UNINTERRUPTIBLE,
 } proc_inttype;
+
+// Placeholder TODO:
+typedef struct {
+  int __placeholder;
+} vma_t;
 
 /**
  * Represents the Intel 386 Task Switch State (TSS)
@@ -123,7 +124,20 @@ struct proc {
    */
   int children;
 
-  pid_t      pid;
+  /**
+   * Process id
+   */
+  pid_t pid;
+
+  /**
+   * Session id
+   */
+  pid_t sid;
+
+  /**
+   * Process group id
+   */
+  pid_t      pgid;
   proc_state state;
   i386_tss_t tss;
 
@@ -213,6 +227,13 @@ static inline bool
 proc_current_has_remaining_cpu_time_remaining (void) {
   return proc_current->remaining_cpu_time > 0;
 }
+
+/**
+ * Indicates whether the given process group id belongs to one that is orphaned.
+ * An orphaned process group is a process group in which the parent of every member is either itself
+ * a member of the group or is not a member of the group's session.
+ */
+bool proc_is_orphaned_pgrp(pid_t pgid);
 
 /**
  * Given a parent process, returns its first child process whose status is ZOMBLEEEEYY.

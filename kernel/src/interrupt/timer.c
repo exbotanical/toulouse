@@ -42,7 +42,7 @@ timer_irq_bh (sig_context_t* sc) {
         tt_bh.flags |= IRQ_BH_ACTIVE;
       }
     } else {
-      kprintf("%s(): callout losing ticks.\n", __func__);
+      kprintf("%s(): timer task losing ticks.\n", __func__);
       tt_bh.flags |= IRQ_BH_ACTIVE;
     }
   }

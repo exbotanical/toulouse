@@ -1,7 +1,7 @@
-#include "drivers/dev/char/termios.h"
+#include "drivers/dev/char/tty/termios.h"
 
 #include "drivers/dev/char/keymap.h"
-#include "drivers/dev/char/tty.h"
+#include "drivers/dev/char/tty/tty.h"
 
 void
 termios_reset (tty_t *tty) {

@@ -25,4 +25,10 @@ typedef uint16_t deviceno_t;
 
 typedef uint32_t size_t;
 
+/**
+ * Process id type
+ */
+typedef uint32_t pid_t;
+#define __pid_t_defined 1
+
 #endif /* COMMON_TYPES_H */

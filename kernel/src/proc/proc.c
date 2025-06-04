@@ -28,6 +28,28 @@ static unsigned int proc_free_list_size = 0;
 
 static resource_t lock                  = {.locked = 0, .wanted = 0};
 
+bool
+proc_is_orphaned_pgrp (pid_t pgid) {
+  lock_resource(&lock);
+
+  proc_t *p = proc_list_head->next;
+  while (p) {
+    if (p->pgid == pgid) {
+      if (p->state != PROC_ZOMBLEY) {
+        proc_t *pp = p->parent;
+        if (pp->pgid != pgid || pp->sid == p->sid) {
+          return false;
+        }
+      }
+    }
+
+    p = p->next;
+  }
+
+  unlock_resource(&lock);
+  return true;
+}
+
 proc_t *
 proc_get_next_zombley (proc_t *parent) {
   proc_t *p_iter = proc_list_head->next;

@@ -1,15 +1,15 @@
 #include "drivers/dev/char/keyboard.h"
 
+#include "arch/x86.h"
 #include "drivers/dev/char/charq.h"
-#include "drivers/dev/char/console.h"
+#include "drivers/dev/char/console/console.h"
 #include "drivers/dev/char/keymap.h"
 #include "drivers/dev/char/ps2.h"
 #include "drivers/dev/char/sysrq.h"
-#include "drivers/dev/char/tty.h"
+#include "drivers/dev/char/tty/tty.h"
 #include "drivers/dev/char/video.h"
 #include "drivers/dev/device.h"
 #include "interrupt/irq.h"
-#include "interrupt/signal.h"
 #include "kconfig.h"
 #include "proc/lock.h"
 #include "proc/proc.h"
@@ -20,6 +20,8 @@
 #define DELAY_750  0x80 /* Typematic delay at 750ms */
 #define DELAY_1000 0xC0 /* Typematic delay at 1000ms */
 #define RATE_30    0x00 /* Typematic rate at 30.0 reports/sec (default) */
+
+extern diacritic_t grave_table[NUM_DIACR];
 
 static interrupt_bh_t keyboard_irq_callback = {
   .flags = 0,
@@ -56,7 +58,7 @@ static unsigned char e0_keys[128] = {
 /**
  * Indicates we're using a PS/2 keyboard device
  */
-static unsigned char is_ps2            = 0;
+static unsigned char is_ps2          = 0;
 
 /**
  * Keyboard info
@@ -64,12 +66,14 @@ static unsigned char is_ps2            = 0;
  * 0 -  indicates the keyboard type or protocol version
  * 1 -  additional info like the specific keyboard model or features
  */
-static unsigned char kbd_identify[2]   = {0, 0};
+static unsigned char kbd_identify[2] = {0, 0};
 
 /**
  * Stores the original scanset prior to our changing it
  */
-static unsigned char og_scan_set       = 0;
+static unsigned char og_scan_set     = 0;
+
+diacritic_t* diacr;
 
 bool ctrl_alt_del                      = true;
 bool any_key_to_reboot                 = false;
@@ -101,8 +105,8 @@ static unsigned char do_sysrq          = 0;
 
 static void
 putc (tty_t* tty, unsigned char ch) {
-  if (tty->count) {
-    if (charq_putchar(&tty->read_q, ch) < 0) {
+  if (tty->open_count) {
+    if (charq_put_char(&tty->read_q, ch) < 0) {
       if (tty->termios.c_iflag & IMAXBEL) {
         // TODO:
         // vconsole_beep();
@@ -113,7 +117,7 @@ putc (tty_t* tty, unsigned char ch) {
 
 static void
 puts (tty_t* tty, char* seq) {
-  if (tty->count) {
+  if (tty->open_count) {
     char ch;
     while ((ch = *(seq++))) {
       putc(tty, ch);
@@ -152,12 +156,12 @@ keyboard_identify (void) {
   ps2_write(PS2_COMMAND_PORT, PS2_CMD_SEND_CONFIG);
   ps2_write(PS2_DATA_PORT, config & ~0x40);
   ps2_write(PS2_DATA_PORT, PS2_KB_GETSETSCAN);
-  if (ps2_wait_ack()) {
+  if (ps2_await_ack()) {
     // TODO: log warn
   }
 
   ps2_write(PS2_DATA_PORT, 0);
-  if (ps2_wait_ack()) {
+  if (ps2_await_ack()) {
     // TODO: log warn
   }
 
@@ -165,7 +169,7 @@ keyboard_identify (void) {
   if (og_scan_set != 2) {
     ps2_write(PS2_DATA_PORT, PS2_KB_GETSETSCAN);
     ps2_write(PS2_DATA_PORT, 2);
-    if (ps2_wait_ack()) {
+    if (ps2_await_ack()) {
       // TODO: log warn
     }
   }
@@ -175,15 +179,15 @@ keyboard_identify (void) {
   ps2_write(PS2_DATA_PORT, config);
 
   ps2_write(PS2_DATA_PORT, PS2_DEV_ENABLE);
-  if (ps2_wait_ack()) {
-    printk("WARNING: %s(): ACK not received on enable command!\n", __FUNCTION__);
+  if (ps2_await_ack()) {
+    // printk("WARNING: %s(): ACK not received on enable command!\n", __FUNCTION__);
   }
 
   ps2_clear_buffer();
 }
 
 void
-keyboard_irq () {
+keyboard_irq (int _num, sig_context_t* _sc) {
   // Grab the current console - we'll redirect the keyboard input to it
   tty_t*      tty      = tty_get(DEVICE_MKDEV(VCONSOLE_MAJOR, current_console));
   vconsole_t* vc       = (vconsole_t*)tty->data;
@@ -338,7 +342,7 @@ keyboard_irq () {
     default: break;
   }
 
-  if (ctrl_pressed&& alt_pressed&& key == = DEL) {
+  if (ctrl_pressed && alt_pressed && key == DEL) {
     if (ctrl_alt_del) {
       // TODO:
       // reboot();
@@ -353,7 +357,7 @@ keyboard_irq () {
   unsigned short* keymap_line = &keymap[NUM_MODIFIERS * (s_code & 0x7F)];
   unsigned char   mod         = 0;
 
-  keymap_line                 = &keymap[(s_code & 0x7F) * NR_MODIFIERS];
+  keymap_line                 = &keymap[(s_code & 0x7F) * NUM_MODIFIERS];
   mod                         = 0;
 
   if (vc->capslock_on && (keymap_line[MOD_BASE] & LETTER_KEYS)) {
@@ -407,10 +411,9 @@ keyboard_irq () {
     type &= ~META_KEYS;
   }
 
-  diacritic_t* diacr;
   switch (type) {
     case FN_KEYS: {
-      if (c > sizeof(fn_seq) / sizeof(char*)) {
+      if (c > (sizeof(fn_seq) / sizeof(char*))) {
         // TODO: log warn unrecognized key
         break;
       }
@@ -431,8 +434,11 @@ keyboard_irq () {
           break;
         }
 
-        default: break;
+        default: {
+          break;
+        }
       }
+      break;
     }
 
     case PAD_KEYS: {
@@ -517,7 +523,7 @@ keyboard_irq () {
       }
 
       if (deadkey_pressed && c == ' ') {
-        c = diacr_chars[deadkey - 1];
+        c = diacr_chars[deadkey_pressed - 1];
       }
 
       putc(tty, c);
@@ -568,13 +574,14 @@ keyboard_bh_irq (sig_context_t* sc) {
   }
 
   tty = &tty_table[0];
-  for (unsigned int i = 0; i < NUM_CONSOLES) {
+  // TODO: fix
+  for (unsigned int i = 0; i < NUM_CONSOLES; i++, tty++) {
     if (!tty->read_q.size) {
       continue;
     }
 
     if (tty->kbd_state.mode == KBD_MODE_RAW || tty->kbd_state.mode == KBD_MODE_MEDRAW) {
-      wakeup(&tty_read);
+      wakeup(func_as_ptr((void (*)(void))tty_read));
       continue;
     }
 

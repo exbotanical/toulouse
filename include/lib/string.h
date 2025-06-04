@@ -3,6 +3,9 @@
 
 #include "lib/types.h"
 
+#define IS_NUMERIC(c) ((c) >= '0' && (c) <= '9')
+#define IS_SPACE(c)   ((c) == ' ')
+
 /**
  * Calculates the length of the string pointed to by s, excluding the
  * terminating null byte.

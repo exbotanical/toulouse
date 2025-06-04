@@ -1,6 +1,7 @@
 #include "drivers/dev/char/ps2.h"
 
 #include "arch/x86.h"
+#include "drivers/dev/char/keyboard.h"
 
 extern volatile unsigned char ack;
 
@@ -96,7 +97,7 @@ ps2_clear_buffer (void) {
 void
 ps2_init (void) {
   int           errno;
-  char          type            = 0;
+  // char          type            = 0;
   unsigned int  supported_ports = 0;
   unsigned char config, config2;
   config = config2 = 0;
@@ -136,7 +137,7 @@ ps2_init (void) {
     ps2_write(PS2_COMMAND_PORT, PS2_CMD_ENABLE_CH2);
     // Read config again
     ps2_write(PS2_COMMAND_PORT, PS2_CMD_RECV_CONFIG);
-    if (!(ps2_read(PS2_DATA) & 0x20)) {
+    if (!(ps2_read(PS2_DATA_PORT) & 0x20)) {
       // If the "disabled" bit is cleared, chan 2 actually exists
       if (config & 0x20) {
         supported_ports++;
@@ -180,7 +181,7 @@ ps2_init (void) {
   ps2_write(PS2_COMMAND_PORT, PS2_CMD_SEND_CONFIG);
   ps2_write(PS2_DATA_PORT, config);
   // Set the type based on whether translation was accepted.
-  type = (config2 & 0x40) ? 1 : 0;
+  // type = (config2 & 0x40) ? 1 : 0;
 
   // If chans are present, enable interrupts
   if (supported_ports) {
@@ -215,7 +216,8 @@ ps2_init (void) {
   // ----------------
   // clang-format on
   ps2_write(PS2_COMMAND_PORT, PS2_CMD_GET_IFACE);
-  unsigned char iface = ps2_read(PS2_DATA_PORT) & 0x01;
+  // unsigned char iface =
+  ps2_read(PS2_DATA_PORT) & 0x01;
 
   // TODO: Log info
 

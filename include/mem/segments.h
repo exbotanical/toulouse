@@ -11,7 +11,7 @@ Note about TSS
 In x86 protected mode, a Task State Segment (TSS) is a special data structure that holds information
 about a task — stack pointers, segment selectors, and more. But critically:
 
-* You don’t load the TSS by giving its address. You give the CPU a selector — an index into the GDT.
+* You don't load the TSS by giving its address. You give the CPU a selector — an index into the GDT.
 * That selector points to a descriptor entry in the GDT which, in turn, points to the physical
 memory location of the TSS.
 */

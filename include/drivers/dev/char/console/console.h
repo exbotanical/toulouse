@@ -1,7 +1,7 @@
 #ifndef DRIVER_DEV_CHAR_CONSOLE_H
 #define DRIVER_DEV_CHAR_CONSOLE_H
 
-#include "drivers/dev/char/tty.h"
+#include "drivers/dev/char/tty/tty.h"
 #include "kconfig.h"
 #include "lib/types.h"
 
@@ -65,6 +65,50 @@
 
 typedef struct {
   /**
+   * The TTY this console is attached to
+   */
+  tty_t *tty;
+
+  /**
+   * The TTY we're switching to next
+   * TODO: ?
+   */
+  int switch_tty;
+
+  /**
+   * VT switching config for this console
+   */
+  vt_mode_t vt_mode;
+
+  /**
+   * Graphics mode
+   */
+  unsigned char vc_mode;
+
+  /**
+   * TODO: vidmem
+   */
+  unsigned char *main_buffer;
+  /**
+   * TODO: screen
+   */
+  short int     *back_buffer;
+
+  int flags;
+
+  /* Tmp storage for input processing */
+  int tmp_storage_1;
+  int tmp_storage_2;
+  int tmp_storage_num_entries;
+  int tmp_storage[TMP_STORAGE_SIZE];
+
+  /* Input processing flags */
+  bool has_esc;
+  bool has_bracket;
+  bool has_semicolon;
+  bool has_question;
+
+  /**
    * Current column
    */
   int x;
@@ -102,29 +146,10 @@ typedef struct {
    */
   bool check_x;
 
-  /**
-   * Indicates which led indicators are on/orr
-   */
-  unsigned char led_status;
-
+  /* Console screen state flags */
   bool scrlock_on;
   bool numlock_on;
   bool capslock_on;
-
-  /**
-   * TODO: vidmem
-   */
-  unsigned char *main_buffer;
-  /**
-   * TODO: screen
-   */
-  short int     *back_buffer;
-
-  int flags;
-
-  unsigned short int color_attr;
-
-  bool screen_locked;
 
   /* Visual attributes */
   unsigned short int color_attr;
@@ -133,21 +158,10 @@ typedef struct {
   unsigned char      blink;
   unsigned char      reverse;
 
-  int tmp_storage_1;
-  int tmp_storage_2;
-
-  int tmp_storage_num_entries;
-  int tmp_storage[TMP_STORAGE_SIZE];
-
-  bool has_esc;
-  bool has_bracket;
-  bool has_semicolon;
-  bool has_question;
-
   /**
-   * The TTY this console is attached to
+   * Indicates which led indicators are on/orr
    */
-  tty_t *tty;
+  unsigned char led_status;
 } vconsole_t;
 
 /**
@@ -160,6 +174,12 @@ extern short int *vc_screen[NUM_CONSOLES + 1];
  */
 extern short int current_console;
 
+void vconsole_select(int new_cons);
+
+/**
+ * Initializes consoles including the primary system console
+ *
+ */
 void console_init(void);
 
 #endif /* DRIVER_DEV_CHAR_CONSOLE_H */
