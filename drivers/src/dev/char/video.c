@@ -6,14 +6,12 @@
 
 video_props_t video;
 
-short int* video_scrollback_history_buffer;
-
 void
 video_init (void) {
   kmemset(
-    video_scrollback_history_buffer,
+    vconsole_scrollback_history_buffer,
     0,
-    video.columns + video.lines * VIDEO_MAX_SCROLLBACK_SCREENS * 2 * sizeof(short int)
+    video.columns + video.rows * MAX_SCROLLBACK_SCREENS * 2 * sizeof(short int)
   );
 
   if (video_using_vga()) {

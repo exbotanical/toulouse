@@ -3,6 +3,7 @@
 #include "drivers/dev/char/console/console.h"
 #include "drivers/dev/char/tmpcon.h"
 #include "drivers/dev/char/tty/termios.h"
+#include "drivers/dev/char/tty/vt.h"
 #include "drivers/dev/device.h"
 #include "fs/fcntl.h"
 #include "interrupt/timer.h"
@@ -14,22 +15,33 @@
 #include "lib/string.h"
 #include "proc/proc.h"
 #include "proc/sched.h"
+#include "proc/signal.h"  // TODO: Move
 #include "proc/sleep.h"
+#include "proc/vma.h"
+#include "syscall/ioctl.h"
 
 tty_t tty_table[NUM_TTYS];
 
 static void
 wait_vtime_wrapper (unsigned int arg) {
-  unsigned int* fn = (unsigned int*)arg;
+  unsigned int *fn = (unsigned int *)arg;
 
   wakeup(fn);
+}
+
+static void
+set_termios (tty_t *tty, termios_t *new_termios) {
+  kmemcpy(&tty->termios, new_termios, sizeof(termios_t));
+  if (tty->set_termios) {
+    tty->set_termios(tty);
+  }
 }
 
 /**
  * Performs output processing on the write queue
  */
 static retval_t
-opost (tty_t* tty, unsigned char ch) {
+opost (tty_t *tty, unsigned char ch) {
   if (termios_should_proc_output(tty)) {
     switch (ch) {
       case '\n':
@@ -76,7 +88,7 @@ opost (tty_t* tty, unsigned char ch) {
  * Writes the final, processed character to the write queue
  */
 static void
-out_char (struct tty* tty, unsigned char ch) {
+out_char (struct tty *tty, unsigned char ch) {
   if (ISCTRL(ch) && !ISSPACE(ch) && (termios_should_echo_ctrl_chars(tty))) {
     if (termios_should_ignore_last_char(tty)
         || (!(termios_should_ignore_last_char(tty)) && termios_is_eof_char(tty, ch))) {
@@ -93,10 +105,10 @@ out_char (struct tty* tty, unsigned char ch) {
  * Erases a character from the write queue
  */
 static void
-erase_char (tty_t* tty, unsigned char char2erase) {
+erase_char (tty_t *tty, unsigned char char_to_erase) {
   unsigned char ch;
 
-  if (termios_should_erase_char(tty, char2erase)) {
+  if (termios_should_erase_char(tty, char_to_erase)) {
     if ((ch = charq_unput_char(&tty->cooked_q)) && termios_should_echo(tty)) {
       // Create a backspace
       charq_put_char(&tty->write_q, '\b');
@@ -116,7 +128,7 @@ erase_char (tty_t* tty, unsigned char char2erase) {
     }
   }
 
-  if (termios_should_erase_word(tty, char2erase)) {
+  if (termios_should_erase_word(tty, char_to_erase)) {
     bool word_seen = false;
 
     while (tty->cooked_q.size > 0) {
@@ -133,7 +145,7 @@ erase_char (tty_t* tty, unsigned char char2erase) {
     }
   }
 
-  if (termios_should_kill_proc(tty, char2erase)) {
+  if (termios_should_kill_proc(tty, char_to_erase)) {
     while (tty->cooked_q.size > 0) {
       erase_char(tty, tty->termios.c_cc[VERASE]);
     }
@@ -144,7 +156,356 @@ erase_char (tty_t* tty, unsigned char char2erase) {
 }
 
 void
-tty_cook_input (tty_t* tty) {
+tty_disassociate_ctty (tty_t *tty) {
+  if (!tty) {
+    return;
+  }
+
+  // This tty is no longer the controlling tty of any session
+  tty->pgid = tty->sid = 0;
+
+  // Clear the controlling tty for all processes in the same SID
+  proc_t *p            = proc_list->next;
+  while (p) {
+    if (p->sid == proc_current->sid) {
+      p->ctty = NULL;
+    }
+    p = p->next;
+  }
+
+  sig_kill_pgrp(proc_current->pgid, SIGHUP, SIGSENDER_KERNEL);
+  sig_kill_pgrp(proc_current->pgid, SIGCONT, SIGSENDER_KERNEL);
+}
+
+long long int
+tty_llseek (inode_t *i, long long int offset) {
+  return -ESPIPE;
+}
+
+int
+tty_ioctl (inode_t *i, int cmd, unsigned int arg) {
+  tty_t *tty;
+  if (!(tty = tty_get(i->devnum))) {
+    // printk("%s(): fak! (%x)\n", __FUNCTION__, i->devnum);
+    return -ENXIO;
+  }
+
+  int errno;
+  switch (cmd) {
+    /* Get the current serial port settings. */
+    // Retrieve the current tty params and store in a termios structure pointed to by the void
+    // pointer argument
+    case TCGETS: {
+      if ((errno = verify_address(VERIFY_WRITE, (void *)arg, sizeof(termios_t)))) {
+        return errno;
+      }
+
+      kmemcpy((termios_t *)arg, &tty->termios, sizeof(termios_t));
+      break;
+    }
+
+    /* Set the current serial port settings. */
+    // Set the current tty using the parameters found in the provided termios structure (void
+    // pointer argument)
+    case TCSETS: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(termios_t)))) {
+        return errno;
+      }
+
+      set_termios(tty, (termios_t *)arg);
+      break;
+    }
+
+    /* Allow the output buffer to drain, and set the current serial port settings. */
+    // Same as TCSETS with one exception: doesn't take effect until all chars queued for output
+    // have been transmitted
+    case TCSETSW: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(termios_t)))) {
+        return errno;
+      }
+
+      while (tty->write_q.count) {
+        if (sleep(SLEEP_FN(&tty_write), PROC_INTERRUPTIBLE)) {
+          return -EINTR;
+        }
+
+        sched_run();
+      }
+
+      set_termios(tty, (termios_t *)arg);
+      break;
+    }
+
+    /* Allow output buffer to drain, discard pending input, and set current serial port settings. */
+    // Same as TCSETSW except all chars queued for input are discarded
+    case TCSETSF: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(termios_t)))) {
+        return errno;
+      }
+
+      while (tty->write_q.count) {
+        if (sleep(SLEEP_FN(&tty_write), PROC_INTERRUPTIBLE)) {
+          return -EINTR;
+        }
+
+        sched_run();
+      }
+
+      set_termios(tty, (termios_t *)arg);
+      charq_flush(&tty->read_q);
+      break;
+    }
+
+    /* Retrieve current tty params and store in a termio structure pointed to by the void ptr arg */
+    case TCGETA: {
+      if ((errno = verify_address(VERIFY_WRITE, (void *)arg, sizeof(termio_t)))) {
+        return errno;
+      }
+
+      termios_to_termio(&tty->termios, (termio_t *)arg);
+      break;
+    }
+
+    /* Set current tty using the params found in the provided termio structure (void ptr arg) */
+    case TCSETA: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(termio_t)))) {
+        return errno;
+      }
+
+      set_termio(tty, (termio_t *)arg);
+      break;
+    }
+
+    /* Same as TCSETSW but the legacy termio version */
+    case TCSETAW: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(termio_t)))) {
+        return errno;
+      }
+
+      while (tty->write_q.count) {
+        if (sleep(SLEEP_FN(&tty_write), PROC_INTERRUPTIBLE)) {
+          return -EINTR;
+        }
+
+        sched_run();
+      }
+
+      set_termio(tty, (termio_t *)arg);
+      break;
+    }
+
+    /* Legacy (termio) version of TCSETSF */
+    case TCSETAF: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(termio_t)))) {
+        return errno;
+      }
+
+      while (tty->write_q.count) {
+        if (sleep(SLEEP_FN(&tty_write), PROC_INTERRUPTIBLE)) {
+          return -EINTR;
+        }
+
+        sched_run();
+      }
+
+      set_termio(tty, (termio_t *)arg);
+      charq_flush(&tty->read_q);
+      break;
+    }
+
+    /* Software flow control. */
+    // Perform start / stop control
+    case TCXONC: {
+      switch ((tcflow_action)arg) {
+        case TCFLOW_ACT_OOFF: {
+          tty->stop(tty);
+          break;
+        }
+
+        case TCFLOW_ACT_OON: {
+          tty->start(tty);
+          break;
+        }
+
+        default: {
+          return -EINVAL;
+        }
+      }
+
+      break;
+    }
+
+    case TCFLSH: {
+      switch (arg) {
+        case TCFLUSH_QSEL_TCIFLUSH: {
+          charq_flush(&tty->read_q);
+          charq_flush(&tty->cooked_q);
+          break;
+        }
+
+        case TCFLUSH_QSEL_TCOFLUSH: {
+          charq_flush(&tty->write_q);
+          break;
+        }
+
+        case TCFLUSH_QSEL_TCIOFLUSH: {
+          charq_flush(&tty->read_q);
+          charq_flush(&tty->cooked_q);
+          charq_flush(&tty->write_q);
+          break;
+        }
+
+        default: {
+          return -EINVAL;
+        }
+      }
+
+      break;
+    }
+
+    // Make the given terminal the controlling terminal of the calling process. The calling process
+    // must be a session leader and not have a controlling terminal already. For this case, arg
+    // should be specified as zero.
+    case TIOCSCTTY: {
+      if (PROC_SESSION_LEADER(proc_current) && (proc_current->sid == tty->sid)) {
+        return 0;
+      }
+
+      if (!PROC_SESSION_LEADER(proc_current) || proc_current->ctty) {
+        return -EPERM;
+      }
+
+      if (tty->sid) {
+        if ((arg == 1) && PROC_IS_SUPERUSER) {
+          proc_t *p = proc_list->next;
+          while (p) {
+            if (p->ctty == tty) {
+              p->ctty = NULL;
+            }
+            p = p->next;
+          }
+        } else {
+          return -EPERM;
+        }
+      }
+
+      proc_current->ctty = tty;
+      tty->sid           = current->sid;
+      tty->pgid          = current->pgid;
+
+      break;
+    }
+
+    // Get the process group id of the foreground process group on this terminal.
+    case TIOCGPGRP: {
+      if ((errno = verify_address(VERIFY_WRITE, (void *)arg, sizeof(int)))) {
+        return errno;
+      }
+
+      kmemcpy((void *)arg, &tty->pgid, sizeof(int));
+      break;
+    }
+
+    // Set the foreground process group ID of this terminal.
+    case TIOCSPGRP: {
+      if (arg < 1) {
+        return -EINVAL;
+      }
+
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(int)))) {
+        return errno;
+      }
+
+      kmemcpy(&tty->pgid, (void *)arg, sizeof(int));
+      break;
+    }
+
+    // TODO: case TIOCSID:
+
+    /* Get window size. */
+    // The terminal driver's terminal size is stored in the winsize_t (the void pointer arg)
+    case TIOCGWINSZ: {
+      if ((errno = verify_address(VERIFY_WRITE, (void *)arg, sizeof(winsize_t)))) {
+        return errno;
+      }
+
+      kmemcpy((void *)arg, &tty->winsize, sizeof(winsize_t));
+      break;
+    }
+
+    /* Set window size. */
+    case TIOCSWINSZ: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(winsize_t)))) {
+        return errno;
+      }
+
+      winsize_t *ws          = (winsize_t *)arg;
+      short int  changed     = 0;
+      // clang-format off
+      if (
+        (tty->winsize.ws_row != ws->ws_row)
+        || (tty->winsize.ws_col != ws->ws_col)
+        || (tty->winsize.ws_xpixel != ws->ws_xpixel)
+        || (tty->winsize.ws_ypixel != ws->ws_ypixel)
+      ) {
+        changed = 1;
+      }
+      // clang-format on
+
+      tty->winsize.ws_row    = ws->ws_row;
+      tty->winsize.ws_col    = ws->ws_col;
+      tty->winsize.ws_xpixel = ws->ws_xpixel;
+      tty->winsize.ws_ypixel = ws->ws_ypixel;
+
+      if (changed) {
+        sig_kill_pgrp(tty->pgid, SIGWINCH, SIGSENDER_KERNEL);
+      }
+
+      break;
+    }
+
+    /* Detach the calling process from its controlling terminal. */
+    case TIOCNOTTY: {
+      if (proc_current->ctty != tty) {
+        return -ENOTTY;
+      }
+
+      if (PROC_SESSION_LEADER(proc_current)) {
+        tty_disassociate_ctty(tty);
+      }
+
+      break;
+    }
+
+    case TIOCLINUX: {
+      if ((errno = verify_address(VERIFY_READ, (void *)arg, sizeof(unsigned char)))) {
+        return errno;
+      }
+
+      int val = *(unsigned char *)arg;
+      switch (val) {
+        case 12: {
+          return current_console;
+        }
+
+        default: {
+          return -EINVAL;
+        }
+      }
+
+      break;
+    }
+
+    default: {
+      return vt_ioctl(tty, cmd, arg);
+    }
+  }
+
+  return 0;
+}
+
+void
+tty_cook_input (tty_t *tty) {
   while (tty->read_q.size > 0) {
     unsigned char ch = charq_get_char(&tty->read_q);
 
@@ -159,8 +520,7 @@ tty_cook_input (tty_t* tty) {
         }
 
         if (tty->pgid > 0) {
-          // TODO:
-          // kill_pgrp(tty->pgid, SIGINT, KERNEL);
+          sig_kill_pgrp(tty->pgid, SIGINT, SIGSENDER_KERNEL);
         }
 
         break;
@@ -169,7 +529,7 @@ tty_cook_input (tty_t* tty) {
       // Ctrl-\ → VQUIT: send SIGQUIT
       if (termios_is_quit_char(tty, ch)) {
         if (tty->pgid > 0) {
-          // kill_pgrp(tty->pgid, SIGQUIT, KERNEL);
+          sig_kill_pgrp(tty->pgid, SIGQUIT, SIGSENDER_KERNEL);
         }
         break;
       }
@@ -177,7 +537,7 @@ tty_cook_input (tty_t* tty) {
       // Ctrl-Z → VSUSP: send SIGTSTP.
       if (termios_is_suspend_char(tty, ch)) {
         if (tty->pgid > 0) {
-          // kill_pgrp(tty->pgid, SIGTSTP, KERNEL);
+          sig_kill_pgrp(tty->pgid, SIGTSTP, SIGSENDER_KERNEL);
         }
         break;
       }
@@ -219,7 +579,7 @@ tty_cook_input (tty_t* tty) {
         out_char(tty, ch);
         charq_put_char(&tty->write_q, '\n');
 
-        cblock_t* cb = tty->cooked_q.head;
+        cblock_t *cb = tty->cooked_q.head;
         while (cb) {
           for (int n = 0; n < cb->next_write_index; n++) {
             if (n >= cb->next_read_index) {
@@ -286,15 +646,15 @@ tty_cook_input (tty_t* tty) {
 }
 
 int
-tty_read (inode_t* i, fd_t* fd_table, char* buffer, size_t count) {
-  tty_t* tty;
+tty_read (inode_t *i, fd_t *fd_table, char *buffer, size_t count) {
+  tty_t *tty;
   if (!(tty = tty_get(i->devnum))) {
     return -ENXIO;
   }
 
   // Only the foreground process group is allowed to read from the tty.
   // Check if that's not the case and handle accordingly.
-  if (proc_current->controlling_tty == tty && proc_current->pgid != tty->pgid) {
+  if (proc_current->ctty == tty && proc_current->pgid != tty->pgid) {
     // In this case it's a background process trying to read, which isn't allowed.
 
     // If SIGTTIN is ignored (SIGHANDLER_IGN), or blocked, or the process group is orphaned
@@ -307,8 +667,7 @@ tty_read (inode_t* i, fd_t* fd_table, char* buffer, size_t count) {
     }
 
     // Otherwise, we send SIGTTIN effectively telling it to wait
-    // TODO:
-    // kill_pgrp(proc_current->pgid, SIGTTIN, KERNEL);
+    sig_kill_pgrp(proc_current->pgid, SIGTTIN, SIGSENDER_KERNEL);
 
     return -ERESTART;
   }
@@ -481,13 +840,13 @@ tty_read (inode_t* i, fd_t* fd_table, char* buffer, size_t count) {
 }
 
 int
-tty_write (inode_t* i, fd_t* fd_table, const char* buffer, size_t count) {
-  tty_t* tty;
+tty_write (inode_t *i, fd_t *fd_table, const char *buffer, size_t count) {
+  tty_t *tty;
   if (!(tty = tty_get(i->devnum))) {
     return -ENXIO;
   }
 
-  if (proc_current->controlling_tty == tty && proc_current->pgid != tty->pgid) {
+  if (proc_current->ctty == tty && proc_current->pgid != tty->pgid) {
     if (termios_bg_proc_can_write_to_tty(tty)) {
       if (proc_current->sigaction_table[SIGTTIN - 1].sa_handler == SIGHANDLER_IGN
           || proc_current->signal_blocked & (1 << (SIGTTIN - 1))) {
@@ -495,8 +854,7 @@ tty_write (inode_t* i, fd_t* fd_table, const char* buffer, size_t count) {
           return -EIO;
         }
 
-        // TODO:
-        // kill_pgrp(proc_current->pgid, SIGTTOU, SIGSENDER_KERNEL);
+        sig_kill_pgrp(proc_current->pgid, SIGTTOU, SIGSENDER_KERNEL);
         return -ERESTART;
       }
     }
@@ -550,7 +908,79 @@ tty_write (inode_t* i, fd_t* fd_table, const char* buffer, size_t count) {
   return n;
 }
 
-tty_t*
+int
+tty_open (inode_t *i, fd_t *fd_table) {
+  int no_ctty = fd_table->flags & O_NOCTTY;
+
+  if (MAJOR(i->devnum) == SYSCON_MAJOR && MINOR(i->devnum) == 0) {
+    if (!proc_current->ctty) {
+      return -ENXIO;
+    }
+  }
+
+  if (MAJOR(i->devnum) == VCONSOLE_MAJOR && MINOR(i->devnum) == 0) {
+    no_ctty = 1;
+  }
+
+  tty_t *tty;
+  if (!(tty = tty_get(i->devnum))) {
+    // printk("%s(): fak! (%x)\n", __FUNCTION__, i->devnum);fwf
+    return -ENXIO;
+  }
+
+  if (tty->open) {
+    int errno;
+    if ((errno = tty->open(tty)) < 0) {
+      return errno;
+    }
+  }
+
+  tty->open_count++;
+  tty->column = 0;
+
+  if (PROC_SESSION_LEADER(proc_current) && !proc_current->ctty && !no_ctty && !tty->sid) {
+    proc_current->ctty = tty;
+    tty->sid           = proc_current->sid;
+    tty->pgid          = proc_current->pgid;
+  }
+
+  return 0;
+}
+
+int
+tty_close (inode_t *i, fd_t *fd_table) {
+  tty_t *tty;
+  if (!(tty = tty_get(i->devnum))) {
+    // printk("%s(): fak! (%x)\n", __FUNCTION__, i->devnum);
+    return -ENXIO;
+  }
+
+  if (tty->close) {
+    int errno;
+    if ((errno = tty->close(tty)) < 0) {
+      return errno;
+    }
+  }
+
+  tty->open_count--;
+  if (!tty->open_count) {
+    termios_reset(tty);
+    tty->pgid = tty->sid = 0;
+
+    // This tty is no longer the controlling tty of any process
+    proc_t *p            = proc_list->next;
+    while (p) {
+      if (p->ctty == tty) {
+        p->ctty = NULL;
+      }
+      p = p->next;
+    }
+  }
+
+  return 0;
+}
+
+tty_t *
 tty_get (deviceno_t devnum) {
   if (!devnum) {
     return NULL;
@@ -566,11 +996,11 @@ tty_get (deviceno_t devnum) {
   }
 
   if (devnum == DEVICE_MKDEV(SYSCON_MAJOR, 0)) {
-    if (!proc_current->controlling_tty) {
+    if (!proc_current->ctty) {
       return NULL;
     }
 
-    devnum = proc_current->controlling_tty->devnum;
+    devnum = proc_current->ctty->devnum;
   }
 
   // TODO: Check console, tty0, tty
@@ -582,6 +1012,36 @@ tty_get (deviceno_t devnum) {
   }
 
   return NULL;
+}
+
+retval_t
+tty_select (inode_t *i, fs_tty_select_flag flag) {
+  tty_t *tty;
+  if (!(tty = tty_get(i->devnum))) {
+    // printk("%s(): fak! (%x)\n", __FUNCTION__, i->devnum);
+    return RET_OK;
+  }
+
+  switch (flag) {
+    case FS_TTY_SELECT_FLAG_R: {
+      if (tty->cooked_q.size > 0) {
+        if (!termios_is_canonical_mode(tty)
+            || (termios_is_canonical_mode(tty) && tty->has_canon_ln)) {
+          return RET_FAIL;
+        }
+      }
+      break;
+    }
+
+    case FS_TTY_SELECT_FLAG_W: {
+      if (!tty->write_q.size) {
+        return RET_FAIL;
+      }
+      break;
+    }
+  }
+
+  return RET_OK;
 }
 
 retval_t

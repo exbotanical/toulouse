@@ -122,6 +122,47 @@ wakeup (void *addr) {
 }
 
 void
+wakeup_proc (proc_t *p) {
+  // If it's not even sleeping, fast exit
+  if (p->state != PROC_SLEEPING && p->state != PROC_STOPPED) {
+    return;
+  }
+
+  // If it's not interruptible, fast exit
+  if (p->flags & PROC_FLAG_NOTINTERRUPT) {
+    return;
+  }
+
+  INTERRUPTS_OFF();
+
+  // Stopped processes don't have a sleep address
+  if (p->sleep_addr) {
+    if (p->next_sleeping) {
+      p->next_sleeping->prev_sleeping = p->prev_sleeping;
+    }
+
+    if (p->prev_sleeping) {
+      p->prev_sleeping->next_sleeping = p->next_sleeping;
+    }
+
+    int      i = SLEEP_HASH((unsigned int)p->sleep_address);
+    proc_t **h = &sleep_hash_table[i];
+
+    // If the proc *is* the head of the list...
+    if (*h == p) {
+      *h = (*h)->next_sleeping;
+    }
+  }
+
+  p->sleep_addr         = NULL;
+  p->remaining_cpu_time = p->priority;
+  proc_runnable(p);
+  needs_resched = true;
+
+  INTERRUPTS_ON();
+}
+
+void
 sleep_init (void) {
   proc_running_list = NULL;
   kmemset(sleep_hash_table, 0, sizeof(sleep_hash_table));

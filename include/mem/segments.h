@@ -95,6 +95,16 @@ memory location of the TSS.
 
 #  include "lib/compiler.h"
 
+typedef enum {
+  SEGTYPE_TEXT  = 1, /* Text section */
+  SEGTYPE_DATA  = 2, /* Data section */
+  SEGTYPE_BSS   = 3, /* BSS section */
+  SEGTYPE_HEAP  = 4, /* Heap section (sys_brk) */
+  SEGTYPE_STACK = 5, /* Stack section */
+  SEGTYPE_MMAP  = 6, /* mmap section */
+  SEGTYPE_SHM   = 7, /* Shared memory section */
+} segment_type;
+
 typedef struct {
   /**
    * segment limit 0-15 bits

@@ -5,10 +5,10 @@
 #include "interrupt/const.h"
 #include "interrupt/irq.h"
 #include "interrupt/pit.h"
-#include "interrupt/signal.h"
 #include "kconfig.h"
 #include "kernel.h"
 #include "kstat.h"
+#include "proc/signal.h"
 #include "sync/simplelock.h"
 
 static void timer_irq(int num, sig_context_t* sc);

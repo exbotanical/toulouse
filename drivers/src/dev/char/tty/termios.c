@@ -4,6 +4,32 @@
 #include "drivers/dev/char/tty/tty.h"
 
 void
+termios_to_termio (termios_t *termios, termio_t *termio) {
+  termio->c_iflag = termios->c_iflag;
+  termio->c_oflag = termios->c_oflag;
+  termio->c_cflag = termios->c_cflag;
+  termio->c_lflag = termios->c_lflag;
+  termio->c_line  = termios->c_line;
+
+  for (int n = 0; n < NUM_CTRL_CHARS; n++) {
+    termio->c_cc[n] = termios->c_cc[n];
+  }
+}
+
+void
+termio_to_termios (termio_t *termio, termios_t *termios) {
+  termios->c_iflag = termio->c_iflag;
+  termios->c_oflag = termio->c_oflag;
+  termios->c_cflag = termio->c_cflag;
+  termios->c_lflag = termio->c_lflag;
+  termios->c_line  = termio->c_line;
+
+  for (int n = 0; n < NUM_CTRL_CHARS; n++) {
+    termios->c_cc[n] = termio->c_cc[n];
+  }
+}
+
+void
 termios_reset (tty_t *tty) {
   tty->kbd_state.mode         = KBD_MODE_XLATE;
   tty->termios.c_iflag        = ICRNL | IXON | IXOFF;

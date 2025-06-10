@@ -18,14 +18,20 @@ func_as_ptr (void (*fn)(void)) {
 }
 
 /**
- * Put the current process to sleep on addr
+ * Puts the current process to sleep on addr
  */
 int sleep(void *addr, proc_inttype state);
 
 /**
- * Wakeup any processes sleeping on addr
+ * Wakes up any processes sleeping on addr
  */
 void wakeup(void *addr);
+
+/**
+ * Wakes up a specific process p
+ */
+void wakeup_proc(proc_t *p);
+
 void sleep_init(void);
 
 #endif /* SLEEP_H */

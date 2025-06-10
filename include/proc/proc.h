@@ -2,8 +2,9 @@
 #define PROC_PROCESS_H
 
 #include "drivers/dev/char/tty/tty.h"
-#include "interrupt/signal.h"
 #include "lib/types.h"
+#include "proc/signal.h"
+#include "proc/vma.h"
 
 #define IO_BITMAP_SIZE         8192 /* 8192*8bit = all I/O address space */
 
@@ -36,6 +37,11 @@
  * Flag indicating this process is in a non-interruptible sleeping state
  */
 #define PROC_FLAG_NOTINTERRUPT 0x00000008
+
+#define PROC_PG_LEADER(p)      ((p)->pid == (p)->pgid)
+#define PROC_SESSION_LEADER(p) ((p)->pid == (p)->pgid && (p)->pid == (p)->sid)
+
+#define PROC_IS_SUPERUSER      (proc_current->euid == 0)
 
 typedef enum {
   /**
@@ -71,11 +77,6 @@ typedef enum {
   PROC_INTERRUPTIBLE = 1,
   PROC_UNINTERRUPTIBLE,
 } proc_inttype;
-
-// Placeholder TODO:
-typedef struct {
-  int __placeholder;
-} vma_t;
 
 /**
  * Represents the Intel 386 Task Switch State (TSS)
@@ -125,19 +126,50 @@ struct proc {
   int children;
 
   /**
-   * Process id
+   * Process ID
    */
   pid_t pid;
 
   /**
-   * Session id
+   * Session ID
    */
   pid_t sid;
 
   /**
-   * Process group id
+   * Process group ID
    */
-  pid_t      pgid;
+  pid_t pgid;
+
+  /**
+   * Real user ID
+   */
+  unsigned short int uid;
+
+  /**
+   * Real group ID
+   */
+  unsigned short int gid;
+
+  /**
+   * Effective user ID
+   */
+  unsigned short int euid;
+
+  /**
+   * Effective group ID
+   */
+  unsigned short int egid;
+
+  /**
+   * Saved user ID
+   */
+  unsigned short int suid;
+
+  /**
+   * Saved group ID
+   */
+  unsigned short int sgid;
+
   proc_state state;
   i386_tss_t tss;
 
@@ -166,9 +198,15 @@ struct proc {
   void *sleep_addr;
 
   /**
+   * Virtual memory-mapped addresses
+   */
+  vm_area_t *vma_table;
+
+  /**
    * Bitmask of signals sent to this process but not yet handled
    */
   sig_set_t signal_pending;
+
   /**
    * Bitmask of signals currently blocked by the process
    */
@@ -189,7 +227,10 @@ struct proc {
   proc_t *prev_running;
   proc_t *next_running;
 
-  tty_t *controlling_tty;
+  /**
+   * Controlling tty
+   */
+  tty_t *ctty;
 };
 
 /**
@@ -230,8 +271,8 @@ proc_current_has_remaining_cpu_time_remaining (void) {
 
 /**
  * Indicates whether the given process group id belongs to one that is orphaned.
- * An orphaned process group is a process group in which the parent of every member is either itself
- * a member of the group or is not a member of the group's session.
+ * An orphaned process group is a process group in which the parent of every member is either
+ * itself a member of the group or is not a member of the group's session.
  */
 bool proc_is_orphaned_pgrp(pid_t pgid);
 

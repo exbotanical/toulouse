@@ -2,6 +2,7 @@
 #define INTERRUPT_SIGNAL_H
 
 #include "lib/types.h"
+#include "proc/proc.h"
 
 #define NUM_SIGNALS    32
 
@@ -118,7 +119,30 @@ typedef struct {
   void (*sa_restorer)(void);
 } sig_action_t;
 
+/**
+ * Returns a bool indicating whether the current process can send a signal to the given process
+ */
+static bool
+sig_can_send (proc_t *p) {
+  return !(!PROC_IS_SUPERUSER && proc_current->euid != p->euid && proc_current->sid != p->sid);
+}
+
 void sig_handle(void);
+
+/**
+ * Kills a given process (pid). Returns 0 or errno.
+ */
+int sig_kill_pid(pid_t pid, sig_set_t signum, int sender);
+
+/**
+ * Kills every process within a given group (pgid). Returns 0 or errno.
+ */
+int sig_kill_pgrp(pid_t pgid, sig_set_t signum, int sender);
+
+/**
+ * Sends a signal signum to the given process p. Returns 0 or errno.
+ */
+int sig_send(proc_t *p, sig_set_t signum);
 
 /**
  * Checks whether the current process has any pending, unblocked signals, and if

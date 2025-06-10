@@ -1,7 +1,7 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 
-#include "interrupt/signal.h"
+#include "proc/signal.h"
 
 /**
  * Sets up and invokes a syscall.

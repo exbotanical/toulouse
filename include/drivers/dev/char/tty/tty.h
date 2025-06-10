@@ -7,52 +7,15 @@
 #include "fs/inode.h"
 #include "lib/types.h"
 
-#define NUM_TTYS     16     /* Number of TTYs supported by the kernel */
+#define NUM_TTYS     16  /* Number of TTYs supported by the kernel */
 
-#define VT_GETMODE   0x5601 /* Get mode of active vt */
-#define VT_SETMODE   0x5602 /* Set mode of active vt */
-#define VT_ACKACQ    0x02   /* Acknowledge switch */
-
-#define TAB_SIZE     8      /* Number of literal spaces that comprise a tab */
-#define MAX_TAB_COLS 132    /* Max number of tab stops */
+#define TAB_SIZE     8   /* Number of literal spaces that comprise a tab */
+#define MAX_TAB_COLS 132 /* Max number of tab stops */
 
 /**
  * Retrieves the last character from the given queue
  */
 #define LAST_CHAR(q) ((q)->tail ? (q)->tail->data[(q)->tail->next_write_index - 1] : '\0')
-
-typedef enum {
-  /**
-   * The kernel switches terminals automatically without involving any userspace logic
-   */
-  VT_AUTO    = 0x00,
-
-  /**
-   * Userspace process handles switching. Kernel sends signals (relsig/acqsig) to notify the
-   * process and waits for an acknowledgment (using VT_ACKACQ) before completing the switch
-   */
-  VT_PROCESS = 0x01
-} vt_mode_mod;
-
-/**
- * Defines how virtual terminal switching is handled, either automatically by the kernel or manually
- * by a userspace process
- */
-typedef struct {
-  vt_mode_mod mode;  /* VT mode */
-  char        waitv; /* If non-zero, write() operations block until the VT becomes active */
-  short int relsig;  /* Signal to raise on release req. If in VT_PROCESS mode, the kernel sends this
-                        signal to the controlling process when the VT is about to be switched away */
-  short int acqsig;  /* Signal sent to the process when the VT is acquired again */
-  short int frsig;   /* Unused; legacy field, always zero */
-} vt_mode_t;
-
-typedef struct {
-  unsigned short int v_active; /* The number of the currently active virtual terminal */
-  unsigned short int v_signal; /* The signal number that should be sent to the process managing the
-                                  VT when switching occurs */
-  unsigned short int v_state;  /* A bitmask representing which VTs are currently open (in use) */
-} vt_stat_t;
 
 typedef enum {
   /**
@@ -174,8 +137,7 @@ struct tty {
   /**
    * The terminal switching mode used by this TTY
    */
-  vt_mode_t     vt_mode;
-  unsigned char vc_mode;
+  vt_mode_t vt_mode;
 
   /**
    * Tracks the vconsole column we're on
@@ -188,6 +150,7 @@ struct tty {
    */
   bool tab_stop[MAX_TAB_COLS];
 
+  /* Driver operations */
   void (*stop)(tty_t*);
   void (*start)(tty_t*);
   void (*delete_tab)(tty_t*);
@@ -509,6 +472,17 @@ termios_bg_proc_can_write_to_tty (tty_t* tty) {
 }
 
 /**
+ * Dissociate all processes from the given controlling tty
+ */
+void tty_disassociate_ctty(tty_t* tty);
+
+/**
+ * Implements tty seek.
+ * This isn't supported right now, so we always return `-ESPIPE`.
+ */
+long long int tty_llseek(inode_t* i, long long int offset);
+
+/**
  * Runs canonical mode processing on input data, applying termios config updates
  */
 void tty_cook_input(tty_t* tty);
@@ -527,9 +501,32 @@ int tty_read(inode_t* i, fd_t* fd_table, char* buffer, size_t count);
 int tty_write(inode_t* i, fd_t* fd_table, const char* buffer, size_t count);
 
 /**
+ * Opens a tty on the given inode's attached device.
+ * Attaches the tty to the current process if that process is the session leader, does not already
+ * have a controlling tty, does not have a session id, and `O_NOCTTY` is not set.
+ *
+ * Returns 0 if successful or an errno.
+ */
+int tty_open(inode_t* i, fd_t* fd_table);
+
+/**
+ * Closes the tty on the given inode's attached device.
+ * Remove this as controlling tty on all processes, if applicable.
+ *
+ * Returns 0 if successful or an errno.
+ */
+int tty_close(inode_t* i, fd_t* fd_table);
+
+/**
  * Retrieves the TTY attached to the device with the given device number
  */
 tty_t* tty_get(deviceno_t devnum);
+
+/**
+ * Performs a get_tty check on the device attached to the given inode. Returns a retval indicating
+ * whether that tty exists under valid conditions.
+ */
+retval_t tty_select(inode_t* i, fs_tty_select_flag flag);
 
 /**
  * Registers a new TTY in the TTY table

@@ -1,8 +1,8 @@
 #ifndef INTERRUPT_IRQ_H
 #define INTERRUPT_IRQ_H
 
-#include "interrupt/signal.h"
 #include "lib/types.h"
+#include "proc/signal.h"
 
 #define NUM_IRQS      16
 #define IRQ_BH_ACTIVE 0x01

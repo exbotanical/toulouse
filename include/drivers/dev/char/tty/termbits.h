@@ -146,4 +146,21 @@ typedef int speed_t;
 #define VLNEXT   15 /* Literal-next character [IEXTEN] */
 #define VEOL2    16 /* Second EOL character [ICANON] */
 
-#endif              /* DRIVER_DEV_CHAR_TERMBITS_H */
+/* tcflow actions */
+typedef enum {
+  TCFLOW_ACT_OOFF = 0, /* Suspend output */
+  TCFLOW_ACT_OON  = 1, /* Restart suspended output */
+  TCFLOW_ACT_IOFF = 2, /* Send a STOP character */
+  TCFLOW_ACT_ION  = 3, /* Send a START character */
+} tcflow_action;
+
+/* Values for the QUEUE_SELECTOR argument to `tcflush'.  */
+
+/* tcflush queue selectors */
+typedef enum {
+  TCFLUSH_QSEL_TCIFLUSH  = 0, /* Discard data received but not yet read */
+  TCFLUSH_QSEL_TCOFLUSH  = 1, /* Discard data written but not yet sent */
+  TCFLUSH_QSEL_TCIOFLUSH = 2, /* Discard all pending data */
+} tcflush_qsel;
+
+#endif                        /* DRIVER_DEV_CHAR_TERMBITS_H */

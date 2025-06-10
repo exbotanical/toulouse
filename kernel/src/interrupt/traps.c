@@ -14,6 +14,7 @@
     kpanic("%s", "Failed to dump registers");          \
   }
 
+// TODO: Finish impl
 trap_t traps_table[NUM_EXCEPTIONS] = {
   {"Division By Zero",                      trap_divide_error,                0},
   {"Debug",                                 trap_debug,                       0},

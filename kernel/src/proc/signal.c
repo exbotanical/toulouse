@@ -1,11 +1,77 @@
-#include "interrupt/signal.h"
+#include "proc/signal.h"
 
 #include "lib/compiler.h"
+#include "lib/errno.h"
 #include "proc/proc.h"
 
 void
 sig_handle (void) {
   // TODO:
+}
+
+int
+sig_kill_pid (pid_t pid, sig_set_t signum, int sender) {
+  // TODO: FIX LOOPS
+  proc_t* p = proc_list_head->next;
+  while (p) {
+    if (p->pid == pid && p->state != PROC_ZOMBLEY) {
+      if (sender == SIGSENDER_USER) {
+        if (!sig_can_send(p)) {
+          return -EPERM;
+        }
+      }
+      return sig_send(p, signum);
+    }
+
+    p = p->next;
+  }
+}
+
+int
+sig_kill_pgrp (pid_t pgid, sig_set_t signum, int sender) {
+  int    found = 0;
+  proc_t p     = proc_list_head->next;
+  while (p) {
+    if (p->pgid == pgid && p->state != PROC_ZOMBLEY) {
+      if (sender == SIGSENDER_USER) {
+        if (!sig_can_send(p)) {
+          p = p->next;
+          continue;
+        }
+      }
+
+      sig_send(p, signum);
+      found = 1;
+    }
+
+    p = p->next;
+  }
+
+  if (!found) {
+    return -ESRCH;
+  }
+
+  return 0;
+}
+
+int
+sig_send (proc_t* p, sig_set_t signum) {
+  if (signum > NUM_SIGNALS || !p) {
+    return -EINVAL;
+  }
+
+  // Kernel processes cannot receive signals
+  if (p->flags & PROC_FLAG_KPROC) {
+    return 0;
+  }
+
+  switch (signum) {
+    case /* constant-expression */:
+      /* code */
+      break;
+
+    default: break;
+  }
 }
 
 overridable int

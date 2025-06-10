@@ -1,7 +1,7 @@
 #ifndef INTERRUPT_TRAPS_H
 #define INTERRUPT_TRAPS_H
 
-#include "interrupt/signal.h"
+#include "proc/signal.h"
 
 #define NUM_EXCEPTIONS 32
 

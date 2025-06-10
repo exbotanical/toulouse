@@ -24,7 +24,7 @@ typedef struct {
   unsigned short int c_lflag;              /* Local mode flags */
   unsigned char      c_line;               /* Line discipline */
   unsigned char      c_cc[NUM_CTRL_CHARS]; /* Control characters */
-} legacy_termios_t;
+} termio_t;
 
 /**
  * New terminal control structure.
@@ -40,8 +40,18 @@ typedef struct {
 } termios_t;
 
 /**
+ * Converts a given termios into a termio (stored in a given pointer)
+ */
+void termios_to_termio(termios_t *termios, termio_t *termio);
+
+/**
+ * Converts a given termio into a termios (stored in a given pointer)
+ */
+void termio_to_termios(termio_t *termio, termios_t *termios);
+
+/**
  * Resets the termios structure on the given tty instance to defaults
  */
-void termios_reset(struct tty* tty);
+void termios_reset(struct tty *tty);
 
 #endif /* DRIVER_DEV_CHAR_TERMIOS_H */

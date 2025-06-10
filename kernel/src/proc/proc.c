@@ -2,6 +2,7 @@
 
 #include "arch/interrupt.h"
 #include "lib/compiler.h"
+#include "lib/errno.h"
 #include "lib/string.h"
 #include "mem/alloc.h"
 #include "mem/base.h"

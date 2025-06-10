@@ -50,6 +50,21 @@ reset_mocks (void) {
   mock_eflags        = FAKE_EFLAGS_VAL;
 }
 
+retval_t
+lock_area (unsigned int type) {}
+
+retval_t
+unlock_area (unsigned int type) {}
+
+void
+irq_bottom_half_register (int *new) {}
+
+retval_t
+irq_register (int irq_num, int *interrupt) {}
+
+void
+irq_enable (int irq_num) {}
+
 #include <pthread.h>  // Must come later to avoid typedef collissions
 
 #endif                /* MOCKS_H */

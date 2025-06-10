@@ -7,22 +7,16 @@
 /**
  * VGA text mode
  */
-#define VIDEO_MODE_VGA_TXT           0x01
+#define VIDEO_MODE_VGA_TXT      0x01
 
 /**
  * x86 framebuffer
  */
-#define VIDEO_MODE_VESAFB            0x02
+#define VIDEO_MODE_VESAFB       0x02
 
-/**
- * Maximum number of screens worth of scrollback buffer
- * that we keep at any given moment in time
- */
-#define VIDEO_MAX_SCROLLBACK_SCREENS 6
+#define VIDEO_CONS_DEFAULT_COLS 80
 
-#define VIDEO_CONS_DEFAULT_COLS      80
-
-#define VIDEO_CONS_DEFAULT_ROWS      25
+#define VIDEO_CONS_DEFAULT_ROWS 25
 
 /**
  * Video device properties. Many of these are typically derived from multiboot info passed by the
@@ -36,9 +30,8 @@ typedef struct {
   int           port;
   int           memsize;
   unsigned char signature[32];
-  int           lines;
-  int           columns;
   int           rows;
+  int           columns;
   int           buf_y;
   int           buf_top;
   int           version;
@@ -76,7 +69,13 @@ typedef struct {
 } video_props_t;
 
 extern video_props_t video;
-extern short int    *video_scrollback_history_buffer;
+
+/**
+ * This buffer is used only in the active vconsole. Every time a vconsole is switched, the screen
+ * contents of the new vconsole are copied back to this buffer.
+ * Only the visible screen is copied; switching vconsoles means losing the scrollback history.
+ */
+extern short int *vconsole_scrollback_history_buffer;
 
 static inline bool
 video_using_vga (void) {

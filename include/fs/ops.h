@@ -7,6 +7,7 @@
 #include "fs/stat.h"
 #include "lib/types.h"
 #include "proc/proc.h"
+#include "proc/vma.h"
 
 typedef struct {
   int flags;
@@ -21,7 +22,7 @@ typedef struct {
   long long int (*llseek)(inode_t *, long long int);
   int (*readdir)(inode_t *, fd_t *, dirent_t *, size_t);
   int (*readdir64)(inode_t *, fd_t *, dirent64_t *, size_t);
-  int (*mmap)(inode_t *, vma_t *);
+  int (*mmap)(inode_t *, vm_area_t *);
   int (*select)(inode_t *, int);
 
   /* inode operations */

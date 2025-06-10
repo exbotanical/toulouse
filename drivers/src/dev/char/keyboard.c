@@ -575,7 +575,7 @@ keyboard_bh_irq (sig_context_t* sc) {
 
   tty = &tty_table[0];
   // TODO: fix
-  for (unsigned int i = 0; i < NUM_CONSOLES; i++, tty++) {
+  for (unsigned int i = 0; i < NUM_VCONSOLES; i++, tty++) {
     if (!tty->read_q.size) {
       continue;
     }

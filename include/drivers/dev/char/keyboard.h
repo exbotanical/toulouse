@@ -1,7 +1,7 @@
 #ifndef DRIVER_DEV_CHAR_KEYBOARD_H
 #define DRIVER_DEV_CHAR_KEYBOARD_H
 
-#include "interrupt/signal.h"
+#include "proc/signal.h"
 
 #define KEYBOARD_IRQ  1
 

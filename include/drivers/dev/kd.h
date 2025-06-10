@@ -8,4 +8,10 @@
 #define KD_TEXT0    0x02 /* obsolete */
 #define KD_TEXT1    0x03 /* obsolete */
 
-#endif                   /* DRIVERS_DEV_KD_H */
+typedef struct {
+  unsigned char      kb_table;
+  unsigned char      kb_index;
+  unsigned short int kb_value;
+} kbentry_t;
+
+#endif /* DRIVERS_DEV_KD_H */

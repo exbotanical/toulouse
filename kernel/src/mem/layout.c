@@ -106,17 +106,16 @@ mem_init (void) {
 
   proc_list_size         = mem_assign(sizeof(proc_t) * NUM_PROCS, (void **)&proc_list, "proc_list");
 
-  video_scrollback_history_buffer = (short int *)real_last_addr;
-  real_last_addr
-    += (video.columns * video.lines * VIDEO_MAX_SCROLLBACK_SCREENS * 2 * sizeof(short int));
+  vconsole_scrollback_history_buffer = (short int *)real_last_addr;
+  real_last_addr  += (video.columns * video.rows * MAX_SCROLLBACK_SCREENS * 2 * sizeof(short int));
 
   // The last thing must be the page table structure itself...
-  unsigned int n  = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
+  unsigned int n   = (kstat.physical_pages * PAGE_HASH_PER_10K) / 10000;
   // 1 page for the hash table as minimum
-  n               = max(n, 1);
-  n               = min(n, MAX_PAGES_HASH);
+  n                = max(n, 1);
+  n                = min(n, MAX_PAGES_HASH);
 
-  page_cache_size = mem_assign(n * PAGE_SIZE, (void **)&page_cache, "page_cache");
+  page_cache_size  = mem_assign(n * PAGE_SIZE, (void **)&page_cache, "page_cache");
 
   free_page_list_size
     = mem_assign(kstat.physical_pages * sizeof(page_t), (void **)&free_page_list, "free_page_list");

@@ -35,6 +35,7 @@ static const char *iso8859 = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
                              "\205\240\203\376\204\206\221\207\212\202\210\211\215\241\214\213"
                              "\376\244\225\242\223\376\224\366\355\227\243\226\201\376\376\230";
 
+// TODO: generic
 static bool
 vga_console_has_focus (vconsole_t *vc) {
   return vc->flags & CONSOLE_HAS_FOCUS;
@@ -111,8 +112,8 @@ vga_put_char (vconsole_t *vc, unsigned char c) {
   back_buffer[next_index] = next_value;
 
   if (vga_console_has_focus(vc)) {
-    main_buffer[next_index]                                              = next_value;
-    video_scrollback_history_buffer[(video.buf_y * vc->columns) + vc->x] = next_value;
+    main_buffer[next_index]                                                 = next_value;
+    vconsole_scrollback_history_buffer[(video.buf_y * vc->columns) + vc->x] = next_value;
   }
 }
 
@@ -349,5 +350,5 @@ vga_init (void) {
   // video.buf_scroll        = vga_buf_scroll;
   // video.cursor_blink      = vga_cursor_blink;
 
-  kmemcpy(video_scrollback_history_buffer, video.address, CONSOLE_SIZE);
+  kmemcpy(vconsole_scrollback_history_buffer, video.address, CONSOLE_SIZE * 2);
 }
